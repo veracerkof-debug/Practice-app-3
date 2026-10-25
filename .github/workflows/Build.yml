@@ -5,6 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,17 +18,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Install Dependencies & Build Web
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Initialize Capacitor & Sync Android
@@ -35,6 +36,15 @@ jobs:
           npx cap init Melete com.melete.app --web-dir dist || true
           npx cap add android || true
           npx cap sync android
+
+      - name: Register as home-screen launcher
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          if ! grep -q 'category.HOME' "$M"; then
+            sed -i 's#<category android:name="android.intent.category.LAUNCHER" />#<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.HOME" />\n                <category android:name="android.intent.category.DEFAULT" />#' "$M"
+            sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />#' "$M"
+          fi
+          grep -q 'category.HOME' "$M"
 
       - name: Build Debug APK with Gradle
         run: |
