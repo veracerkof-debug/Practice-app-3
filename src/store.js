@@ -42,8 +42,10 @@ export const DEFAULTS = {
   ornament: 'none',          // фоновый символ, см. ORNAMENTS
   wallpaper: 'none',         // живые обои: none | hands | planet | sun
   intro: true,
-  dockStyle: 'pill',         // pill | line | none
-  dockCaption: true,
+  dockStyle: 'icons',        // icons | line | none
+  player: true,              // строка плеера над значками (Android)
+  tracker: true,             // трекер чтения и практики (Melete)
+  place: null,               // { lat, lon } для восхода и заката
   apps: DEFAULT_APPS,
   home: [
     { app: 'bible', label: 'book · βίβλος' },
@@ -86,6 +88,7 @@ function load() {
       if (!raw) return clone(DEFAULTS);
       saved = { ...JSON.parse(raw), ornament: 'none' };
     }
+    if (saved.dockStyle === 'pill') saved.dockStyle = 'icons'; // капсулы больше нет
     return { ...clone(DEFAULTS), ...saved, gestures: { ...clone(DEFAULTS.gestures), ...(saved.gestures || {}) } };
   } catch {
     return clone(DEFAULTS);

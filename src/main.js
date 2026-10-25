@@ -12,20 +12,26 @@ import '@fontsource/jetbrains-mono/400.css';
 import './style.css';
 
 import { state, set, subscribe } from './store.js';
-import { mountHome, renderHome, renderSubline, currentVerse, refreshMarkers } from './home.js';
+import { mountHome, renderHome, renderSubline, currentVerse, refreshMarkers, renderPlayer } from './home.js';
 import { attachGestures } from './gestures.js';
 import { mountDrawer, openDrawer, closeDrawer, drawerOpen, typeIntoSearch } from './drawer.js';
 import { openSettings, editHomeItem, editDockSlot, THEMES } from './settings.js';
-import { registerCommand, runAction, setToast } from './actions.js';
+import { registerCommand, runAction, setToast, openUrl } from './actions.js';
 import { CLOCKS } from './clocks.js';
 import { VERSES } from './scripture.js';
 import { iconSVG } from './icons.js';
 import { mountWallpaper } from './wallpapers.js';
 import { h, toast, openSheet, sheetOpen, closeTopSheet } from './ui.js';
+import { startNowPlaying, onNowPlaying } from './nowplaying.js';
+import { refreshMelete } from './tracker.js';
+import { openTrackerSheet } from './trackersheet.js';
+import { verseLinks } from './explain.js';
 
 const app = document.querySelector('#app');
 const home = h('main', { class: 'home' });
 app.append(home);
+// фокус в поле ввода может прокрутить контейнер с overflow: hidden — возвращаем на место
+app.addEventListener('scroll', () => { app.scrollTop = 0; app.scrollLeft = 0; });
 
 // — Тема и шрифт —
 const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -80,6 +86,7 @@ function openVerse() {
           h('p', { class: 'v-ru' }, v.ru),
           h('p', { class: 'v-en', lang: 'en' }, v.en),
           h('div', { class: 'v-ref' }, `${v.ref.ru} · ${v.ref.en}`)),
+        h('div', { class: 'ex-links' }, ...verseLinks(v).map((l) => h('button', { class: 'ex-link', onclick: () => openUrl(l.url, l.ru) }, h('span', {}, l.ru), h('small', {}, l.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])))),
         h('div', { class: 'btn-row' },
           h('button', { class: 'btn', onclick: () => { set({ verseOffset: state.verseOffset - 1 }); renderHome(); rerender(); } }, '←'),
           h('button', { class: 'btn', onclick: () => { set({ verseOffset: 0 }); renderHome(); rerender(); } }, 'сегодня'),
@@ -128,7 +135,16 @@ mountHome(home, {
   onAppLongPress: (i) => editHomeItem(i, null, refresh),
   onDockLongPress: (i) => editDockSlot(i, refresh),
   onVerseTap: openVerse,
+  onTrackerSetup: () => openTrackerSheet(renderHome),
 });
+
+// плеер и Melete (Android): опрос состояния, свежие данные при возвращении на экран
+onNowPlaying(renderPlayer);
+startNowPlaying();
+const syncMelete = () => refreshMelete().then((changed) => { if (changed) renderHome(); });
+syncMelete();
+setInterval(() => { if (!document.hidden) syncMelete(); }, 5 * 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMelete(); });
 mountDrawer(app, { onChange: renderHome });
 
 const blocked = () => sheetOpen() || drawerOpen() || !!sabbath;

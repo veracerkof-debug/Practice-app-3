@@ -1,5 +1,6 @@
 // Виды часов. Каждый рендерит HTML по текущему времени.
 import { greekNumeral, romanNumeral, numberWords } from './scripture.js';
+import { biblicalTime, placeOf, HOUR_NAMES } from './sun.js';
 
 export const CLOCKS = [
   { id: 'tablet', ru: 'Скрижаль', el: 'πλάξ' },
@@ -12,6 +13,7 @@ export const CLOCKS = [
   { id: 'scroll', ru: 'Свиток', el: 'κύλινδρος' },
   { id: 'letters', ru: 'Письмена', el: 'γράμματα' },
   { id: 'mosaic', ru: 'Мозаика', el: 'ψηφιδωτόν' },
+  { id: 'biblical', ru: 'Ветхозаветные', el: 'עֵת' },
   { id: 'none', ru: 'Без часов', el: 'σιγή' },
 ];
 
@@ -194,6 +196,30 @@ function mosaic(date, s, prev) {
     ${digit(now[2], before[2])}${digit(now[3], before[3])}</div>`;
 }
 
+// — Ветхозаветные: сутки от заката до заката — три стражи ночи и двенадцать часов дня.
+const hhmm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+function biblical(date, s) {
+  const b = biblicalTime(date, placeOf(s));
+  const dayLen = b.set - b.rise;
+  const nightLen = 864e5 - dayLen;
+  const cur = b.isDay ? 3 + b.hour - 1 : b.watch;
+  let segs = '';
+  for (let i = 0; i < 15; i++) {
+    const night = i < 3;
+    const grow = (night ? nightLen / 3 : dayLen / 12) / 36e5;
+    const state = i < cur ? 'past' : i === cur ? 'now' : '';
+    const fill = i === cur ? `<u style="width:${(((b.frac * (b.isDay ? 12 : 3)) % 1) * 100).toFixed(1)}%"></u>` : '';
+    segs += `<i class="${night ? 'n' : 'd'} ${state}" style="flex-grow:${grow.toFixed(3)}">${fill}</i>`;
+  }
+  const main = b.isDay ? `Час ${HOUR_NAMES[b.hour - 1]}` : b.part.ru;
+  return `<div class="ck-bib" role="img" aria-label="${main}">
+    <div class="bib-main">${main}</div>
+    <div class="bib-bar">${segs}</div>
+    <div class="bib-times"><span>☾ ${hhmm(b.set)}</span><span style="left:${((nightLen / 864e5) * 100).toFixed(1)}%">☀ ${hhmm(b.rise)}</span><span>☾ ${hhmm(b.set)}</span></div>
+    <div class="bib-sub">${b.weekday} · ${b.hebrew}</div></div>`;
+}
+
 const renderers = {
   tablet(date, s, prev) {
     const [h, m] = hm(date, s.hour12);
@@ -263,6 +289,7 @@ const renderers = {
   scroll,
   letters,
   mosaic,
+  biblical,
   none: () => '',
 };
 

@@ -1,11 +1,17 @@
-// Главный экран: статус, часы, дата, строка стиха, список приложений, панель значков.
+// Главный экран: статус, часы, дата, строка стиха, список приложений, трекер, плеер, значки.
 import { state, appById } from './store.js';
 import { renderClock, clockKey, afterClockRender } from './clocks.js';
 import { VERSES, verseOfDay, canonicalHour, GREEK_WEEKDAYS, greekNumeral, romanNumeral } from './scripture.js';
 import { iconSVG, ORNAMENTS } from './icons.js';
 import { SLOT_HEIGHT } from './wallpapers.js';
 import { h } from './ui.js';
-import { openApp, runAction } from './actions.js';
+import { openApp, openUrl, runAction } from './actions.js';
+import { explain, canonicalEntry, biblicalEntry, greekWeekEntry } from './explain.js';
+import { biblicalTime, placeOf } from './sun.js';
+import { nowPlaying, togglePlayback, openMediaAccess } from './nowplaying.js';
+import { isNative } from './native.js';
+import { trackerData } from './tracker.js';
+import { MELETE_PACKAGE, fmtDur } from './melete.js';
 
 let root;
 let lastKey = null;
@@ -16,9 +22,9 @@ let battery = null;
 
 export const currentVerse = () => VERSES[verseOfDay(new Date(), state.verseOffset)];
 
-export function mountHome(el, { onAppLongPress, onDockLongPress, onVerseTap }) {
+export function mountHome(el, { onAppLongPress, onDockLongPress, onVerseTap, onTrackerSetup }) {
   root = el;
-  root.handlers = { onAppLongPress, onDockLongPress, onVerseTap };
+  root.handlers = { onAppLongPress, onDockLongPress, onVerseTap, onTrackerSetup };
   if (navigator.getBattery) {
     navigator.getBattery().then((b) => {
       battery = b;
@@ -62,6 +68,9 @@ function updateClock(now, force = false) {
     lastDay = day;
     renderSubline();
   }
+  // трекер пересчитываем раз в минуту: смена дня плана, новая неделя
+  const tr = root.querySelector('.tracker');
+  if (tr) tr.replaceWith(renderTracker() || h('div'));
 }
 
 function renderStatus() {
@@ -84,16 +93,31 @@ function renderDate(now) {
   const weekday = new Intl.DateTimeFormat(loc, { weekday: 'long' }).format(now);
   const dm = new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'long' }).format(now);
   const echo = state.greekEcho && lang !== 'el' ? GREEK_WEEKDAYS[now.getDay()] : '';
-  el.querySelector('.weekday').innerHTML = `<span>${weekday}</span>${echo ? `<em lang="el">${echo}</em>` : ''}`;
+  const wd = el.querySelector('.weekday');
+  wd.replaceChildren(h('span', {}, weekday));
+  if (echo) {
+    // греческое название дня — нажатие объясняет, что оно значит
+    const day = now.getDay();
+    wd.append(h('button', { class: 'echo', lang: 'el', onclick: (e) => { e.stopPropagation(); explain(greekWeekEntry(day)); } }, echo));
+  }
   const big = el.querySelector('.daymonth');
   big.textContent = dm;
   big.lang = lang;
   fitText(big);
   const ch = root.querySelector('.canonical');
   if (ch) {
-    const c = canonicalHour(now.getHours());
-    ch.hidden = !state.canonical;
-    ch.innerHTML = `<span lang="el">${c.el}</span> · ${c.ru}`;
+    if (state.clock === 'biblical') {
+      // для ветхозаветных часов — часть дня словами Писания
+      const b = biblicalTime(now, placeOf(state));
+      ch.hidden = false;
+      ch.replaceChildren(h('span', {}, b.part.ru), ` · ${b.prayer ? b.prayer.ru : b.part.ref}`);
+      ch.onclick = (e) => { e.stopPropagation(); explain(biblicalEntry(biblicalTime(new Date(), placeOf(state)), placeOf(state))); };
+    } else {
+      const c = canonicalHour(now.getHours());
+      ch.hidden = !state.canonical;
+      ch.replaceChildren(h('span', { lang: 'el' }, c.el), ` · ${c.ru}`);
+      ch.onclick = (e) => { e.stopPropagation(); explain(canonicalEntry(new Date())); };
+    }
   }
 }
 
@@ -141,17 +165,20 @@ export function renderHome() {
   root.replaceChildren(...[
     orn?.icon ? h('div', { class: `ornament orn-${state.ornament}`, 'aria-hidden': 'true', html: iconSVG(orn.icon) }) : null,
     h('div', { class: 'status', 'aria-label': 'Статус' }),
-    h('div', { class: 'clock-wrap', onclick: tapAction('clockTap') }, h('div', { class: 'clock' }), h('div', { class: 'canonical' })),
+    h('div', { class: 'clock-wrap', onclick: tapAction('clockTap') }, h('div', { class: 'clock' }), h('button', { class: 'canonical' })),
     h('div', { class: 'date', onclick: tapAction('dateTap') }, h('div', { class: 'weekday' }), h('div', { class: 'daymonth' })),
     h('button', { class: 'subline', onclick: (e) => { e.stopPropagation(); root.handlers.onVerseTap(); } }),
     renderList(),
     h('div', { class: 'spacer' }),
+    renderTracker(),
+    h('div', { class: 'player', hidden: true }),
     renderDock(),
   ].filter(Boolean));
   lastKey = null;
   renderStatus();
   updateClock(new Date(), true);
   renderSubline();
+  renderPlayer();
 }
 
 // нажатие на часы / дату (как в Olauncher: часы → будильник, дата → календарь)
@@ -182,20 +209,69 @@ function renderList() {
 
 function renderDock() {
   if (state.dockStyle === 'none' || !state.dock.length) return h('div', { class: 'dock-gap' });
-  const v = currentVerse();
+  // только значки: без капсулы и подписей
   const dock = h('div', { class: `dock dock-${state.dockStyle}` });
-  if (state.dockCaption && state.dockStyle === 'pill' && state.dock.length <= 3) {
-    dock.append(h('div', { class: 'dock-cap' }, h('b', { lang: 'el' }, v.el.split(/[,.·;]/)[0]), h('small', {}, v.ref[state.verseLang] || v.ref.ru)));
-  }
-  const icons = h('div', { class: 'dock-icons' });
   state.dock.forEach((slot, i) => {
     const b = h('button', { class: 'dock-btn', 'aria-label': `Слот ${i + 1}`, html: iconSVG(slot.icon) });
     b.addEventListener('click', () => { if (!b.dataset.suppress) runAction(slot.action); });
     b.longPress = () => root.handlers.onDockLongPress(i);
-    icons.append(b);
+    dock.append(b);
   });
-  dock.append(icons);
   return dock;
+}
+
+// — Строка плеера: что играет и пауза —
+const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
+const PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5.5" width="3.4" height="13" rx="1"/><rect x="13.6" y="5.5" width="3.4" height="13" rx="1"/></svg>';
+
+export function renderPlayer() {
+  const el = root?.querySelector('.player');
+  if (!el) return;
+  const m = nowPlaying();
+  el.replaceChildren();
+  if (!state.player || !isNative()) { el.hidden = true; return; }
+  if (m.access === false) {
+    // доступа к медиасессиям ещё нет — одна строка-приглашение
+    el.hidden = false;
+    el.append(h('button', { class: 'pl-info pl-ask', onclick: openMediaAccess }, h('span', {}, 'Плеер · разрешить доступ к уведомлениям')));
+    return;
+  }
+  if (!m.active || (!m.title && !m.app)) { el.hidden = true; return; }
+  el.hidden = false;
+  const btn = h('button', { class: `pl-btn ${m.playing ? 'on' : ''}`, 'aria-label': m.playing ? 'Пауза' : 'Играть', html: m.playing ? PAUSE : PLAY, onclick: togglePlayback });
+  const text = [m.title, m.artist].filter(Boolean).join(' — ') || m.app;
+  const info = h('button', { class: 'pl-info', onclick: () => m.pkg && openApp({ id: '_media', name: m.app || m.pkg, pkg: m.pkg }) },
+    h('span', { class: 'pl-t' }, text), m.app ? h('small', {}, m.app) : null);
+  el.append(btn, info);
+}
+
+// — Трекер: чтение Библии и практика из Melete —
+function renderTracker() {
+  if (!state.tracker) return null;
+  const t = trackerData();
+  const wrap = h('div', { class: 'tracker' });
+  const openMelete = () => (isNative()
+    ? openApp({ id: '_melete', name: 'Melete', pkg: MELETE_PACKAGE, url: '' })
+    : openUrl('https://veracerkof-debug.github.io/melete-app/', 'Melete'));
+  const row = (k, v, m, frac, onclick) => {
+    const r = h('button', { class: 'tr-row', onclick: (e) => { if (!e.currentTarget.dataset.suppress) onclick(); } },
+      h('span', { class: 'tr-k' }, k), h('span', { class: 'tr-v' }, v), h('span', { class: 'tr-m' }, m),
+      frac != null ? h('i', { class: 'tr-bar' }, h('u', { style: { width: `${Math.min(100, frac * 100).toFixed(0)}%` } })) : null);
+    r.longPress = () => root.handlers.onTrackerSetup();
+    return r;
+  };
+  if (!t) {
+    wrap.append(row('Чтение · практика', 'подключить Melete', '', null, () => root.handlers.onTrackerSetup()));
+    return wrap;
+  }
+  const rd = t.reading;
+  if (!rd) wrap.append(row('Чтение', 'план не выбран', 'в Melete', null, openMelete));
+  else if (rd.finished) wrap.append(row('Чтение', rd.plan, 'план прочитан', 1, openMelete));
+  else if (rd.day < 1) wrap.append(row('Чтение', rd.plan, 'ещё не начат', 0, openMelete));
+  else wrap.append(row('Чтение', rd.ref, `${rd.done}/${rd.total} · день ${rd.day}`, rd.total ? rd.done / rd.total : 0, openMelete));
+  const p = t.practice;
+  wrap.append(row('Практика', fmtDur(p.total), `из ${fmtDur(p.goal)} · неделя`, p.progress, openMelete));
+  return wrap;
 }
 
 export function refreshMarkers() {

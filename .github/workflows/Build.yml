@@ -33,18 +33,11 @@ jobs:
 
       - name: Initialize Capacitor & Sync Android
         run: |
-          npx cap init Launcher com.minimal.launcher --web-dir dist || true
           npx cap add android || true
           npx cap sync android
 
-      - name: Register as home-screen launcher
-        run: |
-          M=android/app/src/main/AndroidManifest.xml
-          if ! grep -q 'category.HOME' "$M"; then
-            sed -i 's#<category android:name="android.intent.category.LAUNCHER" />#<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.HOME" />\n                <category android:name="android.intent.category.DEFAULT" />#' "$M"
-            sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />#' "$M"
-          fi
-          grep -q 'category.HOME' "$M"
+      - name: Set up launcher (native plugin, home screen, media listener)
+        run: bash scripts/android-setup.sh
 
       - name: Build Debug APK with Gradle
         run: |

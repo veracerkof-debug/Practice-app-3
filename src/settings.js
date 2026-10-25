@@ -7,6 +7,12 @@ import { GESTURES } from './gestures.js';
 import { describeAction } from './actions.js';
 import { pickIcon, pickAction } from './pickers.js';
 import { h, openSheet, segmented, toggle, field, section, toast } from './ui.js';
+import { infoLink, CLOCK_INFO, WALL_INFO, ORNAMENT_LINKS, markerEntry, verseLinks } from './explain.js';
+import { placeOf } from './sun.js';
+import { isNative } from './native.js';
+import { openMediaAccess } from './nowplaying.js';
+import { openTrackerSheet } from './trackersheet.js';
+import { VERSES } from './scripture.js';
 
 export const THEMES = [
   { value: 'light', label: 'Свет' },
@@ -40,8 +46,15 @@ export function openSettings(onChange) {
         onclick: keepScroll(() => up({ clock: c.id })),
       }, h('div', { class: 'clock-mini clock', 'data-style': c.id, html: renderClock(c.id, now, state) }),
       h('span', {}, c.ru), h('small', { lang: 'el' }, c.el))));
+      const info = CLOCK_INFO[state.clock];
+      const place = placeOf(state);
       body.append(section('Часы', 'ὡρολόγιον',
         clocks,
+        info ? h('p', { class: 'hint' }, info.text, ' ', info.links.length ? infoLink({ kicker: 'ὡρολόγιον', title: CLOCKS.find((c) => c.id === state.clock).ru, text: [info.text], links: info.links }, 'ссылки') : null) : null,
+        state.clock === 'biblical' ? h('div', { class: 'row place-row' },
+          h('span', { class: 'row-main' }, h('span', {}, 'Место для восхода и заката'),
+            h('small', {}, place.approx ? 'примерно, по часовому поясу' : `${place.lat.toFixed(2)}°, ${place.lon.toFixed(2)}°`)),
+          h('button', { class: 'btn', onclick: () => locate(up) }, place.approx ? 'Определить' : 'Обновить')) : null,
         toggle('12-часовой формат', state.hour12, (v) => up({ hour12: v })),
         toggle('Литургический час', state.canonical, (v) => up({ canonical: v }), 'Утреня, Час третий, Вечерня…'),
       ));
@@ -59,7 +72,7 @@ export function openSettings(onChange) {
       const cur = WALLPAPERS.find((wp) => wp.id === state.wallpaper);
       body.append(section('Живые обои', 'εἰκὼν ζῶσα',
         walls,
-        cur?.hint ? h('p', { class: 'hint' }, cur.hint) : null,
+        cur?.hint ? h('p', { class: 'hint' }, cur.hint, ' ', WALL_INFO[cur.id]?.links.length ? infoLink({ kicker: 'εἰκὼν ζῶσα', title: cur.ru, text: [cur.hint], links: WALL_INFO[cur.id].links }, 'ссылки') : null) : null,
         state.wallpaper !== 'none' ? toggle('Обои вместо часов', state.clock === 'none', (v) => up({ clock: v ? 'none' : 'tablet' }),
           'Часы скрываются, обои встают на их место и показывают время. Иначе обои лежат бледно за экраном.') : null,
       ));
@@ -81,13 +94,14 @@ export function openSettings(onChange) {
         h('div', { class: 'set-label' }, 'Шрифт'),
         fonts,
         h('div', { class: 'set-label' }, 'Символ на фоне'),
-        h('p', { class: 'hint' }, 'Большой бледный символ за часами. Например, колесо ΙΧΘΥΣ — раннехристианский знак: буквы слова «рыба» (Иисус Христос, Божий Сын, Спаситель), наложенные друг на друга.'),
+        h('p', { class: 'hint' }, 'Большой бледный символ за часами. Например, колесо ΙΧΘΥΣ — раннехристианский знак: буквы слова «рыба» (Иисус Христос, Божий Сын, Спаситель), наложенные друг на друга. ',
+          infoLink({ kicker: 'σύμβολα', title: 'Символы на фоне', text: ['ΙΧΘΥΣ (ихтис, «рыба») — акроним: Ἰησοῦς Χριστὸς Θεοῦ Υἱὸς Σωτήρ, «Иисус Христос, Божий Сын, Спаситель». Колесо получается, если наложить буквы друг на друга.', 'Хризма ☧ — монограмма из первых букв имени Христа: Χ и Ρ.', 'Альфа и Омега — «Я есмь Альфа и Омега, начало и конец» (Откр 22:13).'], links: [...ORNAMENT_LINKS, { ru: 'Откр 22:13', url: 'https://azbyka.ru/biblia/?Apok.22:13' }] }, 'подробнее')),
         orns,
         h('div', { class: 'set-label' }, 'Выравнивание списка'),
         segmented([{ value: 'left', label: 'Слева' }, { value: 'center', label: 'Центр' }, { value: 'right', label: 'Справа' }], state.align, (v) => up({ align: v })),
         h('div', { class: 'set-label' }, 'Размер названий'),
         segmented([{ value: 's', label: 'S' }, { value: 'm', label: 'M' }, { value: 'l', label: 'L' }], state.size, (v) => up({ size: v })),
-        h('div', { class: 'set-label' }, 'Метка у названия'),
+        h('div', { class: 'set-label' }, 'Метка у названия ', infoLink(markerEntry)),
         segmented([{ value: 'greek', label: 'αʹ βʹ' }, { value: 'roman', label: 'I II' }, { value: 'count', label: '×счёт' }, { value: 'none', label: 'Нет' }], state.marker, (v) => up({ marker: v })),
         toggle('Строка статуса', state.showStatus, (v) => up({ showStatus: v }), 'Сеть и батарея'),
         toggle('Вступление «Да будет свет»', state.intro, (v) => up({ intro: v }), 'Анимация при запуске'),
@@ -101,7 +115,7 @@ export function openSettings(onChange) {
         h('div', { class: 'set-label' }, 'Строка под датой'),
         segmented([{ value: 'verse', label: 'Стих' }, { value: 'hour', label: 'Койне' }, { value: 'note', label: 'Заметка' }, { value: 'none', label: 'Нет' }], state.subline, (v) => up({ subline: v })),
         state.subline === 'note' ? field('Заметка', state.note, (v) => { state.note = v; save(); changed(); }, { placeholder: '21:00 · пройти урок' }) : null,
-        h('div', { class: 'set-label' }, 'Перевод стихов'),
+        h('div', { class: 'set-label' }, 'Перевод стихов ', infoLink(() => ({ kicker: 'μεταφράσεις', title: 'Переводы', text: ['Стих показан на греческом оригинале: Новый Завет — на койне, Ветхий — по Септуагинте, греческому переводу, которым пользовались апостолы. Перевод — Синодальный (русский, XIX век) или KJV (английский, 1611). Псалмы нумеруются по Септуагинте, поэтому в Синодальном номер на единицу меньше, чем в KJV.'], links: verseLinks(VERSES[0]).slice(1) }))),
         segmented([{ value: 'ru', label: 'Синодальный' }, { value: 'en', label: 'KJV' }], state.verseLang, (v) => up({ verseLang: v })),
       ));
 
@@ -139,13 +153,20 @@ export function openSettings(onChange) {
         ));
       });
       body.append(section('Панель значков', 'εἰκόνες',
-        segmented([{ value: 'pill', label: 'Капсула' }, { value: 'line', label: 'Линия' }, { value: 'none', label: 'Скрыть' }], state.dockStyle, (v) => up({ dockStyle: v })),
-        toggle('Подпись на капсуле', state.dockCaption, (v) => up({ dockCaption: v }), 'Начало стиха по-гречески — когда значков не больше трёх'),
+        segmented([{ value: 'icons', label: 'Значки' }, { value: 'line', label: 'С линией' }, { value: 'none', label: 'Скрыть' }], state.dockStyle, (v) => up({ dockStyle: v })),
+        toggle('Строка плеера', state.player, (v) => up({ player: v }), 'Над значками: что играет и пауза. Работает в Android-версии — один раз нужно дать доступ к уведомлениям.'),
+        state.player && isNative() ? h('button', { class: 'btn', onclick: openMediaAccess }, 'Доступ к уведомлениям') : null,
         dockList,
         state.dock.length < 6 ? h('button', { class: 'btn', onclick: () => {
           state.dock.push({ icon: 'star', action: { t: 'cmd', id: 'drawer' } });
           save(); changed(); rerender();
         } }, '＋ добавить значок') : null,
+      ));
+
+      // — Чтение и практика (Melete) —
+      body.append(section('Чтение и практика', 'μελέτη',
+        toggle('Показывать на главном', state.tracker, (v) => up({ tracker: v }), 'Чтение Библии на сегодня и практика за неделю из Melete'),
+        h('button', { class: 'btn', onclick: () => openTrackerSheet(() => { changed(); rerender(); }) }, state.melete ? 'Melete подключено…' : 'Подключить Melete'),
       ));
 
       // — Жесты —
@@ -177,6 +198,17 @@ export function openSettings(onChange) {
       ));
     },
   });
+}
+
+// местоположение для восхода и заката (ветхозаветные часы)
+function locate(up) {
+  if (!navigator.geolocation) return toast('Местоположение недоступно');
+  toast('Определяю место…');
+  navigator.geolocation.getCurrentPosition(
+    (p) => { up({ place: { lat: +p.coords.latitude.toFixed(3), lon: +p.coords.longitude.toFixed(3) } }); toast('Место сохранено'); },
+    () => toast('Не удалось определить место'),
+    { timeout: 15000, maximumAge: 864e5 },
+  );
 }
 
 function move(arr, i, d) {

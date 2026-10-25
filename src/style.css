@@ -114,7 +114,7 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
 .status i { width: 1.5px; height: 18px; background: var(--line); }
 
 /* — Часы — */
-.clock-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+.clock-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
 .clock { display: flex; justify-content: center; color: var(--fg); }
 .clock b { font-weight: inherit; display: inline-block; }
 .clock b.tick { animation: tick 0.7s var(--ease); }
@@ -237,7 +237,7 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
 
 .subline {
   display: flex; align-items: center; justify-content: center; gap: 12px; max-width: 100%;
-  margin: 0 auto 34px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+  margin: 0 auto 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--muted); white-space: nowrap; transition: opacity 0.3s, transform 0.3s;
 }
 .subline.swap { opacity: 0; transform: translateX(-12px); }
@@ -279,20 +279,62 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
   display: flex; align-items: center; gap: 8px;
   animation: rise 0.8s var(--ease) both; animation-delay: 0.3s;
 }
-.dock-pill { background: var(--pill); color: var(--pill-fg); border-radius: 999px; padding: 10px 10px 10px 24px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 0 0 1px var(--line); }
-.dock-line { border-top: 1px solid var(--line); padding-top: 14px; justify-content: center; }
-.dock-cap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.dock-cap b { font-family: var(--serif); font-weight: 500; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dock-cap small { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; }
-.dock-icons { display: flex; gap: 4px; flex: none; }
-.dock-line .dock-icons { gap: 18px; }
+.dock { justify-content: space-between; padding: 0 2px; }
+.dock-line { border-top: 1px solid var(--line); padding-top: 10px; }
 .dock-btn { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; transition: transform 0.2s var(--ease), background 0.2s; }
-.dock-btn:active { transform: scale(0.88); }
-.dock-btn .ico { width: 24px; height: 24px; }
-.dock-pill .dock-btn:last-child { background: var(--pill-btn); color: var(--pill); border-radius: 22px; width: 56px; height: 56px; }
-.dock-pill:not(:has(.dock-cap)) { padding-left: 10px; justify-content: center; }
-.dock-pill:not(:has(.dock-cap)) .dock-icons { flex: 1; justify-content: space-between; }
+.dock-btn:active { transform: scale(0.88); background: var(--faint); }
+.dock-btn .ico { width: 25px; height: 25px; }
 .dock-gap { height: 8px; }
+
+/* — Строка плеера — */
+.player { display: flex; align-items: center; gap: 10px; height: 30px; margin: 0 2px 6px; animation: rise 0.5s var(--ease) both; }
+.pl-btn { flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); }
+.pl-btn svg { width: 12px; height: 12px; }
+.pl-btn.on { border-color: var(--fg); }
+.pl-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; text-align: left; }
+.pl-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.pl-info small { flex: none; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.pl-ask span { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* — Трекер: чтение и практика — */
+.tracker { display: flex; flex-direction: column; margin: 4px 2px 10px; border-top: 1px solid var(--line); animation: rise 0.6s var(--ease) both; animation-delay: 0.2s; }
+.tr-row { position: relative; display: flex; align-items: baseline; gap: 10px; padding: 9px 0 10px; text-align: left; border-bottom: 1px solid var(--faint); }
+.tr-k { flex: none; width: 72px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.tr-row:first-child:last-child .tr-k { width: auto; }
+.tr-v { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.tr-m { flex: none; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.tr-bar { position: absolute; left: 82px; right: 0; bottom: -1px; height: 1px; background: transparent; }
+.tr-bar u { display: block; height: 100%; background: var(--accent); transition: width 0.8s var(--ease); }
+.tr-status { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--faint); font-size: 14px; line-height: 1.45; margin: 4px 0 8px; }
+.tr-status small { color: var(--muted); font-size: 12px; }
+
+/* — Пояснения — */
+.ex-p { font-size: 15px; line-height: 1.55; margin: 0 0 12px; }
+.ex-links { display: flex; flex-direction: column; margin: 8px 0 4px; border-top: 1px solid var(--faint); }
+.ex-link { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--faint); text-align: left; }
+.ex-link span { font-size: 14.5px; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.ex-link small { flex: none; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.info-link { display: inline; font: inherit; font-size: 12.5px; color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 3px; }
+.canonical { cursor: pointer; }
+.canonical:active, .weekday .echo:active { opacity: 0.6; }
+.weekday .echo { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 15px; letter-spacing: 0.04em; text-transform: none; color: var(--accent); text-decoration: underline dotted; text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); text-underline-offset: 4px; }
+.canonical span { text-decoration: underline dotted; text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); text-underline-offset: 4px; }
+.place-row .btn { margin: 0; flex: none; }
+
+/* Ветхозаветные часы */
+.ck-bib { display: flex; flex-direction: column; align-items: center; width: min(340px, 86vw); }
+.bib-main { font-family: var(--serif); font-size: 46px; line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 14px; text-align: center; }
+.bib-bar { display: flex; gap: 3px; width: 100%; height: 14px; }
+.bib-bar i { position: relative; flex-basis: 0; min-width: 3px; border-radius: 2px; overflow: hidden; background: currentColor; opacity: 0.12; }
+.bib-bar i.n { opacity: 0.06; outline: 1px solid color-mix(in srgb, currentColor 30%, transparent); outline-offset: -1px; }
+.bib-bar i.past { opacity: 0.55; }
+.bib-bar i.now { opacity: 1; background: color-mix(in srgb, currentColor 18%, transparent); outline: 1px solid currentColor; outline-offset: -1px; }
+.bib-bar i.now u { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.bib-times { position: relative; width: 100%; height: 14px; margin-top: 6px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.bib-times span { position: absolute; top: 0; left: 0; white-space: nowrap; }
+.bib-times span:nth-child(2) { transform: translateX(-50%); }
+.bib-times span:last-child { left: auto; right: 0; }
+.bib-sub { margin-top: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 
 /* — Ореол долгого нажатия — */
 .halo {
