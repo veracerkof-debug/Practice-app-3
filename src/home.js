@@ -3,6 +3,7 @@ import { state, appById } from './store.js';
 import { renderClock, clockKey, afterClockRender } from './clocks.js';
 import { VERSES, verseOfDay, canonicalHour, GREEK_WEEKDAYS, greekNumeral, romanNumeral } from './scripture.js';
 import { iconSVG, ORNAMENTS } from './icons.js';
+import { SLOT_HEIGHT } from './wallpapers.js';
 import { h } from './ui.js';
 import { openApp, runAction } from './actions.js';
 
@@ -47,6 +48,10 @@ function updateClock(now, force = false) {
   const prev = !force && lastClockId === state.clock ? lastTime : null;
   clockEl.innerHTML = renderClock(state.clock, now, state, prev);
   clockEl.dataset.style = state.clock;
+  // «Без часов» + живые обои: оставляем место, обои рисуют время в нём
+  const slot = state.clock === 'none' ? SLOT_HEIGHT[state.wallpaper] : 0;
+  clockEl.style.height = slot ? `${slot}px` : '';
+  clockEl.parentElement.classList.toggle('empty', state.clock === 'none' && !slot);
   afterClockRender(clockEl);
   lastKey = sig;
   lastTime = t;

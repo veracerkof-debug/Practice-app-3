@@ -12,6 +12,7 @@ export const CLOCKS = [
   { id: 'scroll', ru: 'Свиток', el: 'κύλινδρος' },
   { id: 'letters', ru: 'Письмена', el: 'γράμματα' },
   { id: 'mosaic', ru: 'Мозаика', el: 'ψηφιδωτόν' },
+  { id: 'none', ru: 'Без часов', el: 'σιγή' },
 ];
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -262,6 +263,7 @@ const renderers = {
   scroll,
   letters,
   mosaic,
+  none: () => '',
 };
 
 export function renderClock(id, date, s, prev) {

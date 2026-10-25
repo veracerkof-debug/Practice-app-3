@@ -20,6 +20,7 @@ import { registerCommand, runAction, setToast } from './actions.js';
 import { CLOCKS } from './clocks.js';
 import { VERSES } from './scripture.js';
 import { iconSVG } from './icons.js';
+import { mountWallpaper } from './wallpapers.js';
 import { h, toast, openSheet, sheetOpen, closeTopSheet } from './ui.js';
 
 const app = document.querySelector('#app');
@@ -121,6 +122,8 @@ registerCommand('fullscreen', () => {
 registerCommand('none', () => {});
 
 // — Сборка —
+mountWallpaper(app, () => ({ id: state.wallpaper, full: state.clock === 'none' }));
+
 mountHome(home, {
   onAppLongPress: (i) => editHomeItem(i, null, refresh),
   onDockLongPress: (i) => editDockSlot(i, refresh),

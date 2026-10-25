@@ -40,6 +40,7 @@ export const DEFAULTS = {
   size: 'm',                 // s | m | l
   marker: 'greek',           // greek | roman | count | none
   ornament: 'none',          // фоновый символ, см. ORNAMENTS
+  wallpaper: 'none',         // живые обои: none | hands | planet | sun
   intro: true,
   dockStyle: 'pill',         // pill | line | none
   dockCaption: true,

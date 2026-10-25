@@ -1,6 +1,7 @@
 // Настройки: часы, вид, дата, главный экран, панель значков, жесты, данные.
 import { state, save, set, reset, importState, appById } from './store.js';
 import { CLOCKS, renderClock } from './clocks.js';
+import { WALLPAPERS, drawPreview } from './wallpapers.js';
 import { ORNAMENTS, iconSVG } from './icons.js';
 import { GESTURES } from './gestures.js';
 import { describeAction } from './actions.js';
@@ -43,6 +44,24 @@ export function openSettings(onChange) {
         clocks,
         toggle('12-часовой формат', state.hour12, (v) => up({ hour12: v })),
         toggle('Литургический час', state.canonical, (v) => up({ canonical: v }), 'Утреня, Час третий, Вечерня…'),
+      ));
+
+      // — Живые обои —
+      const walls = h('div', { class: 'wall-picks' });
+      WALLPAPERS.forEach((wp) => {
+        const cv = h('canvas', { width: 300, height: 220 });
+        walls.append(h('button', {
+          class: `wall-pick ${state.wallpaper === wp.id ? 'on' : ''}`,
+          onclick: keepScroll(() => up({ wallpaper: wp.id })),
+        }, cv, h('span', {}, wp.ru), h('small', { lang: 'el' }, wp.el)));
+        requestAnimationFrame(() => drawPreview(cv, wp.id));
+      });
+      const cur = WALLPAPERS.find((wp) => wp.id === state.wallpaper);
+      body.append(section('Живые обои', 'εἰκὼν ζῶσα',
+        walls,
+        cur?.hint ? h('p', { class: 'hint' }, cur.hint) : null,
+        state.wallpaper !== 'none' ? toggle('Обои вместо часов', state.clock === 'none', (v) => up({ clock: v ? 'none' : 'tablet' }),
+          'Часы скрываются, обои встают на их место и показывают время. Иначе обои лежат бледно за экраном.') : null,
       ));
 
       // — Вид —
