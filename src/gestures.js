@@ -11,7 +11,7 @@ export function attachGestures(el, { onGesture, isBlocked }) {
   let lastTap = null;
   let halo = null;
 
-  const target = (e) => e.target.closest('.app, .dock-btn');
+  const target = (e) => e.target.closest('.app, .dock-btn, .clock-wrap, .date');
 
   const clearHalo = () => {
     if (!halo) return;
@@ -105,4 +105,6 @@ export const GESTURES = [
   { id: 'swipeRight', ru: 'Свайп вправо', el: 'δεξιά', glyph: '→' },
   { id: 'doubleTap', ru: 'Двойной тап', el: 'δίς', glyph: '··' },
   { id: 'longPress', ru: 'Долгое нажатие', el: 'μένε', glyph: '◯' },
+  { id: 'clockTap', ru: 'Нажатие на часы', el: 'ὥρα', glyph: '◷' },
+  { id: 'dateTap', ru: 'Нажатие на дату', el: 'ἡμέρα', glyph: '▦' },
 ];

@@ -66,6 +66,8 @@ export const DEFAULTS = {
     swipeRight: { t: 'cmd', id: 'clock' },
     doubleTap: { t: 'cmd', id: 'sabbath' },
     longPress: { t: 'cmd', id: 'settings' },
+    clockTap: { t: 'app', id: 'clock' },
+    dateTap: { t: 'app', id: 'calendar' },
   },
   usage: {},
 };

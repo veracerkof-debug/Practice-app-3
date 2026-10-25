@@ -1,6 +1,6 @@
 // Главный экран: статус, часы, дата, строка стиха, список приложений, панель значков.
 import { state, appById } from './store.js';
-import { renderClock, clockKey } from './clocks.js';
+import { renderClock, clockKey, afterClockRender } from './clocks.js';
 import { VERSES, verseOfDay, canonicalHour, GREEK_WEEKDAYS, greekNumeral, romanNumeral } from './scripture.js';
 import { iconSVG, ORNAMENTS } from './icons.js';
 import { h } from './ui.js';
@@ -47,6 +47,7 @@ function updateClock(now, force = false) {
   const prev = !force && lastClockId === state.clock ? lastTime : null;
   clockEl.innerHTML = renderClock(state.clock, now, state, prev);
   clockEl.dataset.style = state.clock;
+  afterClockRender(clockEl);
   lastKey = sig;
   lastTime = t;
   lastClockId = state.clock;
@@ -135,8 +136,8 @@ export function renderHome() {
   root.replaceChildren(...[
     orn?.icon ? h('div', { class: `ornament orn-${state.ornament}`, 'aria-hidden': 'true', html: iconSVG(orn.icon) }) : null,
     h('div', { class: 'status', 'aria-label': 'Статус' }),
-    h('div', { class: 'clock-wrap' }, h('div', { class: 'clock' }), h('div', { class: 'canonical' })),
-    h('div', { class: 'date' }, h('div', { class: 'weekday' }), h('div', { class: 'daymonth' })),
+    h('div', { class: 'clock-wrap', onclick: tapAction('clockTap') }, h('div', { class: 'clock' }), h('div', { class: 'canonical' })),
+    h('div', { class: 'date', onclick: tapAction('dateTap') }, h('div', { class: 'weekday' }), h('div', { class: 'daymonth' })),
     h('button', { class: 'subline', onclick: (e) => { e.stopPropagation(); root.handlers.onVerseTap(); } }),
     renderList(),
     h('div', { class: 'spacer' }),
@@ -147,6 +148,12 @@ export function renderHome() {
   updateClock(new Date(), true);
   renderSubline();
 }
+
+// нажатие на часы / дату (как в Olauncher: часы → будильник, дата → календарь)
+const tapAction = (gesture) => (e) => {
+  if (e.currentTarget.dataset.suppress) return;
+  runAction(state.gestures[gesture]);
+};
 
 function renderList() {
   const list = h('nav', { class: 'apps', 'aria-label': 'Избранные приложения' });

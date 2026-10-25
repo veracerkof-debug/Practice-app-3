@@ -149,6 +149,72 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
 .ck-word { display: flex; flex-direction: column; align-items: center; text-align: center; font-family: var(--display); font-weight: 300; font-size: 40px; line-height: 1.08; letter-spacing: -0.01em; text-transform: lowercase; }
 .ck-word span:last-child { color: var(--muted); }
 
+/* Светила */
+.ck-orbit { width: 210px; height: 210px; overflow: visible; }
+.orb-path { fill: none; stroke: currentColor; stroke-width: 1; opacity: 0.5; }
+.orb-core { fill: var(--accent); }
+.orb-rot { transform-origin: 110px 110px; transform-box: view-box; animation: spin linear infinite; }
+.orb-up { transform-box: view-box; animation: spinBack linear infinite; }
+@keyframes spinBack { to { transform: rotate(-360deg); } }
+.orb-h { fill: var(--fg); }
+.orb-h-t { fill: var(--bg); font: 600 17px var(--display); text-anchor: middle; }
+.orb-m { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
+.orb-m-t { fill: var(--fg); font: 400 11px var(--mono); text-anchor: middle; }
+.orb-s { fill: var(--accent); }
+
+/* Листы */
+.ck-flip { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 700; font-size: 80px; font-variant-numeric: tabular-nums; perspective: 700px; }
+.ck-flip > i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 22px 0 currentColor; transform: translateY(-11px); }
+.fl-card { position: relative; width: 1.4em; height: 1.25em; }
+.fl-card::after { content: ''; position: absolute; z-index: 5; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--bg); }
+.fl-half { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; background: var(--fg); color: var(--bg); backface-visibility: hidden; }
+.fl-top { top: 0; border-radius: 14px 14px 0 0; transform-origin: 50% 100%; }
+.fl-bottom { bottom: 0; border-radius: 0 0 14px 14px; transform-origin: 50% 0; }
+.fl-half span { position: absolute; left: 0; right: 0; height: 200%; display: flex; align-items: center; justify-content: center; line-height: 1; letter-spacing: -0.02em; }
+.fl-top span { top: 0; }
+.fl-bottom span { bottom: 0; }
+.fl-flap-top, .fl-flap-bottom { display: none; z-index: 3; }
+.go .fl-flap-top { display: block; animation: flipTop 0.42s ease-in both; }
+.go .fl-flap-bottom { display: block; animation: flipBottom 0.42s ease-out 0.42s both; }
+@keyframes flipTop { from { transform: rotateX(0); } to { transform: rotateX(-90deg); filter: brightness(0.7); } }
+@keyframes flipBottom { from { transform: rotateX(90deg); filter: brightness(1.4); } to { transform: rotateX(0); } }
+
+/* Свиток */
+.ck-scroll { display: flex; align-items: center; font-family: var(--serif); font-size: 96px; font-variant-numeric: lining-nums tabular-nums; }
+.sc-col { height: 1.1em; overflow: hidden; -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent); mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent); }
+.sc-strip { transition: transform 1.2s cubic-bezier(0.65, 0, 0.2, 1); }
+.sc-col:nth-child(2) .sc-strip { transition-delay: 0.08s; }
+.sc-col:nth-child(4) .sc-strip { transition-delay: 0.16s; }
+.sc-col:nth-child(5) .sc-strip { transition-delay: 0.24s; }
+.sc-strip span { display: block; height: 1.1em; line-height: 1.1em; text-align: center; }
+.ck-scroll em { font-style: normal; color: var(--accent); margin: 0 0.06em; transform: translateY(-0.06em); }
+
+/* Письмена */
+.ck-letters { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.lt-grid { display: grid; grid-template-columns: repeat(12, 1.5em); font-family: var(--mono); font-size: 14px; line-height: 1.6; text-align: center; }
+.lt-grid span { opacity: 0.16; transition: opacity 0.6s; }
+.lt-grid .f { font-family: var(--serif); font-size: 15px; opacity: 0.1; }
+.lt-grid .on { opacity: 1; }
+.lt-grid .fresh { animation: litIn 0.9s var(--ease) both; animation-delay: calc(var(--i) * 45ms); }
+@keyframes litIn { from { opacity: 0.16; filter: blur(3px); } }
+.lt-dots { display: flex; gap: 9px; }
+.lt-dots i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.15; }
+.lt-dots i.on { opacity: 1; background: var(--accent); }
+
+/* Мозаика */
+.ck-mosaic { --t: 9px; display: flex; align-items: center; gap: 10px; }
+.ms-digit { display: grid; grid-template-columns: repeat(5, var(--t)); grid-auto-rows: var(--t); gap: 2.5px; }
+.ms-blank { width: calc(var(--t) * 5 + 10px); }
+.ms-digit i { border-radius: 1.5px; background: currentColor; opacity: 0.045; }
+.ms-digit i.on { opacity: 1; }
+.ms-digit i.ch { animation: tessIn 0.6s var(--ease) both; animation-delay: calc(var(--k) * 35ms); }
+.ms-digit i.ch:not(.on) { animation-name: tessOut; }
+@keyframes tessIn { from { opacity: 0.045; transform: scale(0.2) rotate(45deg); } }
+@keyframes tessOut { from { opacity: 1; } }
+.ms-colon { display: flex; flex-direction: column; gap: 20px; }
+.ms-colon i { width: var(--t); height: var(--t); border-radius: 1.5px; background: var(--accent); animation: blink 2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0.15; } }
+
 /* — Дата — */
 .date { margin-bottom: 18px; }
 .weekday { display: flex; gap: 12px; align-items: baseline; font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; margin-bottom: 4px; }
@@ -421,6 +487,11 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
   .ck-codex-main { font-size: 84px; }
   .ck-greek-main { font-size: 74px; }
   .ck-sundial { width: 150px; height: 150px; }
+  .ck-orbit { width: 170px; height: 170px; }
+  .ck-flip { font-size: 64px; }
+  .ck-scroll { font-size: 78px; }
+  .lt-grid { font-size: 12px; }
+  .ck-mosaic { --t: 7px; }
   .clock-wrap { margin-bottom: 18px; }
   .daymonth { font-size: 52px; }
   .subline { margin-bottom: 18px; }
