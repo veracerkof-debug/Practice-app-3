@@ -33,7 +33,7 @@ jobs:
 
       - name: Initialize Capacitor & Sync Android
         run: |
-          npx cap init Melete com.melete.app --web-dir dist || true
+          npx cap init Launcher com.minimal.launcher --web-dir dist || true
           npx cap add android || true
           npx cap sync android
 
@@ -55,6 +55,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: melete-debug-apk
+          name: launcher-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           

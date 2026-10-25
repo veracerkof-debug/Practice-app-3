@@ -1,5 +1,5 @@
 {
-  "appId": "com.melete.app",
-  "appName": "Melete",
+  "appId": "com.minimal.launcher",
+  "appName": "Launcher",
   "webDir": "dist"
 }

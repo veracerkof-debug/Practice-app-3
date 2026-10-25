@@ -53,16 +53,16 @@ export function openSettings(onChange) {
       }, h('b', {}, f.sample), h('small', {}, f.label))));
       const orns = h('div', { class: 'orn-picks' });
       Object.entries(ORNAMENTS).forEach(([id, o]) => orns.append(h('button', {
-        class: `orn-pick ${state.ornament === id ? 'on' : ''}`, title: o.ru,
+        class: `orn-pick ${state.ornament === id ? 'on' : ''}`,
         onclick: keepScroll(() => up({ ornament: id })),
-        html: o.icon ? iconSVG(o.icon) : '<span>—</span>',
-      })));
+      }, h('span', { class: 'orn-ico', html: o.icon ? iconSVG(o.icon) : '' }), h('small', {}, o.ru))));
       body.append(section('Вид', 'μορφή',
         h('div', { class: 'set-label' }, 'Тема'),
         segmented(THEMES, state.theme, (v) => up({ theme: v })),
         h('div', { class: 'set-label' }, 'Шрифт'),
         fonts,
-        h('div', { class: 'set-label' }, 'Орнамент на фоне'),
+        h('div', { class: 'set-label' }, 'Символ на фоне'),
+        h('p', { class: 'hint' }, 'Большой бледный символ за часами. Например, колесо ΙΧΘΥΣ — раннехристианский знак: буквы слова «рыба» (Иисус Христос, Божий Сын, Спаситель), наложенные друг на друга.'),
         orns,
         h('div', { class: 'set-label' }, 'Выравнивание списка'),
         segmented([{ value: 'left', label: 'Слева' }, { value: 'center', label: 'Центр' }, { value: 'right', label: 'Справа' }], state.align, (v) => up({ align: v })),
@@ -155,7 +155,6 @@ export function openSettings(onChange) {
           h('button', { class: 'btn', onclick: () => file.click() }, 'Импорт'),
           h('button', { class: 'btn danger', onclick: () => { if (confirm('Сбросить все настройки?')) { reset(); changed(); rerender(); } } }, 'Сброс')),
         file,
-        h('p', { class: 'colophon', lang: 'el' }, 'Μελέτη — «размышление, упражнение». ', h('span', {}, 'Пс 1:2')),
       ));
     },
   });
@@ -169,7 +168,7 @@ function move(arr, i, d) {
 
 function exportState() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = h('a', { href: URL.createObjectURL(blob), download: 'melete-settings.json' });
+  const a = h('a', { href: URL.createObjectURL(blob), download: 'launcher-settings.json' });
   document.body.append(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);

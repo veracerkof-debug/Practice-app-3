@@ -1,6 +1,6 @@
 {
-  "name": "Μελέτη — лаунчер",
-  "short_name": "Μελέτη",
+  "name": "Лаунчер",
+  "short_name": "Лаунчер",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

@@ -132,7 +132,7 @@ export function renderHome() {
   if (!root) return;
   const orn = ORNAMENTS[state.ornament];
   root.className = `home align-${state.align} size-${state.size}`;
-  root.replaceChildren(
+  root.replaceChildren(...[
     orn?.icon ? h('div', { class: `ornament orn-${state.ornament}`, 'aria-hidden': 'true', html: iconSVG(orn.icon) }) : null,
     h('div', { class: 'status', 'aria-label': 'Статус' }),
     h('div', { class: 'clock-wrap' }, h('div', { class: 'clock' }), h('div', { class: 'canonical' })),
@@ -141,7 +141,7 @@ export function renderHome() {
     renderList(),
     h('div', { class: 'spacer' }),
     renderDock(),
-  );
+  ].filter(Boolean));
   lastKey = null;
   renderStatus();
   updateClock(new Date(), true);

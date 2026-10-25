@@ -168,7 +168,7 @@ export function iconSVG(id, cls = '') {
 
 // Большие фоновые орнаменты
 export const ORNAMENTS = {
-  none: { ru: 'Нет', el: '—' },
+  none: { ru: 'Без символа', el: '—' },
   wheel: { ru: 'Колесо ΙΧΘΥΣ', el: 'ΙΧΘΥΣ', icon: 'wheel' },
   chirho: { ru: 'Хризма', el: 'Χριστός', icon: 'chirho' },
   alphaomega: { ru: 'Альфа и Омега', el: 'Α Ω', icon: 'alphaomega' },

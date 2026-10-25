@@ -1,6 +1,7 @@
 // Состояние лаунчера: всё хранится в localStorage и экспортируется в JSON.
 
-const KEY = 'melete.v1';
+const KEY = 'launcher.v1';
+const OLD_KEY = 'melete.v1';
 
 // pkg — имя пакета Android (для нативной сборки), url — ссылка / схема для веба.
 export const DEFAULT_APPS = [
@@ -38,7 +39,7 @@ export const DEFAULTS = {
   align: 'right',            // left | center | right
   size: 'm',                 // s | m | l
   marker: 'greek',           // greek | roman | count | none
-  ornament: 'wheel',         // см. ORNAMENTS
+  ornament: 'none',          // фоновый символ, см. ORNAMENTS
   intro: true,
   dockStyle: 'pill',         // pill | line | none
   dockCaption: true,
@@ -73,9 +74,15 @@ const clone = (o) => JSON.parse(JSON.stringify(o));
 
 function load() {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return clone(DEFAULTS);
-    const saved = JSON.parse(raw);
+    let raw = localStorage.getItem(KEY);
+    let saved;
+    if (raw) saved = JSON.parse(raw);
+    else {
+      // настройки из первой версии: переносим, фон по умолчанию — без символа
+      raw = localStorage.getItem(OLD_KEY);
+      if (!raw) return clone(DEFAULTS);
+      saved = { ...JSON.parse(raw), ornament: 'none' };
+    }
     return { ...clone(DEFAULTS), ...saved, gestures: { ...clone(DEFAULTS.gestures), ...(saved.gestures || {}) } };
   } catch {
     return clone(DEFAULTS);

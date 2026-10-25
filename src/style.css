@@ -1,4 +1,4 @@
-/* Μελέτη — минималистичный лаунчер */
+/* Минималистичный лаунчер */
 
 :root {
   --bg: #f4f4f2;
@@ -352,9 +352,11 @@ button:focus-visible, input:focus-visible { outline: 1px solid var(--fg); outlin
 .font-mono b { font-family: 'JetBrains Mono'; font-size: 17px; }
 
 .orn-picks { display: flex; gap: 8px; flex-wrap: wrap; }
-.orn-pick { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--faint); display: grid; place-items: center; }
+.orn-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; width: calc((100% - 16px) / 3); padding: 12px 4px 10px; border-radius: 16px; border: 1px solid var(--faint); }
 .orn-pick.on { border-color: var(--fg); }
-.orn-pick .ico { width: 26px; height: 26px; }
+.orn-ico { width: 26px; height: 26px; }
+.orn-ico .ico { width: 26px; height: 26px; }
+.orn-pick small { font-size: 11px; color: var(--muted); text-align: center; line-height: 1.2; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
 .chip { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-family: var(--serif); font-size: 16px; }
