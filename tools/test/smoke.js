@@ -14,7 +14,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  check(await p.evaluate(()=>document.querySelectorAll('.bterm').length)>50,'автоссылки терминов');
  // тренажёр
  await p.click('[data-tab="train"]');
- for(const m of ['pick','cols','err','mix']){await p.click(`[data-trm="${m}"]`);await p.click('[data-trc="20"]');await p.click('[data-trgo]');let steps=0;
+ for(const m of ['pick','cols','err']){await p.click(`[data-trm="${m}"]`);await p.click('[data-trc="20"]');await p.click('[data-trgo]');let steps=0;
   for(let k=0;k<25;k++){
    if(await p.$('[data-trp]:not([disabled])')) await p.click('[data-trp]:not([disabled])');
    if(await p.$('[data-trp]:not([disabled])')&&!(await p.$('[data-trnext]'))) await p.click('[data-trp]:not([disabled])');
@@ -79,6 +79,17 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
   await p.click('[data-tslist]');
  }
  check(await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('rus-uchebnik-v1'));return !!(s.tests&&s.tests['prichastie:final']&&s.tlog&&s.tlog.length===2)}),'результаты тестов сохраняются');
+ // механики тренажёра: каждое сгенерированное задание решаемо, верное решение засчитывается
+ await p.goto(U+'?selftest#ch-prichastie');
+ const mres=await p.evaluate(()=>{const {MECH,CHAPTERS,mGen}=window.__T,c=CHAPTERS.prichastie,les=[1,2,3,4,5,6,7];
+  const solve={hlw:t=>{t.sel=t.items.map((x,i)=>x.y?i:-1).filter(i=>i>=0)},hls:t=>{t.sel=t.u.map((x,i)=>x.y&&!x.pu?i:-1).filter(i=>i>=0)},cm:t=>{t.sel=[...t.need]},
+   sx:t=>{t.u.forEach((x,i)=>{if(x.pu)return;const y=t.full?x.mem:(x.mem==='П'||x.mem==='С'?x.mem:'');if(y)t.mk[i]=y})},bw:t=>{t.sel=[...t.a]},
+   mp:t=>{let pos=-1;t.b=[];t.a.slice(0,-1).forEach(([ty,x])=>{pos+=x.length;t.b.push(pos)});let s=0;t.a.forEach(([ty,x])=>{t.ty[s+'-'+(s+x.length-1)]=ty;s+=x.length})},
+   gr:t=>{t.items.forEach((x,i)=>t.mk[i]=x.k)},pr:t=>{t.L.forEach(v=>t.pm[v]=t.a[v])},mx:t=>{t.mk=[...t.a]},gw:t=>{t.sel=t.a;t.rsel=t.r},nw:t=>{t.sel=t.a;t.rsel=t.r}};
+  return Object.keys(MECH).map(m=>{let ok=0,wrong=0;for(let k=0;k<30;k++){const t=mGen(c,m,les);if(MECH[m].grade(t).ok&&!(m==='cm'&&!t.need.length))wrong++; /* без запятых пустой ответ верен */solve[m](t);if(MECH[m].ready(t)&&MECH[m].grade(t).ok)ok++}return [m,ok,wrong]})});
+ mres.forEach(([m,ok,wrong])=>check(ok===30&&wrong===0,`механика ${m}: верное решение засчитано ${ok}/30, пустое — ${wrong}`));
+ await p.click('[data-tab="train"]');if(await p.$('[data-trsetup]'))await p.click('[data-trsetup]');await p.click('[data-trm="all"]');await p.click('[data-trgo]');
+ check(!!(await p.$('#trainer .card')),'серия «все виды вперемешку» запускается');
  errs.forEach(e=>fail.push('JS: '+e));
  ok.forEach(m=>console.log('  ✓ '+m));fail.forEach(m=>console.log('  ✗ '+m));
  console.log(fail.length?`Ошибок: ${fail.length}`:`Всё работает (${ok.length} проверок)`);

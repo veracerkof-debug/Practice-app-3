@@ -40,7 +40,7 @@ function enhance(root,chId){
 }
 // термины в любом блоке: каждое упоминание становится кнопкой с карточкой термина.
 // Не трогаем примеры (.ex), морфемы, кнопки, схемы, материал упражнений (.cbody) и поля ввода.
-const TSKIP=SKIP+',.cbody,.bterm,.wl,.opt,.tsw,.word,.slot,.tsinfo,.tshead,.tsres,.tsa,.chhead,a';
+const TSKIP=SKIP+',.cbody,.bterm,.wl,.opt,.tsw,.word,.slot,.tsinfo,.tshead,.tsres,.tsa,.chhead,.ty,.tl,.mpal,.cap,a';
 const GLR=GL.filter(g=>g.re).map(g=>({id:g.id,re:new RegExp(g.re.source,'gi')}));
 function termsIn(root){
  if(!root)return;

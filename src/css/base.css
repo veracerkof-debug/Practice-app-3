@@ -369,3 +369,67 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .tsm .why{font-size:14px;color:var(--l2)}
 .tsm .linkbtn{align-self:flex-start}
 .pbtn.tsp b{color:var(--T)}
+
+/* Механики тренажёра */
+.mcard{min-height:0;justify-content:flex-start}
+.mwl{display:flex;flex-wrap:wrap;gap:8px}
+.mw{border:1.5px solid var(--sep);background:var(--cell);border-radius:12px;min-height:44px;padding:6px 12px;font-size:17px;font-weight:600;color:var(--ink);
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.2}
+.mw small{font-size:11px;font-weight:600;color:var(--l2)}
+.mw.on{border-color:var(--tint);background:color-mix(in srgb,var(--tint) 16%,var(--cell))}
+.mw.ok{border-color:var(--T);background:color-mix(in srgb,var(--T) 14%,var(--cell));color:var(--T)}
+.mw.bad{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--cell));color:var(--red)}
+.mw.miss{border:2px dashed var(--T);color:var(--T)}
+.mw[disabled]{cursor:default;opacity:1}
+.mst{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;font-size:18px;line-height:1.5}
+.mst .sw{min-height:40px;padding:4px 8px;font-size:17px;font-weight:500}
+.mpu{font-size:18px;font-weight:700;margin-left:-2px}
+.mword2{font-size:18px;padding:0 1px}
+.mcm{gap:2px 0}
+.gapb{min-width:26px;height:40px;border:0;border-radius:8px;background:transparent;color:var(--l3);font-size:22px;font-weight:800;padding:0;line-height:1}
+.gapb:hover{background:var(--fill)}
+.gapb.on{color:var(--tint-text);background:color-mix(in srgb,var(--tint) 14%,transparent)}
+.gapb.ok{color:var(--T);background:color-mix(in srgb,var(--T) 14%,transparent)}
+.gapb.bad{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+.gapb.miss{color:var(--T);outline:2px dashed var(--T);outline-offset:-4px}
+.mpal{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-radius:14px;background:var(--fill)}
+.mtool{border:1.5px solid transparent;background:var(--cell);border-radius:10px;min-height:40px;padding:0 10px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.mtool.on{border-color:var(--tint);box-shadow:0 0 0 2px color-mix(in srgb,var(--tint) 25%,transparent)}
+.mtool .lg{display:inline-block;width:14px;height:12px}
+/* школьные подчёркивания: подлежащее — черта, сказуемое — две, определение — волнистая, дополнение — пунктир, обстоятельство — точка-тире */
+.uP,.uS,.uO,.uD,.uB{text-decoration-color:var(--ink);text-underline-offset:5px;text-decoration-thickness:2px}
+.uP{text-decoration-line:underline;text-decoration-style:solid}
+.uS{text-decoration-line:underline;text-decoration-style:double;text-decoration-thickness:1.5px}
+.uO{text-decoration-line:underline;text-decoration-style:wavy;text-decoration-thickness:1.5px}
+.uD{text-decoration-line:underline;text-decoration-style:dashed}
+.uB{padding-bottom:5px;background:repeating-linear-gradient(to right,var(--ink) 0 9px,transparent 9px 12px,var(--ink) 12px 14px,transparent 14px 17px) left bottom/100% 2px no-repeat}
+.msx .mw small{color:var(--red)}
+.mbw{display:flex;flex-direction:column;gap:6px}
+.mbwp{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;font-size:22px;font-weight:700;padding:10px;background:var(--fill);border-radius:14px}
+.mbwp i{font-style:normal;color:var(--l2)}
+.mbwp b{width:100%;text-align:center;font-size:24px}
+.mseg{min-width:44px;text-align:center;border-bottom:2px solid var(--l3);padding:0 4px}
+.mseg.e{color:var(--l3)}.mseg.ok{color:var(--T);border-color:var(--T)}.mseg.bad{color:var(--red);border-color:var(--red)}
+.mlet{display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap;font-size:28px;font-weight:700;padding:6px 0}
+.ml{display:inline-grid;place-items:center;min-width:18px}
+.mcut{width:16px;min-height:46px;border:0;padding:0;background:transparent;border-radius:6px;color:var(--tint);font-size:28px;font-weight:300;line-height:1}
+.mcut:hover{background:var(--fill)}
+.mcut.on{background:color-mix(in srgb,var(--tint) 16%,transparent)}
+.msegs{font-size:26px;padding:22px 8px 14px;gap:4px}
+.msegs .mp{border:0;background:transparent;padding:0 2px;cursor:pointer;font:inherit;color:inherit}
+.mpairs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mpairs>div{display:flex;flex-direction:column;gap:6px}
+.mpairs .mw{flex-direction:row;gap:8px;justify-content:flex-start;font-size:16px}
+.mpairs .mw i{font-style:normal;flex:0 0 22px;height:22px;border-radius:11px;background:var(--tint);color:var(--on-tint);font-size:13px;display:grid;place-items:center}
+.mpairs .mw.pn{border-color:color-mix(in srgb,var(--tint) 55%,transparent)}
+.mxg{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:stretch}
+.mxg .mh{font-size:12px;font-weight:700;color:var(--l2);text-transform:uppercase;letter-spacing:.04em;align-self:end;text-align:center}
+.mxg .mh.mr{align-self:center;text-align:left}
+.mxc{min-height:56px;border:1.5px dashed var(--l3);border-radius:12px;background:var(--cell);font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;overflow-wrap:anywhere}
+.mxc.f{border-style:solid;border-color:var(--tint)}
+.mxc.ok{border:2px solid var(--T);color:var(--T)}.mxc.bad{border:2px solid var(--red);color:var(--red)}
+.mxc small{font-size:12px;color:var(--T)}
+.ans button.on{border:2px solid var(--tint);background:color-mix(in srgb,var(--tint) 12%,var(--cell))}
+.mtool.g-дн,.mw.g-дн{--gc:var(--S)}.mtool.g-дп,.mw.g-дп{--gc:var(--T)}.mtool.g-сн,.mw.g-сн{--gc:var(--A)}.mtool.g-сп,.mw.g-сп{--gc:var(--V)}
+.mtool[class*="g-"]{border-left:5px solid var(--gc)}
+.mw[class*="g-"]:not(.ok):not(.bad){border-color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,var(--cell))}

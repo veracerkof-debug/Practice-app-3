@@ -1,7 +1,10 @@
 // ---------- тренажёр (общий для всех глав) ----------
 function CC(){return CHAPTERS[route&&route.id]||NN}
 const TR={ch:null,les:[],mode:'pick',cnt:10,run:null};
-function trSync(){const c=CC();if(TR.ch!==c.id){TR.ch=c.id;TR.les=c.lessons.map((_,i)=>i+1);TR.run=null}}
+function trSync(){const c=CC();if(TR.ch!==c.id){TR.ch=c.id;TR.les=c.lessons.map((_,i)=>i+1);TR.run=null;TR.mode=c.wk?'all':'pick'}}
+const TR_OLD={pick:'По одному',cols:'Столбики',err:'Найти ошибку',mix:'Вперемешку'};
+const TR_DESC={pick:'Одно задание за раз: выбрать верный вариант.',cols:'Несколько слов сразу — разложить по столбикам, потом проверить.',err:'Слова написаны полностью, в одном ошибка — найти её.',mix:'Все виды заданий вперемешку.',all:'Задания всех видов вперемешку: выделить, подчеркнуть, собрать, разобрать, расставить запятые, выбрать букву и правило. Где была ошибка — задание вернётся в конце серии.'};
+const trIsMech=m=>m==='all'||!!MECH[m];
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const fill=(w,v)=>w.replace('_',v);
 const OPTS=it=>it.opts||['н','нн'];
@@ -19,6 +22,16 @@ function groupErr(pool){
  rest.forEach(it=>out.push({k:'pick',it}));return out;
 }
 function trStart(items){
+ if(items&&items.some(it=>it.mt)){TR.run={tasks:items.map(it=>it.mt?mClone(it.mt):{k:'pick',it}),i:0,ok:0,tot:0,wrong:[],pool:items};return}
+ if(!items&&trIsMech(TR.mode)){ // механики: каждое задание создаётся заново из размеченного материала
+  const c=CC(),av=mAvail(c,TR.les),bank=shuffle(trPool()),N=TR.cnt==='all'?20:TR.cnt,tasks=[];let prev='';
+  for(let k=0;k<N;k++){
+   if(TR.mode!=='all'){tasks.push(mGen(c,TR.mode,TR.les));continue}
+   if(bank.length&&(Math.random()<.3||!av.length)){tasks.push({k:'pick',it:bank.pop()});prev='pick';continue}
+   const ch=av.filter(m=>m!==prev),m=pick1(ch.length?ch:av);tasks.push(mGen(c,m,TR.les));prev=m;
+  }
+  TR.run={tasks,i:0,ok:0,tot:0,wrong:[],pool:[]};return;
+ }
  const pool=items||shuffle(trPool()).slice(0,TR.cnt==='all'?9999:TR.cnt);
  let tasks;
  if(TR.mode==='cols') tasks=groupCols(pool);
@@ -28,17 +41,25 @@ function trStart(items){
  TR.run={tasks,i:0,ok:0,tot:0,wrong:[],pool};
 }
 function trSetupHTML(){
- trSync();const c=CC(),n=trPool().length;
- return `<div class="blab"><div class="cap"><b>Тренажёр</b><span class="bkhint">в банке ${c.bank.length} заданий</span></div>
+ trSync();const c=CC(),n=trPool().length,av=mAvail(c,TR.les);
+ if(c.wk&&MECH[TR.mode]&&!av.includes(TR.mode))TR.mode='all';
+ const chip=(k,t)=>`<button class="chipc" data-trm="${k}" aria-pressed="${TR.mode===k}">${t}</button>`;
+ const modes=c.wk?`<div class="tl">Вид задания</div><div class="chips">${chip('all','Все виды вперемешку')}</div>
+  <div class="tl">Действия — как в тетради</div><div class="chips">${av.map(m=>chip(m,MECH[m].t)).join('')||'<span class="note">Для выбранных уроков нет.</span>'}</div>
+  <div class="tl">Выбор варианта</div><div class="chips">${['pick','cols','err'].map(k=>chip(k,TR_OLD[k])).join('')}</div>`
+  :`<div class="tl">Вид задания</div><div class="seg" role="radiogroup">${Object.entries(TR_OLD).map(m=>`<button role="radio" data-trm="${m[0]}" aria-pressed="${TR.mode===m[0]}">${m[1]}</button>`).join('')}</div>`;
+ const mech=trIsMech(TR.mode),can=mech?av.length>0:n>0;
+ return `<div class="blab"><div class="cap"><b>Тренажёр</b><span class="bkhint">${c.wk?`${Object.keys(MECH).length} видов действий · `:''}в банке ${c.bank.length} заданий</span></div>
  <div class="tl">Уроки</div><div class="chips">${c.lessons.map((l,i)=>`<button class="chipc" data-trl="${i+1}" aria-pressed="${TR.les.includes(i+1)}">${i+1}. ${c.lnames[i+1]}</button>`).join('')}</div>
- <div class="tl">Вид задания</div><div class="seg" role="radiogroup">${[['pick','По одному'],['cols','Столбики'],['err','Найти ошибку'],['mix','Вперемешку']].map(m=>`<button role="radio" data-trm="${m[0]}" aria-pressed="${TR.mode===m[0]}">${m[1]}</button>`).join('')}</div>
- <div class="tl">Сколько заданий</div><div class="seg" role="radiogroup">${[10,20,40,'all'].map(x=>`<button role="radio" data-trc="${x}" aria-pressed="${String(TR.cnt)===String(x)}">${x==='all'?'Все ('+n+')':x}</button>`).join('')}</div>
- <button class="bkldone" data-trgo ${n?'':'disabled'}>Начать</button>
- <div class="bkhint">${{pick:'Одно задание за раз: выбрать верный вариант.',cols:'Несколько слов сразу — разложить по столбикам, потом проверить.',err:'Слова написаны полностью, в одном ошибка — найти её.',mix:'Все виды заданий вперемешку.'}[TR.mode]}</div></div>`;
+ ${modes}
+ <div class="tl">Сколько заданий</div><div class="seg" role="radiogroup">${(mech?[10,15,20]:[10,20,40,'all']).map(x=>`<button role="radio" data-trc="${x}" aria-pressed="${String(TR.cnt)===String(x)}">${x==='all'?'Все ('+n+')':x}</button>`).join('')}</div>
+ <button class="bkldone" data-trgo ${can?'':'disabled'}>Начать</button>
+ <div class="bkhint">${MECH[TR.mode]?MECH[TR.mode].d:TR_DESC[TR.mode]}</div></div>`;
 }
 const ok_=t=>`<b style="color:var(--T)">${t}</b>`,bad_='<b style="color:var(--red)">Неверно.</b>';
 function trTaskHTML(t){
  const c=CC();
+ if(t.k==='m')return mechHTML(t);
  if(t.k==='pick'){
   const it=t.it,a=t.ans,op=OPTS(it),g=gap(it);
   const w=g?esc(it.w).replace('_',`<span class="slot ${a?(a===it.a?'ok':'bad'):''}">${a?it.a:'…'}</span>`):esc(it.w);
@@ -72,11 +93,11 @@ function trRunHTML(){
   <div class="big2">${r.wrong.length?`<button class="again" data-trerr>Повторить ошибки</button>`:''}<button class="main" data-trgo>Новая серия</button></div><button class="linkbtn" data-trsetup>Настройки тренажёра</button>`;
  }
  const t=r.tasks[r.i];
- const done=t.k==='pick'?!!t.ans:t.k==='err'?t.pick!=null:!!t.checked;
+ const done=t.k==='m'?!!t.res:t.k==='pick'?!!t.ans:t.k==='err'?t.pick!=null:!!t.checked;
  const allset=t.k==='cols'&&t.items.every((_,i)=>t.set[i]);
  return `<div class="prog"><span>Задание ${r.i+1} из ${r.tasks.length}</span><span>Верно: ${r.ok} из ${r.tot}</span></div><div class="bar"><i style="width:${r.i/r.tasks.length*100}%"></i></div>
  ${trTaskHTML(t)}
- <div class="big2">${done?`<button class="main" data-trnext>Дальше</button>`:t.k==='cols'?`<button class="main" data-trcheck ${allset?'':'disabled'}>Проверить</button>`:''}</div>
+ <div class="big2">${done?`<button class="main" data-trnext>Дальше</button>`:t.k==='m'?`<button class="main" data-mcheck ${MECH[t.m].ready(t)?'':'disabled'}>Проверить</button>`:t.k==='cols'?`<button class="main" data-trcheck ${allset?'':'disabled'}>Проверить</button>`:''}</div>
  <button class="linkbtn" data-trsetup>Закончить и вернуться к настройкам</button>`;
 }
 function trScore(list){const r=TR.run;list.forEach(([it,ok])=>{r.tot++;if(ok)r.ok++;else r.wrong.push(it)})}
