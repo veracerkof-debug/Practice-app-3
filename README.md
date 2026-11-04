@@ -22,7 +22,7 @@ npm test                    # сборка + дымовой тест + пров�
 - Как писать главу — [docs/CONTENT-GUIDE.md](docs/CONTENT-GUIDE.md)
 - Умный словарь — [docs/DICTIONARY.md](docs/DICTIONARY.md)
 - Концепция и решения — [docs/PRODUCT.md](docs/PRODUCT.md)
-- Планы — [docs/ROADMAP.md](docs/ROADMAP.md), идеи на обсуждение — [docs/IDEAS.md](docs/IDEAS.md)
+- Планы — [docs/ROADMAP.md](docs/ROADMAP.md), идеи на обсуждение — [docs/IDEAS.md](docs/IDEAS.md), тренажёр нового поколения — [docs/TRAINER.md](docs/TRAINER.md)
 - Источники — [docs/SOURCES.md](docs/SOURCES.md)
 - Контекст для Claude Code — [CLAUDE.md](CLAUDE.md)
 
