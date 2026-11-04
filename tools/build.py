@@ -20,9 +20,11 @@ JS = [
     'src/chapters/prichastie/bank.js',
     'src/chapters/prichastie/classic.js',
     'src/chapters/prichastie/tests.js', #   тесты «Причастия»
+    'src/chapters/prichastie/workshop.js', # размеченный материал для механик тренажёра
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
+    'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
     'src/js/core/cards.js',             # карточки (интервальное повторение)
     'src/data/glossary.js',             # GLOSS — глоссарий
