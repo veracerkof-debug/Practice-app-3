@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Сборка учебника в один файл dist/index.html (+ www/index.html — полная страница для Pages и Android).
+"""Сборка учебника в один файл. Две версии (решение владельца, 04.11.2026):
+  ученик  — dist/index.html и www/index.html (Pages, Android): ключей к упражнениям в тетрадь НЕТ в файле вообще;
+  учитель — dist/teacher.html (полная страница): те же упражнения с ответами. В www/ (Pages, Android) не попадает.
 
 Порядок файлов важен: всё исполняется внутри одной функции (()=>{ ... })(),
 поэтому позже объявленное может использовать раньше объявленное.
 Новую главу добавляйте в CHAPTERS (lessons → bank → classic → index → labs).
 """
-import os, sys
+import os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSS = ['src/css/base.css', 'src/css/nav.css', 'src/css/dictionary.css', 'src/css/wide.css', 'src/css/end.css']
 JS = [
@@ -43,20 +45,33 @@ JS = [
 ]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
+# ключи упражнений в тетрадь: поле key:'…' в src/chapters/*/classic.js
+KEY_RE = re.compile(r"\s*key:'(?:[^'\\]|\\.)*'")
+def js_for(teacher):
+    out = ['const TEACHER=%s;\n' % ('true' if teacher else 'false')]
+    for p in JS:
+        t = read(p)
+        if not teacher and p.endswith('/classic.js') and p.startswith('src/chapters/'):
+            t, n = KEY_RE.subn('', t)
+            t = re.sub(r",(\s*)\}", r"\1}", t)        # хвостовая запятая перед } после вырезанного key
+            assert "key:" not in t, p + ': ключ не вырезан'
+        out.append(t if t.endswith('\n') else t + '\n')
+    return ''.join(out)
+def write(path, text):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f: f.write(text)
+def page(t):
+    return ('<!doctype html><html lang="ru"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+            '</head><body>' + t + '</body></html>\n')
 def build():
-    t = read('src/index.html')
-    t = t.replace('/*@CSS*/\n', ''.join(read(p) for p in CSS))
-    t = t.replace('/*@JS*/\n', ''.join(read(p) if read(p).endswith('\n') else read(p)+'\n' for p in JS))
-    out = os.path.join(ROOT, 'dist', 'index.html')
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, 'w', encoding='utf-8') as f: f.write(t)
-    print('dist/index.html', len(t.encode('utf-8')) // 1024, 'КБ')
-    # www/index.html — полноценная страница для GitHub Pages и Android (Capacitor)
-    www = os.path.join(ROOT, 'www', 'index.html')
-    os.makedirs(os.path.dirname(www), exist_ok=True)
-    with open(www, 'w', encoding='utf-8') as f:
-        f.write('<!doctype html><html lang="ru"><head><meta charset="utf-8">'
-                '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-                '</head><body>' + t + '</body></html>\n')
-    print('www/index.html')
+    tpl = read('src/index.html').replace('/*@CSS*/\n', ''.join(read(p) for p in CSS))
+    for teacher, name in ((False, 'index'), (True, 'teacher')):
+        t = tpl.replace('/*@JS*/\n', js_for(teacher))
+        if teacher:
+            write(os.path.join(ROOT, 'dist', 'teacher.html'), page(t))
+        else:
+            write(os.path.join(ROOT, 'dist', 'index.html'), t)
+            write(os.path.join(ROOT, 'www', 'index.html'), page(t))   # полная страница для Pages и Android
+        print('dist/%s.html' % name, len(t.encode('utf-8')) // 1024, 'КБ', '(учитель, с ответами)' if teacher else '(ученик, без ответов)')
 if __name__ == '__main__': build()

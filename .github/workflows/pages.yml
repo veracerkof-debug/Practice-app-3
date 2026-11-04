@@ -25,6 +25,11 @@ jobs:
         run: |
           python3 tools/build.py
           mkdir -p _site && cp www/index.html _site/index.html
+      # версия для учителя (с ответами) — не на сайте, а файлом в этом запуске Actions (Artifacts → uchebnik-dlya-uchitelya)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uchebnik-dlya-uchitelya
+          path: dist/teacher.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
