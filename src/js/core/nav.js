@@ -76,6 +76,11 @@ function outline(chId){
  const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=closeSheet;
  const s=document.createElement('div');s.className='sheet tall';s.setAttribute('role','dialog');s.setAttribute('aria-label','Содержание главы');
  const terms=GLA.filter(g=>ch.lessons.some(l=>(TUSE[g.id]||[]).includes(l.id)));
+ if((S.tab||'theory')==='classic'){
+  s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1} · ${meta.t}</div><div class="t">Упражнения</div>${clFindHTML()}${clMapHTML(ch)}
+  <div class="big2"><button class="ghost" data-otab="theory">Теория</button><button class="ghost" data-otab="train">Тренажёр</button></div>
+  <button class="ghost" style="min-height:44px;border-radius:14px;border:0" data-close>Закрыть</button>`;
+  document.body.append(bg,s);return}
  s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><div class="t">${meta.t}</div>
  <ol class="otl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
   ${S.easy?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>

@@ -24,7 +24,11 @@
   .chside .stabs{display:flex;gap:6px;margin-top:4px}
   .chside .stabs button{flex:1;min-height:40px;border-radius:12px;border:0;font-weight:600;font-size:14px}
   .chside .stabs button[aria-pressed="true"]{background:var(--tint);color:var(--on-tint)}
-  .chwide .bklnav{display:none}              /* полоса уроков не нужна: они слева */
+  .chwide .bklnav{display:none}
+  .chwide .clnav{display:none}               /* карта номеров — в боковой колонке */
+  .chside .clmap .cmb{min-width:38px;height:34px;font-size:14px}
+  .chside .clfind button{padding:0 10px}
+  .chside .stabs button{font-size:13px;padding:0 4px}              /* полоса уроков не нужна: они слева */
   .chwide .bktext{max-width:none}             /* схемы, таблицы и практика — во всю ширину */
   .bkles p,.bkles li,.bkles h3,.bkles h4{max-width:75ch} /* а строки текста — удобной длины */
   .bsrc{max-width:none}
