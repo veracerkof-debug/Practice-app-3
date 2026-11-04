@@ -442,3 +442,7 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .gtopt button.ok{border-color:var(--T);color:var(--T);background:color-mix(in srgb,var(--T) 12%,var(--cell))}
 .gtopt button.bad{border-color:var(--red);color:var(--red)}
 .mgs{font-size:19px;gap:4px 6px}
+/* найти орфограмму */
+.mfo{gap:4px;justify-content:center}
+.mfl{min-width:34px;min-height:46px;padding:0 4px;font-size:24px;font-weight:700}
+.mfs{display:inline-block;width:14px}

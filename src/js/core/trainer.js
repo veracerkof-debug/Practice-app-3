@@ -30,6 +30,8 @@ function trStart(items){
    if(bank.length&&(Math.random()<.3||!av.length)){tasks.push({k:'pick',it:bank.pop()});prev='pick';continue}
    const ch=av.filter(m=>m!==prev),m=pick1(ch.length?ch:av);tasks.push(mGen(c,m,TR.les));prev=m;
   }
+  if(TR.mode==='all'&&TR.les.length>1){ // сначала блоком (по урокам, по порядку), затем вперемешку — PRINCIPLES.md §5.2
+   const lv=x=>x.k==='m'?x.l:(x.it&&x.it.l)||0,k=Math.ceil(tasks.length*.4),head=tasks.slice(0,k).sort((a,b)=>lv(a)-lv(b));tasks.splice(0,k,...head)}
   TR.run={tasks,i:0,ok:0,tot:0,wrong:[],pool:[]};return;
  }
  const pool=items||shuffle(trPool()).slice(0,TR.cnt==='all'?9999:TR.cnt);

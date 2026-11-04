@@ -168,6 +168,15 @@ const MECH={
   ready:t=>t.sel!=null&&t.rsel!=null,
   act(t,d){if(d.ma==='ltr')t.sel=d.v;if(d.ma==='why')t.rsel=t.rs[+d.i][0]},
   grade(t){const ok=t.sel===t.a&&t.valid.includes(t.rsel);return {ok,right:`${fill(t.w,t.a)} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Буква верна, но правило выбрано не то.':''}}},
+ // ── Найти орфограмму (до решения): ученик сам находит место, где нужно применить правило урока
+ fo:{t:'Найти орфограмму',l:[4],d:'Нажать на место в слове, где нужно применить правило урока.',
+  gen(c,les){const G=c.wk.gapWhy;const it=G.keys?(pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items)):pick1(G.items);
+   const w=it[0],a=it[1],p=w.indexOf('_'),full=w.replace('_',a),rule=G.keys?ORTHO_R[it[3][0]].t:G.reasons[it[3]];
+   return mFinal({k:'m',m:'fo',l:G.keys?it[4]:4,q:c.wk.foQ||'Нажать на букву, которую нужно проверять по правилу урока.',full,sp:[p,p+a.length-1],rule,sel:null})},
+  body:t=>`<div class="mlet mfo">${[...t.full].map((ch,i)=>ch===' '?'<span class="mfs"></span>':`<button class="mw mfl ${t.res?(i>=t.sp[0]&&i<=t.sp[1]?'ok':i===t.sel?'bad':''):t.sel===i?'on':''}" data-ma="pick" data-i="${i}" ${t.res?'disabled':''}>${esc(ch)}</button>`).join('')}</div>`,
+  ready:t=>t.sel!=null,
+  act(t,d){if(d.ma==='pick')t.sel=+d.i},
+  grade(t){const ok=t.sel>=t.sp[0]&&t.sel<=t.sp[1];const w=t.full;return {ok,right:`${w.slice(0,t.sp[0])}[${w.slice(t.sp[0],t.sp[1]+1)}]${w.slice(t.sp[1]+1)}`,why:'Правило: '+lc1(t.rule)+'.'}}},
  // ── М. Н или НН в предложении + «почему?» (орфограммы общего корпуса)
  gs:{t:'Буква в предложении и «почему?»',l:[],d:'Вставить пропущенное в предложение и выбрать правило.',
   gen(c,les){const [u,i]=pick1(orthPool(c,les)),o=u[i].or,rs=shuffle([o.r[0],...orthTraps(c.id,o.r,ORTHO_R[o.r[0]].l)]);

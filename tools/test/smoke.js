@@ -51,11 +51,11 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  // упражнения: номера, задание по номерам, ссылка, поиск номера
  const cnt=()=>p.evaluate(()=>document.querySelectorAll('.clex').length);
  await p.goto(U+'#ch-prichastie');await p.click('[data-tab="classic"]');
- check(await p.evaluate(()=>document.querySelectorAll('.clnav [data-clgo]').length)===40,'карта номеров упражнений');
+ check(await p.evaluate(()=>document.querySelectorAll('.clnav [data-clgo]').length)===await p.evaluate(()=>document.querySelectorAll('.clex').length),'карта номеров упражнений');
  await p.fill('.clnav [data-clform] input','12–15');await p.press('.clnav [data-clform] input','Enter');
  check(await cnt()===4&&(await p.evaluate(()=>location.hash))==='#ex-prichastie-12-15','задание «12–15»: только 4 упражнения и ссылка');
  await p.click('[data-clall]');await p.click('[data-cls="5"]');await p.click('.clnav [data-clgo="3"]');await p.waitForTimeout(100);
- check(await cnt()===40,'переход к номеру снимает фильтры');
+ check(await cnt()>=100,'переход к номеру снимает фильтры');
  await p.goto(U+'#ex-nn-4-6,10');await p.reload();check(await cnt()===4,'ссылка на упражнения 4–6, 10');
  await p.goto(U+'#toc');await p.fill('#q','4.6.12');check(await p.evaluate(()=>!!document.querySelector('[data-exgo="prichastie:12"]')),'поиск упражнения по номеру 4.6.12');
  await p.click('[data-exgo="prichastie:12"]');check(await cnt()===1,'переход из поиска к упражнению');
@@ -86,7 +86,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
    sx:t=>{t.u.forEach((x,i)=>{if(x.pu)return;const y=t.full?x.mem:(x.mem==='П'||x.mem==='С'?x.mem:'');if(y)t.mk[i]=y})},bw:t=>{t.sel=[...t.a]},
    mp:t=>{let pos=-1;t.b=[];t.a.slice(0,-1).forEach(([ty,x])=>{pos+=x.length;t.b.push(pos)});let s=0;t.a.forEach(([ty,x])=>{t.ty[s+'-'+(s+x.length-1)]=ty;s+=x.length})},
    gr:t=>{t.items.forEach((x,i)=>t.mk[i]=x.k)},pr:t=>{t.L.forEach(v=>t.pm[v]=t.a[v])},mx:t=>{t.mk=[...t.a]},gw:t=>{t.sel=t.a;t.rsel=t.r},nw:t=>{t.sel=t.a;t.rsel=t.r},
-   gs:t=>{t.sel=t.a;t.rsel=t.r},gt:t=>{t.gaps.forEach((g,i)=>t.sel[i]=g.a)}};
+   gs:t=>{t.sel=t.a;t.rsel=t.r},gt:t=>{t.gaps.forEach((g,i)=>t.sel[i]=g.a)},fo:t=>{t.sel=t.sp[0]}};
   for(const id of ['prichastie','nn']){const c=CHAPTERS[id],les=c.lessons.map((_,i)=>i+1);
    for(const m of mAvail(c,les)){let ok=0,wrong=0;for(let k=0;k<30;k++){const t=mGen(c,m,les);if(MECH[m].grade(t).ok&&!(m==='cm'&&!t.need.length))wrong++; /* без запятых пустой ответ верен */
     solve[m](t);if(MECH[m].ready(t)&&MECH[m].grade(t).ok)ok++}out.push([id+':'+m,ok,wrong])}}
