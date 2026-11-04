@@ -8,6 +8,7 @@ const K4S={дн:'действ. наст.',дп:'действ. прош.',сн:'�
 const MEMB={П:'подлежащее',С:'сказуемое',О:'определение',Д:'дополнение',Б:'обстоятельство'};
 const MEMC={П:'uP',С:'uS',О:'uO',Д:'uD',Б:'uB'};
 const PRON=['я','ты','мы','вы','он','она','оно','они'];
+const MP_SKIP=['бреющий','зависящий','ненавидящий']; // разбор по составу у разных авторов разный — в задания не берём
 const SUFS=['ущ','ющ','ащ','ящ','ем','ом','им','вш','ш','нн','енн','ённ','т'];
 const rnd=n=>Math.floor(Math.random()*n);
 const sample=(a,n)=>shuffle(a).slice(0,n);
@@ -35,7 +36,7 @@ const MECH={
   ready:t=>t.sel.length>0,
   act(t,d){if(d.ma==='tog')mTog(t.sel,+d.i)},
   grade(t){const ok=t.items.every((x,i)=>x.y===t.sel.includes(i));return {ok,right:t.items.filter(x=>x.y).map(x=>x.w).join(', '),
-   why:t.l===1?'Причастие — признак по действию, у него суффиксы -ущ-/-ющ-, -ащ-/-ящ-, -ем-/-им-, -вш-/-ш-, -нн-/-енн-, -т-.':'Действительные: -ущ-/-ющ-, -ащ-/-ящ- (наст.), -вш-/-ш- (прош.). Страдательные: -ем-/-им- (наст.), -нн-/-енн-, -т- (прош.).'}}},
+   why:t.l===1?'Причастие образовано от глагола и обозначает признак по действию; его суффиксы: -ущ-/-ющ-, -ащ-/-ящ-, -ем-/-ом-/-им-, -вш-/-ш-, -нн-/-енн- (-ённ-), -т-. Слова от существительных (деревянный — от «дерево») — прилагательные.':'Действительные: -ущ-/-ющ-, -ащ-/-ящ- (наст.), -вш-/-ш- (прош.). Страдательные: -ем-/-ом-/-им- (наст.), -нн-/-енн- (-ённ-), -т- (прош.).'}}},
  // ── Б. Выделить в предложении (уроки 1, 7)
  hls:{t:'Выделить в предложении',l:[1,7],d:'Нажать на слова в предложении: причастия, оборот целиком или определяемое слово.',
   gen(c,les){const S_=c.wk.sents.map(wkUnits),vars=[];
@@ -87,7 +88,7 @@ const MECH={
  bw:{t:'Собрать причастие',l:[3],d:'Собрать причастие из основы, суффикса и окончания.',
   gen(c){const B=c.wk.build,v=pick1(Object.keys(B)),V=B[v],fi=pick1(V.f.map((f,i)=>f?i:-1).filter(i=>i>=0)),f=V.f[fi];
    const stems=[...new Set([V.pres[1],...V.inf[1].split(' / '),...V.f.filter(Boolean).map(x=>x[1])])];
-   const ban=f[2]==='енн'||f[2]==='ённ'?['енн','ённ']:[f[2]];
+   const ban=['нн','енн','ённ'].includes(f[2])?['нн','енн','ённ']:[f[2]]; // «виде+нн» = «вид+енн» — второй верный путь не даём
    return mFinal({k:'m',m:'bw',l:3,q:`Собрать ${['действительное причастие настоящего времени','страдательное причастие настоящего времени','действительное причастие прошедшего времени','страдательное причастие прошедшего времени'][fi]} от глагола «${v}».`,
     hint:`${V.pres[0]} · ${V.inf[0]}`,a:[f[1],f[2],f[3]],note:f[4]||'',rows:[shuffle(stems),shuffle([f[2],...sample(SUFS.filter(x=>!ban.includes(x)),3)]),shuffle(['ий','ый'])],sel:[null,null,null],fi})},
   body(t){const nm=['Основа','Суффикс','Окончание'];
@@ -96,11 +97,12 @@ const MECH={
    ${t.rows.map((r,i)=>`<div class="tl">${nm[i]}</div><div class="chips">${r.map(x=>`<button class="chipc" data-ma="pick" data-i="${i}" data-v="${esc(x)}" aria-pressed="${t.sel[i]===x}" ${t.res?'disabled':''}>${i===1?'-'+esc(x)+'-':esc(x)}</button>`).join('')}</div>`).join('')}</div>`},
   ready:t=>t.sel.every(x=>x!=null),
   act(t,d){if(d.ma==='pick')t.sel[+d.i]=d.v},
-  grade(t){const ok=t.sel.every((x,i)=>x===t.a[i]);return {ok,right:`${t.a[0]}-${t.a[1]}-${t.a[2]} → ${t.a.join('')}`,
+  grade(t){const yo=(x,a)=>x===a||(a.includes('ё')&&x===a.replace(/ё/g,'е')); // «нес+ш+ий» = «нёсший» без ё
+   const ok=t.sel.every((x,i)=>i===0?yo(x,t.a[0]):x===t.a[i]);return {ok,right:`${t.a[0]}-${t.a[1]}-${t.a[2]} → ${t.a.join('')}`,
    why:(t.fi<2?'Настоящее время — от основы «они …».':'Прошедшее время — от основы инфинитива.')+(t.note?' Обратите внимание: '+t.note+'.':'')}}},
  // ── Е. Разобрать по составу (уроки 3, 4)
  mp:{t:'Разобрать по составу',l:[3,4],d:'Нажимать между буквами, чтобы разделить слово на части, затем назвать каждую часть.',
-  gen(){const E=DICT.filter(e=>e.pos==='причастие'&&e.morph),e=pick1(E);
+  gen(){const E=DICT.filter(e=>e.pos==='причастие'&&e.morph&&!MP_SKIP.includes(e.w)),e=pick1(E);
    return mFinal({k:'m',m:'mp',l:3,q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
   body(t){const L=[...t.w],segs=mSegs(t),tools=['pref','root','suf','end','post'];
    let h=`<div class="mpal">${tools.map(k=>`<button class="mtool ${t.tool===k?'on':''}" data-ma="tool" data-v="${k}" ${t.res?'disabled':''}><i class="lg m-${k}" style="--mc:${MT[k][1]}"></i>${MT[k][0]}</button>`).join('')}</div>`;
@@ -124,7 +126,7 @@ const MECH={
   ready:t=>t.items.every((_,i)=>t.mk[i]),
   act(t,d){if(d.ma==='tool')t.tool=d.v;if(d.ma==='mark')t.mk[+d.i]=t.tool},
   grade(t){const ok=t.items.every((x,i)=>t.mk[i]===x.k);return {ok,right:t.items.map(x=>`${x.w} — ${K4S[x.k]}`).join('; '),
-   why:'Сам делает — действительное, над ним делают — страдательное; -ущ-/-ющ-, -ащ-/-ящ-, -ем-/-им- — настоящее, -вш-/-ш-, -нн-/-енн-, -т- — прошедшее.'}}},
+   why:'Сам делает — действительное, над ним делают — страдательное; -ущ-/-ющ-, -ащ-/-ящ-, -ем-/-ом-/-им- — настоящее, -вш-/-ш-, -нн-/-енн- (-ённ-), -т- — прошедшее.'}}},
  // ── З. Пары: глагол — причастие (урок 3)
  pr:{t:'Соединить пары',l:[3],d:'Нажать на глагол, затем на причастие от него.',
   gen(c){const M=c.wk.matrix,vs=sample(Object.keys(M),4),pairs=vs.map(v=>[v,pick1(M[v][2].filter((x,i)=>x&&x!=='—'&&!(i===3&&M[v][0]==='несов.')))]); // редкие «читанный», «строенный» — не в пары
@@ -136,7 +138,7 @@ const MECH={
   ready:t=>t.L.every(v=>t.pm[v]),
   act(t,d){if(d.ma==='L')t.cur=t.cur===d.v?null:d.v;
    if(d.ma==='R'){const k=Object.keys(t.pm).find(k=>t.pm[k]===d.v);if(k)delete t.pm[k];if(t.cur){t.pm[t.cur]=d.v;t.cur=t.L.find(v=>!t.pm[v])||null}}},
-  grade(t){const ok=t.L.every(v=>t.pm[v]===t.a[v]);return {ok,right:t.L.map(v=>`${v} → ${t.a[v]}`).join('; '),why:'Причастие сохраняет основу своего глагола и его вид.'}}},
+  grade(t){const ok=t.L.every(v=>t.pm[v]===t.a[v]);return {ok,right:t.L.map(v=>`${v} → ${t.a[v]}`).join('; '),why:'Причастие сохраняет вид и возвратность своего глагола: прочитать → прочитавший, проснуться → проснувшийся. У «идти» прошедшее время — от особой основы: шедший.'}}},
  // ── И. Четыре клетки (урок 2)
  mx:{t:'Четыре клетки',l:[2],d:'Выбрать причастие (или «нет такого») и нажать на клетку таблицы.',
   gen(c){const M=c.wk.matrix,PAIR={читать:'прочитать',прочитать:'читать',строить:'построить',построить:'строить',идти:'прийти',прийти:'идти'};
@@ -161,7 +163,7 @@ const MECH={
   grade(t){const ok=t.sel===t.a&&t.rsel===t.r;return {ok,right:`${fill(t.w,t.a)} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Буква верна, но правило выбрано не то.':''}}},
  // ── Л. «Не» и почему (урок 6)
  nw:{t:'«Не» и «почему?»',l:[6],d:'Решить, слитно или раздельно, и выбрать правило.',
-  gen(c){const N=c.wk.neWhy,[w,a,r]=pick1(N.items),rs=shuffle([r,...sample(N.reasons.map((_,i)=>i).filter(i=>i!==r),3)]);
+  gen(c){const N=c.wk.neWhy,[w,a,r]=pick1(N.items),bad=r===5?[1]:[],rs=shuffle([r,...sample(N.reasons.map((_,i)=>i).filter(i=>i!==r&&!bad.includes(i)),3)]); // «вовсе» иногда считают зависимым словом
    return mFinal({k:'m',m:'nw',l:6,q:'Как пишется «не»? Почему?',w,a,r,rs:rs.map(i=>[i,N.reasons[i]]),sel:null,rsel:null})},
   body:t=>`<div class="word" style="font-size:22px">${esc(t.w)}</div><div class="ans" style="justify-content:center">${['слитно','раздельно'].map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${v}" ${t.res?'disabled':''} style="min-width:110px;min-height:48px">${v}</button>`).join('')}</div>
    ${t.sel?`<div class="tl">Почему?</div><div class="tsopts">${t.rs.map(([i,x])=>`<button class="opt ${t.res?(i===t.r?'eok':i===t.rsel?'ebad':''):t.rsel===i?'on':''}" data-ma="why" data-i="${i}" ${t.res?'disabled':''}>${esc(x)}</button>`).join('')}</div>`:''}`,
