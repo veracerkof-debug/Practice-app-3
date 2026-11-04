@@ -4,5 +4,5 @@ const TABLE_NN=`<div class="tblw"><table class="bktbl wide"><thead><tr><th>Су�
 <tr><td>-онн-, -енн-</td><td><span class="tagNN">нн</span></td><td class="ex">революционный, клюквенный</td><td><span class="tagN">н</span> <span class="ex">ветреный</span></td></tr>
 <tr><td>основа на н + -н-</td><td><span class="tagNN">нн</span></td><td class="ex">лимонный, длинный, старинный (старина), машинный (машина)</td><td>—</td></tr>
 </tbody></table></div>`;
-CLASSIC.forEach(e=>{e.st=e.st===1?(e.obr?1:2):e.st===2?(e.obr?2:3):4;if(/^(Диктант|Сочинение|Составить связный текст)/.test(e.task))e.st=5});
+// звёзды (st 1–5) и пометка «особое» (os) заданы в данных упражнений
 Object.assign(NN,{bank:BANK,classic:CLASSIC,lnames:LNAMES,bookref:BOOKREF,table:TABLE_NN});
