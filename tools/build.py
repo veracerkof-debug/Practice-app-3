@@ -7,7 +7,7 @@
 """
 import os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSS = ['src/css/base.css', 'src/css/nav.css', 'src/css/dictionary.css', 'src/css/end.css']
+CSS = ['src/css/base.css', 'src/css/nav.css', 'src/css/dictionary.css', 'src/css/wide.css', 'src/css/end.css']
 JS = [
     'src/js/core/store.js',            # хранилище, PARTS (оглавление курса)
     'src/chapters/nn/lessons.js',       # глава «Н и НН»: теория

@@ -103,7 +103,7 @@ function bookTOC(){
  if(cont){const L=LES[cont],m=chById(L.ch);
   h+=`<button class="bcont" style="--pc:${m.part.c}" data-ojump2="${cont}"><span class="kick">${last?'Продолжить':'Начать'}</span><span class="t">${LES[cont].t}</span><span class="s">${m.t} · урок ${L.n} из ${CHAPTERS[L.ch].lessons.length}</span><span class="go">›</span></button>`}
  h+=`<div class="bstat"><div><b>${ready.length}</b> из ${ALLCH.length}<span>глав готово</span></div><div><b>${dn}</b> из ${allL.length}<span>уроков пройдено</span></div><div><b>${GL.length}</b><span>терминов</span></div><div><b>${ALLW.length}</b><span>слов в словарике</span></div></div>`;
- h+=`<div class="kick" style="margin-top:4px">Содержание</div>`;
+ h+=`<div class="kick" style="margin-top:4px">Содержание</div><div class="tparts">`;
  PARTS.forEach(p=>{
   const rN=p.ch.filter(c=>CHAPTERS[c.id]).length;
   h+=`<section class="tpart" style="--pc:${p.c}"><header><span class="pnum">${p.n}</span><span class="pt">${p.t}</span><span class="pc">${rN?`${rN} из ${p.ch.length} готово`:`${p.ch.length} глав`}</span></header><ol class="tchs">`;
@@ -117,6 +117,7 @@ function bookTOC(){
   });
   h+='</ol></section>';
  });
+ h+='</div>';
  h+=`<div class="kick" style="margin-top:6px">Справочник</div><div class="bref">
  <button data-view="gloss">${ico('gloss',24)}<b>Глоссарий</b><span>${GL.length} терминов с определениями и ссылками на уроки</span></button>
  <button data-view="dict">${ico('dict',24)}<b>Словарик</b><span>${ALLW.length} слов: исключения, пары, трудные написания</span></button>

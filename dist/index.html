@@ -470,6 +470,56 @@ h4[id],.bkles{scroll-margin-top:72px}
  .ftbl.adj[data-c="1"] td:nth-child(2),.ftbl.adj[data-c="2"] td:nth-child(3),.ftbl.adj[data-c="3"] td:nth-child(4),.ftbl.adj[data-c="4"] td:nth-child(5){display:table-cell}
  .ftbl th{width:64px}
 }
+/* Широкие экраны (компьютер, ≥1100px): страница шире, в главе — боковое содержание.
+   На телефоне и планшете ничего не меняется: .chside скрыт, .chgrid — обычный поток. */
+.chside{display:none}
+.chgrid,.chmain{display:contents}
+.tparts{display:flex;flex-direction:column;gap:14px}
+@media (min-width:1100px){
+  .wrap{max-width:1240px}
+  .bkhbar .in{max-width:1176px}
+  .wrap{padding-left:32px;padding-right:32px;gap:16px}
+  .wpage{max-width:1240px}
+  body{font-size:17px}
+
+  /* глава: содержание слева, текст справа */
+  .chgrid{display:grid;grid-template-columns:270px minmax(0,1fr);gap:20px 40px;align-items:start}
+  .chmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .chside{display:flex;flex-direction:column;gap:10px;position:sticky;top:72px;max-height:calc(100vh - 92px);overflow-y:auto;
+    padding:4px 6px 12px 0;scrollbar-width:thin}
+  .chside .otl>li>button{background:transparent;padding:8px;font-size:15px;line-height:1.3}
+  .chside .otl>li>button:hover{background:var(--fill)}
+  .chside .otl>li>button.cur{background:var(--cell);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .chside .otl>li>button.cur .on{background:var(--tint);color:var(--on-tint)}
+  .chside .otl ol{margin:0 0 4px 36px}
+  .chside .otl ol button{font-size:13.5px;padding:4px 8px;line-height:1.3}
+  .chside .stabs{display:flex;gap:6px;margin-top:4px}
+  .chside .stabs button{flex:1;min-height:40px;border-radius:12px;border:0;font-weight:600;font-size:14px}
+  .chside .stabs button[aria-pressed="true"]{background:var(--tint);color:var(--on-tint)}
+  .chwide .bklnav{display:none}              /* полоса уроков не нужна: они слева */
+  .chwide .bktext{max-width:none}             /* схемы, таблицы и практика — во всю ширину */
+  .bkles p,.bkles li,.bkles h3,.bkles h4{max-width:75ch} /* а строки текста — удобной длины */
+  .bsrc{max-width:none}
+  .chwide>.bpn{margin-left:310px}
+
+  /* главная: части курса в две колонки */
+  .tparts{display:block;columns:2;column-gap:16px}
+  .tparts>.tpart{break-inside:avoid;margin-bottom:16px}
+
+  /* глоссарий: карточки терминов по две в ряд */
+  .lgrp:has(.gterm){display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  .lgrp .lch{grid-column:1/-1}
+
+  /* словарик: слова в две колонки */
+  .dlist{display:grid;grid-template-columns:1fr 1fr}
+  .dlist .dw:nth-child(2){border-top:0}
+  .dlist .dw:nth-child(even){border-left:1px solid var(--sep)}
+
+  /* статья умного словаря: разделы по два в ряд */
+  .wpage{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  .wpage>*{grid-column:1/-1}
+  .wpage>.wsec:nth-of-type(n+3){grid-column:auto}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -2315,7 +2365,7 @@ function bookTOC(){
  if(cont){const L=LES[cont],m=chById(L.ch);
   h+=`<button class="bcont" style="--pc:${m.part.c}" data-ojump2="${cont}"><span class="kick">${last?'Продолжить':'Начать'}</span><span class="t">${LES[cont].t}</span><span class="s">${m.t} · урок ${L.n} из ${CHAPTERS[L.ch].lessons.length}</span><span class="go">›</span></button>`}
  h+=`<div class="bstat"><div><b>${ready.length}</b> из ${ALLCH.length}<span>глав готово</span></div><div><b>${dn}</b> из ${allL.length}<span>уроков пройдено</span></div><div><b>${GL.length}</b><span>терминов</span></div><div><b>${ALLW.length}</b><span>слов в словарике</span></div></div>`;
- h+=`<div class="kick" style="margin-top:4px">Содержание</div>`;
+ h+=`<div class="kick" style="margin-top:4px">Содержание</div><div class="tparts">`;
  PARTS.forEach(p=>{
   const rN=p.ch.filter(c=>CHAPTERS[c.id]).length;
   h+=`<section class="tpart" style="--pc:${p.c}"><header><span class="pnum">${p.n}</span><span class="pt">${p.t}</span><span class="pc">${rN?`${rN} из ${p.ch.length} готово`:`${p.ch.length} глав`}</span></header><ol class="tchs">`;
@@ -2329,6 +2379,7 @@ function bookTOC(){
   });
   h+='</ol></section>';
  });
+ h+='</div>';
  h+=`<div class="kick" style="margin-top:6px">Справочник</div><div class="bref">
  <button data-view="gloss">${ico('gloss',24)}<b>Глоссарий</b><span>${GL.length} терминов с определениями и ссылками на уроки</span></button>
  <button data-view="dict">${ico('dict',24)}<b>Словарик</b><span>${ALLW.length} слов: исключения, пары, трудные написания</span></button>
@@ -6642,7 +6693,8 @@ function chapterHTML(id){
  const meta=chById(id); const ch=CHAPTERS[id];
  const idx=ALLCH.indexOf(meta);
  const prev=ALLCH[idx-1],next=ALLCH[idx+1];
- let h=`<div class="bkhbar"><div class="in"><button class="back" data-home>‹ Оглавление</button><span class="tools"><span class="where">${meta.part.t} · ${meta.part.ch.indexOf(meta)+1} из ${meta.part.ch.length}</span>${ch?`<button class="ibtn" data-outline="${id}" aria-label="Содержание главы"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Содержание</button>`:''}</span></div></div><div class="wrap">`;
+ let h=`<div class="bkhbar"><div class="in"><button class="back" data-home>‹ Оглавление</button><span class="tools"><span class="where">${meta.part.t} · ${meta.part.ch.indexOf(meta)+1} из ${meta.part.ch.length}</span>${ch?`<button class="ibtn" data-outline="${id}" aria-label="Содержание главы"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Содержание</button>`:''}</span></div></div><div class="wrap${ch?' chwide':''}">`;
+ if(ch)h+=`<div class="chgrid">${chSide(id)}<div class="chmain">`;
  h+=`<header class="chhead"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><h2>${meta.t}</h2><div class="sub">${ch?ch.s:meta.s}</div></div>${ch?`<button class="easy" data-easy aria-pressed="${!!S.easy}"><span class="sw"><i></i></span>Проще</button>`:''}</header>`;
  if(!ch){
   h+=`<div class="bins btip"><div class="h">Глава готовится</div><p>В образце готова одна глава — «Н и НН». На ней показано, как будут устроены все остальные: уроки, схема, упражнения, тонкости и карточки.</p><div><button class="linkbtn" data-ch="nn">Открыть «Н и НН» ›</button></div></div>`;
@@ -6668,11 +6720,26 @@ function chapterHTML(id){
   });
   h+=`</article>`;}
   if(meta.deck&&DECKS[meta.deck])h+=`<div class="bins bkey" style="max-width:72ch"><div class="h">Повторить</div><p>По этой главе есть колода карточек с интервальным повторением.</p><div><button class="linkbtn" data-deck="${meta.deck}">Учить карточки ›</button></div></div>`;
-  h+=`<div class="bsrc">По книгам: ${ch.src}</div>`;
+  h+=`<div class="bsrc">По книгам: ${ch.src}</div></div></div>`;
  }
  h+=`<nav class="bpn"><button data-ch="${prev?prev.id:''}" ${prev?'':'disabled'}>‹ ${prev?prev.t:''}</button><button data-ch="${next?next.id:''}" ${next?'':'disabled'}>${next?next.t:''} ›</button></nav></div>`;
  return h;
 }
+
+// боковое содержание главы (видно на широких экранах, ≥1100px)
+function chSide(id){
+ const ch=CHAPTERS[id],tab=S.tab||'theory',d=ch.lessons.filter(l=>S.done[l.id]).length;
+ return `<aside class="chside" aria-label="Содержание главы"><div class="kick">Содержание · ${d} из ${ch.lessons.length}</div>
+ <ol class="otl sotl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" data-sl="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
+  ${S.easy||tab!=='theory'?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>
+ <div class="stabs">${[['train','Тренажёр'],['classic','Упражнения']].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div></aside>`;
+}
+// подсветка текущего урока в боковом содержании
+let SIDEF=0;
+addEventListener('scroll',()=>{if(SIDEF)return;SIDEF=requestAnimationFrame(()=>{SIDEF=0;
+ const side=document.querySelector('.chside');if(!side||!side.offsetParent)return;
+ let cur=null;document.querySelectorAll('.bkles').forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s.id});
+ side.querySelectorAll('[data-sl]').forEach(b=>b.classList.toggle('cur',b.dataset.sl===cur))})},{passive:true});
 
 function deckHTML(k){
  const d=DECKS[k],s=deckStats(k);
