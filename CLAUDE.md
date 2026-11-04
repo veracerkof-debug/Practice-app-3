@@ -55,6 +55,8 @@
 python3 tools/build.py            # собрать dist/index.html (ученик, без ответов; + www/index.html для Pages и Android) и dist/teacher.html (учитель, с ответами)
 node tools/test/smoke.js          # прогон всех схем, тренажёра, упражнений, навигации (нужен playwright)
 node tools/test/layout.js         # ничего не вылезает за границы при 360 / 768 / 1280 px
+sh tools/lit/fetch.sh && python3 tools/lit/build.py   # корпус русской классики (~270 тыс. предложений, 24 автора) в .cache/lit
+node tools/lit/find.js "<регулярка>" --a "Чехов" --n 40   # поиск предложений для упражнений (уже использованные исключаются)
 ```
 Перед каждым коммитом: сборка + оба теста без ошибок.
 
