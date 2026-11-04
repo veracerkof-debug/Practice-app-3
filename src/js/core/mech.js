@@ -15,17 +15,17 @@ const sample=(a,n)=>shuffle(a).slice(0,n);
 function mClone(t){const o=JSON.parse(JSON.stringify(t.orig||t));delete o.orig;o.retry=true;o.orig=JSON.parse(JSON.stringify(o));return o}
 function mFinal(t){t.orig=JSON.parse(JSON.stringify(t));return t}
 // предложение: «Листья{П;ов} , опавшие{О;о;п:дп} …» → единицы
-function wkUnits(s){return s.split(' ').map(tok=>{const m=tok.match(/^(.+?)(?:\{(.+)\})?$/),tg=m[2]?m[2].split(';'):[];
- return {t:m[1].replace(/_/g,' '),mem:tg.find(x=>MEMB[x])||'',ob:tg.includes('о'),ov:tg.includes('ов'),pr:(tg.find(x=>x.startsWith('п:'))||'').slice(2),kr:tg.includes('к'),pu:/^[,.!?]$/.test(m[1])}})}
+const wkUnits=corpusUnits; // разбор строки корпуса — src/data/corpus/levels.js
 const wkWords=u=>u.filter(x=>!x.pu||x.t!==',');               // без запятых (точка остаётся)
 const unitsText=(u,withCommas=true)=>u.filter(x=>withCommas||x.t!==',').reduce((s,x)=>x.pu?s+x.t:(s?s+' ':'')+x.t,'');
-const allWords=wk=>Object.entries(wk.words).flatMap(([k,ws])=>ws.map(w=>({w,k})));
+// слова из общего корпуса: k — разряд причастия или «пр» для прилагательного
+const allWords=c=>corpusWords(c.id,x=>x.pos==='прич'||x.pos==='прил').map(x=>({w:x.w,k:x.pos==='прил'?'пр':x.r}));
 const lesOK=(m,les)=>MECH[m].l.some(l=>les.includes(l));
 
 const MECH={
  // ── А. Выделить слова в наборе (уроки 1, 2)
  hlw:{t:'Выделить слова',l:[1,2],d:'Нажать на все нужные слова в наборе.',
-  gen(c,les){const W=allWords(c.wk),P=W.filter(x=>x.k!=='пр');
+  gen(c,les){const W=allWords(c),P=W.filter(x=>x.k!=='пр');
    const vars=[];if(les.includes(1))vars.push(['причастия',x=>x.k!=='пр',1]);
    if(les.includes(2))vars.push(['действительные причастия',x=>x.k[0]==='д',2],['страдательные причастия',x=>x.k[0]==='с',2],['причастия настоящего времени',x=>x.k[1]==='н',2],['причастия прошедшего времени',x=>x.k[1]==='п',2]);
    const [name,f,l]=pick1(vars);let items;
@@ -39,10 +39,10 @@ const MECH={
    why:t.l===1?'Причастие образовано от глагола и обозначает признак по действию; его суффиксы: -ущ-/-ющ-, -ащ-/-ящ-, -ем-/-ом-/-им-, -вш-/-ш-, -нн-/-енн- (-ённ-), -т-. Слова от существительных (деревянный — от «дерево») — прилагательные.':'Действительные: -ущ-/-ющ-, -ащ-/-ящ- (наст.), -вш-/-ш- (прош.). Страдательные: -ем-/-ом-/-им- (наст.), -нн-/-енн- (-ённ-), -т- (прош.).'}}},
  // ── Б. Выделить в предложении (уроки 1, 7)
  hls:{t:'Выделить в предложении',l:[1,7],d:'Нажать на слова в предложении: причастия, оборот целиком или определяемое слово.',
-  gen(c,les){const S_=c.wk.sents.map(wkUnits),vars=[];
+  gen(c,les){const S_=corpusSents(c.id),vars=[];
    if(les.includes(1))vars.push(['Выделить все причастия.','pr',1]);
    if(les.includes(7))vars.push(['Выделить причастный оборот целиком.','ob',7],['Нажать на определяемое слово — к нему относится причастный оборот.','ov',7]);
-   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)));
+   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)&&(key!=='pr'||les.includes(5)||!u.some(x=>x.kr)))); // краткие причастия — только вместе с уроком 5
    return mFinal({k:'m',m:'hls',l,q,key,u:u.map(x=>({t:x.t,pu:x.pu,y:!!(key==='pr'?x.pr:key==='ob'?x.ob:x.ov),pr:x.pr})),sel:[]})},
   body:t=>`<div class="mst">${t.u.map((x,i)=>x.pu?`<span class="mpu">${x.t}</span>`:`<button class="mw sw ${mSelCls(t,i,x.y)}" data-ma="tog" data-i="${i}" ${t.res?'disabled':''}>${esc(x.t)}</button>`).join('')}</div>`,
   ready:t=>t.sel.length>0,
@@ -52,7 +52,7 @@ const MECH={
     why:t.key==='pr'?'Причастия: '+t.u.filter(x=>x.pr).map(x=>`${x.t} — ${K4S[x.pr]}`).join('; ')+'.':t.key==='ob'?'Оборот — причастие вместе со всеми зависимыми словами.':'Определяемое слово — то, от которого задаётся вопрос к обороту («какой?»).'}}},
  // ── В. Расставить запятые (урок 7)
  cm:{t:'Расставить запятые',l:[7],d:'Нажимать на промежутки между словами, чтобы поставить или убрать запятую.',
-  gen(c){const u=pick1(c.wk.sents.map(wkUnits).filter(u=>u.some(x=>x.ob)));
+  gen(c){const u=pick1(corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}));
    const w=wkWords(u),need=[];let j=-1;u.forEach(x=>{if(x.t===',')need.push(j);else j++});
    const ov=w.findIndex(x=>x.ov),ob=w.findIndex(x=>x.ob),pron=ov>=0&&PRON.includes(w[ov].t.toLowerCase());
    const why=pron?'Оборот относится к личному местоимению — выделяется запятыми всегда.':ob>ov?'Оборот стоит после определяемого слова — выделяется запятыми.':'Оборот стоит перед определяемым словом — запятые не нужны.';
@@ -67,7 +67,7 @@ const MECH={
    const right=t.w.reduce((s,x,i)=>x.pu?s+x.t:(s?s+' ':'')+x.t+(t.need.includes(i)?',':''),'');return {ok,right,why:t.why}}},
  // ── Г. Подчеркнуть члены предложения (уроки 1, 5, 7)
  sx:{t:'Подчеркнуть члены предложения',l:[1,5,7],d:'Выбрать вид подчёркивания и нажимать на слова — как в тетради.',
-  gen(c,les){const all=c.wk.sents.map(wkUnits);let pool=all,full=false,l;
+  gen(c,les){const all=corpusSents(c.id,{mem:true});let pool=all,full=false,l;
    const v=[];if(les.includes(5))v.push(5);if(les.includes(1))v.push(1);if(les.includes(7))v.push(7);l=pick1(v);
    if(l===5)pool=all.filter(u=>u.some(x=>x.kr));                                   // краткое причастие — сказуемое
    else if(l===7){pool=all.filter(u=>u.some(x=>x.ob));full=Math.random()<.5}            // оборот — одно определение
@@ -101,7 +101,7 @@ const MECH={
    const ok=t.sel.every((x,i)=>i===0?yo(x,t.a[0]):x===t.a[i]);return {ok,right:`${t.a[0]}-${t.a[1]}-${t.a[2]} → ${t.a.join('')}`,
    why:(t.fi<2?'Настоящее время — от основы «они …».':'Прошедшее время — от основы инфинитива.')+(t.note?' Обратите внимание: '+t.note+'.':'')}}},
  // ── Е. Разобрать по составу (уроки 3, 4)
- mp:{t:'Разобрать по составу',l:[3,4],d:'Нажимать между буквами, чтобы разделить слово на части, затем назвать каждую часть.',
+ mp:{t:'Морфемный разбор (2)',l:[3,4],d:'Нажимать между буквами, чтобы разделить слово на части, затем назвать каждую часть.',
   gen(){const E=DICT.filter(e=>e.pos==='причастие'&&e.morph&&!MP_SKIP.includes(e.w)),e=pick1(E);
    return mFinal({k:'m',m:'mp',l:3,q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
   body(t){const L=[...t.w],segs=mSegs(t),tools=['pref','root','suf','end','post'];
@@ -119,7 +119,7 @@ const MECH={
     why:'Суффикс причастия показывает разряд: '+(t.a.find(m=>m[0]==='suf')||['',''])[1]+'.'}}},
  // ── Ж. Разложить по разрядам (урок 2)
  gr:{t:'Разложить по разрядам',l:[2],d:'Выбрать разряд и нажимать на причастия этого разряда.',
-  gen(c){const W=c.wk.words,items=shuffle(['дн','дп','сн','сп'].flatMap(k=>sample(W[k],2).map(w=>({w,k}))));
+  gen(c){const W=allWords(c),items=shuffle(['дн','дп','сн','сп'].flatMap(k=>sample(W.filter(x=>x.k===k),2)));
    return mFinal({k:'m',m:'gr',l:2,q:'Разложить причастия по разрядам.',items,mk:{},tool:'дн'})},
   body:t=>`<div class="mpal">${['дн','дп','сн','сп'].map(k=>`<button class="mtool g-${k} ${t.tool===k?'on':''}" data-ma="tool" data-v="${k}" ${t.res?'disabled':''}>${K4S[k]}</button>`).join('')}</div>
    <div class="mwl">${t.items.map((x,i)=>{const m=t.mk[i];return `<button class="mw ${m?'g-'+m:''} ${t.res?(m===x.k?'ok':'bad'):''}" data-ma="mark" data-i="${i}" ${t.res?'disabled':''}>${esc(x.w)}<small>${t.res&&m!==x.k?K4S[x.k]:m?K4S[m]:''}</small></button>`}).join('')}</div>`,
@@ -176,7 +176,8 @@ const lc1=x=>x.charAt(0).toLowerCase()+x.slice(1);
 function mTog(a,i){const k=a.indexOf(i);k<0?a.push(i):a.splice(k,1)}
 function mSelCls(t,i,y){const on=t.sel.includes(i);if(!t.res)return on?'on':'';return on&&y?'ok':on?'bad':y?'miss':''}
 function mSegs(t){const n=t.w.length,b=[...t.b].sort((x,y)=>x-y),out=[];let s=0;b.forEach(i=>{out.push([s,i]);s=i+1});out.push([s,n-1]);return out}
-const mAvail=(c,les)=>c.wk?Object.keys(MECH).filter(m=>lesOK(m,les)):[];
+const MNEED={hls:c=>corpusSents(c.id).length,cm:c=>corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}).length,sx:c=>corpusSents(c.id,{mem:true}).length,hlw:c=>allWords(c).length,gr:c=>allWords(c).length};
+const mAvail=(c,les)=>c.wk?Object.keys(MECH).filter(m=>lesOK(m,les)&&(!MNEED[m]||MNEED[m](c)>0)):[];
 function mGen(c,m,les){const t=MECH[m].gen(c,les);return t}
 
 function mechHTML(t){
@@ -196,4 +197,4 @@ document.addEventListener('click',e=>{
 });
 
 // самопроверка механик в тестах: доступ к движку только при адресе с ?selftest
-if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen};
+if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
