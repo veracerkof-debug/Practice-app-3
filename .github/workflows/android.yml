@@ -1,9 +1,7 @@
 name: Сборка Android APK
+# Пока только ручной запуск (Actions → «Сборка Android APK» → Run workflow):
+# сначала доводим веб-версию, приложение — потом.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 jobs:
   apk:

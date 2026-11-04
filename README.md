@@ -32,7 +32,7 @@ npm test                    # сборка + дымовой тест + пров�
 
 ## Android
 
-Workflow `.github/workflows/android.yml` при пуше в `main` (или вручную: Actions → «Сборка Android APK» → Run workflow) собирает отладочный APK через Capacitor. Готовый файл — в артефакте `rus-uchebnik-debug-apk` на странице запуска.
+Workflow `.github/workflows/android.yml` (пока только вручную: Actions → «Сборка Android APK» → Run workflow) собирает отладочный APK через Capacitor. Готовый файл — в артефакте `rus-uchebnik-debug-apk` на странице запуска.
 
 Локально (нужны JDK 21 и Android SDK):
 
