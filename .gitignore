@@ -1,0 +1,8 @@
+.cache/
+node_modules/
+dist/_*.html
+__pycache__/
+*.pyc
+.DS_Store
+www/
+android/
