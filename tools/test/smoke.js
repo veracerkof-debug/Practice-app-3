@@ -113,7 +113,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
    sx:t=>{t.u.forEach((x,i)=>{if(x.pu)return;const y=t.full?x.mem:(x.mem==='П'||x.mem==='С'?x.mem:'');if(y)t.mk[i]=y})},bw:t=>{t.sel=[...t.a]},
    mp:t=>{let pos=-1;t.b=[];t.a.slice(0,-1).forEach(([ty,x])=>{pos+=x.length;t.b.push(pos)});let s=0;t.a.forEach(([ty,x])=>{t.ty[s+'-'+(s+x.length-1)]=ty;s+=x.length})},
    gr:t=>{t.items.forEach((x,i)=>t.mk[i]=x.k)},pr:t=>{t.L.forEach(v=>t.pm[v]=t.a[v])},mx:t=>{t.mk=[...t.a]},gw:t=>{t.sel=t.a;t.rsel=t.r},nw:t=>{t.sel=t.a;t.rsel=t.r},
-   gs:t=>{t.sel=t.a;t.rsel=t.r},gt:t=>{t.gaps.forEach((g,i)=>t.sel[i]=g.a)},fo:t=>{t.sel=t.sp[0]}};
+   gs:t=>{t.sel=t.a;t.rsel=t.r},gt:t=>{t.gaps.forEach((g,i)=>t.sel[i]=g.a)},tx:t=>{t.gaps.forEach((g,i)=>t.sel[i]=g.a)},fo:t=>{t.sel=t.sp[0]}};
   for(const id of ['prichastie','nn']){const c=CHAPTERS[id],les=c.lessons.map((_,i)=>i+1);
    for(const m of mAvail(c,les)){let ok=0,wrong=0;for(let k=0;k<30;k++){const t=mGen(c,m,les);if(MECH[m].grade(t).ok&&!(m==='cm'&&!t.need.length))wrong++; /* без запятых пустой ответ верен */
     solve[m](t);if(MECH[m].ready(t)&&MECH[m].grade(t).ok)ok++}out.push([id+':'+m,ok,wrong])}}
@@ -121,17 +121,18 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  mres.forEach(([m,ok,wrong])=>check(ok===30&&wrong===0,`механика ${m}: верное решение засчитано ${ok}/30, пустое — ${wrong}`));
  // общий корпус: уровни доступа и полнота разметки
  const cor=await p.evaluate(()=>{const T=window.__T,u=T.CORPUS_S.map(s=>[s,T.corpusSents('prichastie',{}).length]);
-  const units=T.CORPUS_S.map(s=>s.replace(/^#\S*\s+/,'').split(' '));
-  const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи
+  const units=[...T.CORPUS_S,...T.CORPUS_T.flatMap(x=>x.s)].map(s=>s.replace(/^#\S*\s+/,'').split(' ')); // предложения и связные тексты
+  const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!/\{(?:о;)?ч:(?:союз|част)(?:,(?:союз|част))*\}$/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи (союз и частица отдельно — не член предложения)
   const badComma=units.flat().filter(t=>/^,/.test(t)&&!/^,\{\S+\}$/.test(t)).length;
   const badOrth=units.flat().filter(t=>/ор:/.test(t)).filter(t=>{const m=t.match(/^(.+?)\{.*ор:([^:;}]+):([^:;}]+):([^;}]+)/);if(!m)return true;const words=m[1].split('_').map(w=>w.toLowerCase());
    return !words.includes(m[2].replace('_',m[3]).toLowerCase())||!m[4].split('|').every(k=>k in window.__T.ORTHO_R)}).length; // пропуск находится в слове, правила существуют                     // у каждой запятой — причина
   return {badOrth,all:T.CORPUS_S.length,pr:T.corpusSents('prichastie',{commas:true,has:u=>u.some(x=>x.ob)}).length,sushPos:T.corpusSents('sush',{pos:['прич']}).length,
-   sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
+   sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,texts:T.CORPUS_T.length,textsNN:T.corpusTexts('nn').length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
  const ord=await p.evaluate(()=>window.__T.orderCheck());
  check(ord==='',`порядок изучения: все главы и темы на месте${ord?' — нет: '+ord:''}`);
  check(cor.badOrth===0,'корпус: все орфограммы на месте и с известными правилами');
  check(cor.unmarked===0&&cor.badComma===0,`корпус: разметка полная (${cor.all} предложений)`);
+ check(cor.texts===cor.textsNN,`корпус: связные тексты (${cor.texts}) доступны в теме «Н и НН» целиком`);
  check(cor.pr>=10&&cor.sushPos===0&&cor.sushOb===0&&cor.zvukiW===0,`корпус: уровни — «Причастие» ${cor.pr} предложений с оборотом, «Существительное» без причастий, «Звуки» без слов`);
  await p.click('[data-tab="train"]');if(await p.$('[data-trsetup]'))await p.click('[data-trsetup]');await p.click('[data-trm="all"]');await p.click('[data-trgo]');
  check(!!(await p.$('#trainer .card')),'серия «все виды вперемешку» запускается');

@@ -16,6 +16,7 @@ JS = [
     'src/data/corpus/orthograms.js',    # ORTHO_R — правила орфограмм для разметки слов
     'src/data/corpus/sentences.js',     # CORPUS_S — предложения с полной разметкой
     'src/data/corpus/words.js',         # CORPUS_W — слова
+    'src/data/corpus/texts.js',         # CORPUS_T — связные тексты (отрывки классики)
     'src/chapters/nn/lessons.js',       # глава «Н и НН»: теория
     'src/chapters/nn/bank.js',          #   тренажёр
     'src/chapters/nn/classic.js',       #   упражнения в тетрадь

@@ -439,8 +439,10 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 /* текст с пропусками */
 .mgt{display:flex;flex-direction:column;gap:10px;font-size:18px;line-height:2.1}
 .mgt p{margin:0}
+.gtw{white-space:nowrap}
+.mtx{display:block;line-height:2.3}.mtx p{display:inline}.mtx p+p::before{content:' '}
 .gtopt{display:inline-flex;gap:3px;margin:0 6px 0 4px;vertical-align:middle}
-.gtopt button{min-width:40px;min-height:34px;border:1.5px solid var(--sep);border-radius:9px;background:var(--cell);font-size:15px;font-weight:700;line-height:1;padding:0 6px}
+.gtopt button{min-width:44px;min-height:44px;border:1.5px solid var(--sep);border-radius:9px;background:var(--cell);font-size:15px;font-weight:700;line-height:1;padding:0 6px}
 .gtopt button.on{border-color:var(--tint);background:color-mix(in srgb,var(--tint) 14%,var(--cell))}
 .gtopt button.ok{border-color:var(--T);color:var(--T);background:color-mix(in srgb,var(--T) 12%,var(--cell))}
 .gtopt button.bad{border-color:var(--red);color:var(--red)}
@@ -452,6 +454,7 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .clos{display:inline-block;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:999px;background:var(--fill);color:var(--l2);margin-left:8px;white-space:nowrap}
 .clgl{display:block;font-size:13px;color:var(--l2);line-height:1.45;margin-top:8px;padding-top:6px;border-top:1px dashed var(--sep)}
 .clsrc{display:block;font-size:13px;color:var(--l2);font-style:italic;text-align:right;line-height:1.4;margin:2px 0 4px}
+.gtw .slot{margin:0 1px;padding:0 3px;min-width:0}
 
 /* Навигация */
 .xref{all:unset;cursor:pointer;color:var(--tint-text);font-weight:600;border-bottom:1.5px solid color-mix(in srgb,var(--tint) 45%,transparent)}
@@ -803,8 +806,11 @@ function corpusUnits(s){
 const corpusFlags=s=>{const m=s.match(/^#(\S+)\s/);return m?m[1].split(','):[]};
 // Материал для задания в теме ch. need: {mem — задание про члены предложения, pos — список частей речи, о которых
 // спрашивает задание (['прич','прил']), commas — задание про знаки, has(u) — в предложении есть то, что проверяет задание}
-function corpusSents(ch,need={}){
- return CORPUS_S.map(s=>({s,u:corpusUnits(s),f:corpusFlags(s)})).filter(({u,f})=>{
+function corpusSents(ch,need={}){return corpusFilter(ch,CORPUS_S,need)}
+// связные тексты (CORPUS_T) для темы ch: отрывок доступен, только если доступно КАЖДОЕ его предложение
+function corpusTexts(ch,need={}){return (typeof CORPUS_T==='undefined'?[]:CORPUS_T).map(t=>({a:t.a,w:t.w,g:t.g,ss:corpusFilter(ch,t.s,{})})).filter((t,i)=>t.ss.length===CORPUS_T[i].s.length&&(!need.has||need.has(t.ss)))}
+function corpusFilter(ch,list,need={}){
+ return list.map(s=>({s,u:corpusUnits(s),f:corpusFlags(s)})).filter(({u,f})=>{
   if(u.some(x=>x.mark&&!x.why))return false;                                          // знак без причины — не даём никогда
   if(!u.every(x=>!x.or||orthKnown(ch,x.or.r)))return false;                            // орфограмма неизученной темы — предложение рано давать
   const ff=[...f,...u.filter(x=>x.why).map(x=>x.why)];                                 // причины знаков — как пометки предложения
@@ -918,6 +924,41 @@ const CORPUS_W=[
  ...['читаемый','строимый','решаемый','несомый','хранимый','гонимый','слышимый','изучаемый'].map(w=>({w,pos:'прич',r:'сн'})),
  ...['прочитанный','построенный','написанный','решённый','увиденный','спасённый','вымытый','забытый','сделанный','посеянный'].map(w=>({w,pos:'прич',r:'сп'})),
  ...['красивый','синий','деревянный','тёплый','умный','сладкий','зелёный','весёлый','высокий','лесной'].map(w=>({w,pos:'прил'}))
+];
+// ---------- общий корпус: связные тексты ----------
+// Отрывок классики (общественное достояние): a — автор, w — произведение, g — пояснения к редким и устаревшим словам (без подсказки ответа), s — предложения в формате CORPUS_S (каждое размечено полностью).
+// Предложения идут подряд, как у автора; ё восстановлена. Отрывок доступен теме, только если доступно КАЖДОЕ его предложение (corpusTexts в levels.js).
+const CORPUS_T=[
+ {a:'А. С. Пушкин',w:'История Пугачёва',g:'Хлопуша — один из сподвижников Пугачёва; им — Хлопушей; между ими — между ними; конфедераты — участники польского восстания',s:[
+  'Крепость{П;ов;ч:сущ} ,{об} оставленная{О;о;п:сп;ч:прич;ор:оставле_ая:нн:nn_pref|nn_sov|nn_dep} Хлопушею{О;о;ч:сущ} ,{об} не_была{С;ч:част,гл} им{Д;ч:мест} выжжена{С;п:сп;к;ч:прич;ор:выжже_а:н:nn_kr} .',
+  'Жители{П;ч:сущ} не_были{С;ч:част,гл} выведены{С;п:сп;к;ч:прич;ор:выведе_ы:н:nn_kr} .',
+  'Между_ими{Б;ч:предл,мест} находилось{С;ч:гл} несколько{П;ч:мест} пленных{О;ч:прил;ор:пле_ых:нн:nn_osn} конфедератов{П;ч:сущ} .',
+  '#одн Стены{П;ч:сущ} и{ч:союз} некоторые{О;ч:мест} избы{П;ч:сущ} были{С;ч:гл} повреждены{С;п:сп;к;ч:прич;ор:поврежде_ы:н:nn_kr} .'
+ ]},
+ {a:'Л. Н. Толстой',w:'Хаджи-Мурат',g:'гвардейское житьё — жизнь, обычаи гвардии (отборных войск); приборы — тарелки, ножи, вилки и ложки для одного человека',s:[
+  'Обед{П;ч:сущ} был{С;ч:гл} великолепный{С;ч:прил} .',
+  '#одн Были{С;ч:гл} привезены{С;п:сп;к;ч:прич;ор:привезе_ы:н:nn_kr} и{ч:союз} поставлены{С;п:сп;к;ч:прич;ор:поставле_ы:н:nn_kr} рядом{Б;ч:нар} шесть{П;ч:числ} палаток{П;ч:сущ} .',
+  '#одн Во_всю{О;ч:предл,мест} длину{Б;ч:сущ} их{О;ч:мест} был{С;ч:гл} накрыт{С;п:сп;к;ч:прич} стол{П;ов;ч:сущ} ,{об} уставленный{О;о;п:сп;ч:прич;ор:уставле_ый:нн:nn_pref|nn_sov|nn_dep} приборами{О;о;ч:сущ} и{о;ч:союз} бутылками{О;о;ч:сущ} .',
+  'Всё{П;ч:мест} напоминало{С;ч:гл} петербургское{О;ч:прил} гвардейское{О;ч:прил} житьё{Д;ч:сущ} .'
+ ]},
+ {a:'И. С. Тургенев',w:'Ася',g:'чрез — через; балаганчик — лёгкая постройка для торговли; зельтерская вода — минеральная вода; косилась — смотрела искоса, сбоку',s:[
+  'Я{П;ч:мест} оглянулся{С;ч:гл} .',
+  '#одн В_уголке{Б;ч:предл,сущ} ,{дееп} приютившись{Б;ч:дееп} в_крошечном{О;ч:предл,прил} деревянном{О;ч:прил;ор:деревя_ом:нн:nn_isk1} балаганчике{Б;ч:сущ} ,{дееп} старушка{П;ч:сущ} вязала{С;ч:гл} чулок{Д;ч:сущ} и{ч:союз} косилась{С;ч:гл} на_нас{Д;ч:предл,мест} чрез_очки{Б;ч:предл,сущ} .',
+  '#одн Она{П;ч:мест} продавала{С;ч:гл} туристам{Д;ч:сущ} пиво{Д;ч:сущ} ,{одн} пряники{Д;ч:сущ} и{ч:союз} зельтерскую{О;ч:прил} воду{Д;ч:сущ} .',
+  '#одн Мы{П;ч:мест} уместились{С;ч:гл} на_лавочке{Б;ч:предл,сущ} и{ч:союз} принялись{С;ч:гл} пить{С;ч:гл} из_тяжёлых{О;ч:предл,прил} оловянных{О;ч:прил;ор:оловя_ых:нн:nn_isk1} кружек{Д;ч:сущ} довольно{Б;ч:нар} холодное{О;ч:прил} пиво{Д;ч:сущ} .'
+ ]},
+ {a:'А. П. Чехов',w:'Барыня',g:'обрубывал — обрубал; дроги — длинная телега без кузова',s:[
+  '#одн Семён{П;ч:сущ} Журкин{П;ч:сущ} сидел{С;ч:гл} на_земле{Б;ч:предл,сущ} и{ч:союз} топором{Д;ч:сущ} обрубывал{С;ч:гл} зелёные{О;ч:прил} ветви{Д;ч:сущ} .',
+  'Около_него{Б;ч:предл,мест} лежали{С;ч:гл} три{П;ч:числ} срубленные{О;п:сп;ч:прич;ор:срубле_ые:нн:nn_pref|nn_sov} ольхи{П;ч:сущ} .',
+  '#одн В_стороне{Б;ч:предл,сущ} стояла{С;ч:гл} лошадь{П;ов;ч:сущ} ,{об} впряжённая{О;о;п:сп;ч:прич;ор:впряжё_ая:нн:nn_pref|nn_sov|nn_dep} в_дроги{О;о;ч:предл,сущ} ,{об} и{ч:союз} ела{С;ч:гл} траву{Д;ч:сущ} .',
+  'Ржевецкий{П;ч:сущ} увидел{С;ч:гл} Семёна{Д;ч:сущ} .'
+ ]},
+ {a:'Н. В. Гоголь',w:'Вий',g:'пред — перед; теплились — горели слабым огоньком; образа — иконы; иконостас — стена с иконами перед алтарём; притвор — входная часть церкви',s:[
+  'Посредине{Б;ч:нар} стоял{С;ч:гл} чёрный{О;ч:прил} гроб{П;ч:сущ} .',
+  'Свечи{П;ч:сущ} теплились{С;ч:гл} пред_тёмными{О;ч:предл,прил} образами{Б;ч:сущ} .',
+  '#одн Свет{П;ч:сущ} от_них{О;ч:предл,мест} освещал{С;ч:гл} только{ч:част} иконостас{Д;ч:сущ} и{ч:союз} слегка{Б;ч:нар} середину{Д;ч:сущ} церкви{О;ч:сущ} .',
+  'Отдалённые{О;ч:прил;ор:отдалё_ые:нн:nn_pref|nn_sov} углы{П;ч:сущ} притвора{О;ч:сущ} были{С;ч:гл} закутаны{С;п:сп;к;ч:прич;ор:закута_ы:н:nn_kr} мраком{Д;ч:сущ} .'
+ ]},
 ];
 // ---------- глава Н и НН ----------
 const NN={
@@ -1679,7 +1720,7 @@ Object.assign(ORTHO_R,{
  nn_slozh:{t:'Сложное слово, во второй части нет приставки → н',topic:'nn',l:3}
 });
 const NN_WK={
- mech:{fo:[1,2,3,4,5,6],gs:[1,2,4,5,6],gt:[1,2,4,5,6],gw:[1,2,3,4,5,6],mp:[1,2,6]},
+ mech:{tx:[1,2,3,4,5,6],fo:[1,2,3,4,5,6],gs:[1,2,4,5,6],gt:[1,2,4,5,6],gw:[1,2,3,4,5,6],mp:[1,2,6]},
  foQ:'Нажать на место, где нужно решить: н или нн.',
  // Буква + «почему?»: [слово с пропуском, ответ, варианты, [все верные правила], урок]
  gapWhy:{keys:Object.keys(ORTHO_R).filter(k=>ORTHO_R[k].topic==='nn'),items:[
@@ -3605,11 +3646,21 @@ const MECH={
    return mFinal({k:'m',m:'gt',l:ORTHO_R[gaps[0].r].l,q:'Вставить пропущенные буквы во все слова.',ss:ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
   body(t){return `<div class="mgt">${t.ss.map((u,si)=>`<p>${u.map((x,ui)=>{if(x.pu)return `<span class="mpu">${x.t}</span>`;const gi=t.gaps.findIndex(g=>g.si===si&&g.ui===ui);
     if(gi<0)return ' '+esc(x.t);const g=t.gaps[gi],v=t.sel[gi];
-    return ' '+gapWord(x.t,g.g,g.a,v,t.res)+`<span class="gtopt">${g.o.map(o=>`<button class="${t.res?(o===g.a?'ok':o===v?'bad':''):v===o?'on':''}" data-ma="gt" data-i="${gi}" data-v="${esc(o)}" ${t.res?'disabled':''}>${esc(o)}</button>`).join('')}</span>`}).join('')}</p>`).join('')}</div>`},
+    return ' '+gapWord(x.t,g.g,g.a,v,t.res,`<span class="gtopt">${g.o.map(o=>`<button class="${t.res?(o===g.a?'ok':o===v?'bad':''):v===o?'on':''}" data-ma="gt" data-i="${gi}" data-v="${esc(o)}" ${t.res?'disabled':''}>${esc(o)}</button>`).join('')}</span>`)}).join('')}</p>`).join('')}</div>`},
   ready:t=>t.gaps.every((_,i)=>t.sel[i]!=null),
   act(t,d){if(d.ma==='gt')t.sel[+d.i]=d.v},
   grade(t){const bad=t.gaps.filter((g,i)=>t.sel[i]!==g.a);return {ok:!bad.length,right:(bad.length?bad:t.gaps).map(g=>`${g.g.replace('_',g.a)} — ${lc1(ORTHO_R[g.r].t)}`).join('; '),
    why:bad.length?`Ошибок: ${bad.length} из ${t.gaps.length}.`:''}}},
+ // ── Текст с пропусками: связный отрывок классики из общего корпуса (CORPUS_T), все орфограммы уроков
+ tx:{t:'Текст с пропусками',l:[],d:'Прочитать отрывок писателя и вставить пропущенное во все слова.',
+  gen(c,les){const P=txPool(c,les),key=T=>T.a+'|'+T.w;let fresh=P.filter(T=>!TX_USED.has(key(T)));if(!fresh.length){TX_USED.clear();fresh=P}
+   const T=pick1(fresh),gaps=[];TX_USED.add(key(T));
+   T.ss.forEach((u,si)=>u.forEach((x,ui)=>{if(txGap(c,x,les))gaps.push({si,ui,g:x.or.g,a:x.or.a,o:orthOpts(x.or),r:x.or.r[0]})}));
+   return mFinal({k:'m',m:'tx',l:Math.max(...gaps.map(g=>ORTHO_R[g.r].l)),q:'Прочитать отрывок. Вставить пропущенные буквы во все слова.',src:`${T.a}, «${T.w}»`,gl:T.g||'',ss:T.ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
+  body(t){return MECH.gt.body(t).replace('<div class="mgt">','<div class="mgt mtx">')+`<div class="clsrc">${esc(t.src)}</div>`+(t.gl?`<div class="clgl"><b>Пояснения:</b> ${esc(t.gl)}</div>`:'')},
+  ready:t=>t.gaps.every((_,i)=>t.sel[i]!=null),
+  act(t,d){if(d.ma==='gt')t.sel[+d.i]=d.v},
+  grade(t){const R=MECH.gt.grade(t);R.full=true;return R}},
  // ── Л. «Не» и почему (урок 6)
  nw:{t:'«Не» и «почему?»',l:[6],d:'Решить, слитно или раздельно, и выбрать правило.',
   gen(c){const N=c.wk.neWhy,[w,a,r]=pick1(N.items),bad=r===5?[1]:[],rs=shuffle([r,...sample(N.reasons.map((_,i)=>i).filter(i=>i!==r&&!bad.includes(i)),3)]); // «вовсе» иногда считают зависимым словом
@@ -3621,6 +3672,10 @@ const MECH={
   grade(t){const ok=t.sel===t.a&&t.rsel===t.r;const sp=t.a==='слитно'?t.w.replace('(не)','не'):t.w.replace('(не)','не ');
    return {ok,right:`${sp} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Написание верное, но правило выбрано не то.':''}}}
 };
+// связные тексты темы, в которых есть хотя бы одна орфограмма уроков les (и все орфограммы текста — изученные)
+const TX_USED=new Set(); // тексты, уже выданные в этой серии: следующий — из невыданных
+const txGap=(c,x,les)=>{const R=x.or&&ORTHO_R[x.or.r[0]];return !!(R&&R.topic===c.id&&les.includes(R.l))};
+const txPool=(c,les)=>corpusTexts(c.id).filter(T=>T.ss.some(u=>u.some(x=>txGap(c,x,les))));
 // орфограммы общего корпуса для темы главы: [предложение, номер единицы]
 function orthPool(c,les){const out=[];corpusSents(c.id,{has:u=>u.some(x=>x.or)}).forEach(u=>u.forEach((x,i)=>{const R=x.or&&ORTHO_R[x.or.r[0]];if(R&&R.topic===c.id&&les.includes(R.l))out.push([u,i])}));return out}
 // ловушки «почему?»: сначала правила уже пройденных уроков темы, затем остальные
@@ -3628,15 +3683,15 @@ function orthTraps(topic,valid,l,n=3){const ks=Object.keys(ORTHO_R).filter(k=>OR
  const a=shuffle(ks.filter(k=>ORTHO_R[k].l<=l)),b=shuffle(ks.filter(k=>ORTHO_R[k].l>l));return [...a,...b].slice(0,n)}
 const orthOpts=o=>o.a==='н'||o.a==='нн'?['н','нн']:[o.a];
 // слово единицы с пропуском на месте орфограммы
-function gapWord(text,g,a,v,res){const ws=text.split(' '),full=g.replace('_',a).toLowerCase(),wi=ws.findIndex(w=>w.toLowerCase()===full);if(wi<0)return esc(text);
- const w=ws[wi],p=g.indexOf('_'),cl=res?(v===a?'ok':'bad'):'';ws[wi]=`${esc(w.slice(0,p))}<span class="slot ${cl}">${v==null?'…':esc(v)}</span>${esc(w.slice(p+a.length))}`;
+function gapWord(text,g,a,v,res,after=''){const ws=text.split(' '),full=g.replace('_',a).toLowerCase(),wi=ws.findIndex(w=>w.toLowerCase()===full);if(wi<0)return esc(text)+after;
+ const w=ws[wi],p=g.indexOf('_'),cl=res?(v===a?'ok':'bad'):'';ws[wi]=`<span class="gtw">${esc(w.slice(0,p))}<span class="slot ${cl}">${v==null?'…':esc(v)}</span>${esc(w.slice(p+a.length))}${after}</span>`;
  return ws.map((x,i)=>i===wi?x:esc(x)).join(' ')}
 const mWhyHTML=t=>`<div class="tl">Почему?</div><div class="tsopts">${t.rs.map(([k,x],i)=>`<button class="opt ${t.res?(t.valid.includes(k)?'eok':k===t.rsel?'ebad':''):t.rsel===k?'on':''}" data-ma="why" data-i="${i}" ${t.res?'disabled':''}>${esc(x)}</button>`).join('')}</div>`;
 const lc1=x=>x.charAt(0).toLowerCase()+x.slice(1);
 function mTog(a,i){const k=a.indexOf(i);k<0?a.push(i):a.splice(k,1)}
 function mSelCls(t,i,y){const on=t.sel.includes(i);if(!t.res)return on?'on':'';return on&&y?'ok':on?'bad':y?'miss':''}
 function mSegs(t){const n=t.w.length,b=[...t.b].sort((x,y)=>x-y),out=[];let s=0;b.forEach(i=>{out.push([s,i]);s=i+1});out.push([s,n-1]);return out}
-const MNEED={gs:(c,les)=>orthPool(c,les).length,gt:(c,les)=>orthPool(c,les).length,hls:c=>corpusSents(c.id).length,cm:c=>corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}).length,sx:c=>corpusSents(c.id,{mem:true}).length,hlw:c=>allWords(c).length,gr:c=>allWords(c).length};
+const MNEED={tx:(c,les)=>txPool(c,les).length,gs:(c,les)=>orthPool(c,les).length,gt:(c,les)=>orthPool(c,les).length,hls:c=>corpusSents(c.id).length,cm:c=>corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}).length,sx:c=>corpusSents(c.id,{mem:true}).length,hlw:c=>allWords(c).length,gr:c=>allWords(c).length};
 const mAvail=(c,les)=>c.wk?Object.keys(MECH).filter(m=>lesOK(c,m,les)&&(!MNEED[m]||MNEED[m](c,les)>0)):[];
 function mGen(c,m,les){const t=MECH[m].gen(c,les);return t}
 
@@ -3645,7 +3700,7 @@ function mechHTML(t){
  return `<div class="card mcard"><div class="ty">${M.t} · урок ${t.l}${t.retry?' · ещё раз':''}</div><div class="tq">${esc(t.q)}</div>
  ${S.easy&&!R&&c.lessons[t.l-1]?`<div class="obr"><b>Подсказка.</b> ${c.lessons[t.l-1].hint}</div>`:''}
  ${M.body(t)}
- ${R?`<div class="aa"><div>${R.ok?ok_('Верно.'):bad_} ${R.why||''}</div>${R.ok?'':`<div>Правильно: ${R.rightHTML||`<b>${esc(R.right)}</b>`}</div>`}</div>`:''}</div>`;
+ ${R?`<div class="aa"><div>${R.ok?ok_('Верно.'):bad_} ${R.why||''}</div>${R.ok&&!R.full?'':`<div>${R.ok?'Разбор':'Правильно'}: ${R.rightHTML||`<b>${esc(R.right)}</b>`}</div>`}</div>`:''}</div>`;
 }
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b||!TR.run)return;const d=b.dataset,t=TR.run.tasks[TR.run.i];
@@ -3657,7 +3712,7 @@ document.addEventListener('click',e=>{
 });
 
 // самопроверка механик в тестах: доступ к движку только при адресе с ?selftest
-if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,mAvail,ORTHO_R,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
+if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,corpusTexts,CORPUS_T,trRe,mGen,mAvail,ORTHO_R,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
 // ---------- упражнения ----------
 const exState={};
 function exHTML(les){
