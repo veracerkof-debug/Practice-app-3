@@ -23,6 +23,7 @@ JS = [
     'src/js/core/classic.js',           # общий вывод упражнений
     'src/chapters/nn/index.js',         #   сборка главы «Н и НН»
     'src/chapters/nn/workshop.js',      #   механики тренажёра «Н и НН»
+    'src/chapters/nn/tests.js',         #   тесты «Н и НН»
     'src/chapters/prichastie/lessons.js',
     'src/chapters/prichastie/bank.js',
     'src/chapters/prichastie/classic.js',

@@ -22,7 +22,7 @@ function tBuild(s){
  const q=pick1(s.q),inl=q.includes('{w}');
  const B={k:s.k,l:s.l,text:q.replace('{w}',it.w||'').replace('{x}',it.x||''),w:inl?null:(it.w||null),a:it.a,why:it.why||s.why||''};
  if(s.k==='one'){const all=it.o||s.o,n=s.n||all.length;B.opts=shuffle([B.a,...shuffle(all.filter(x=>x!==B.a)).slice(0,n-1)])}
- if(s.k==='many')B.opts=shuffle(s.o);
+ if(s.k==='many')B.opts=shuffle(it.o||s.o);
  if(s.k==='sort'){B.cats=s.cats;B.items=shuffle(s.items).slice(0,s.n||6)}
  return B;
 }
