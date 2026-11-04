@@ -11,6 +11,7 @@ CSS = ['src/css/base.css', 'src/css/nav.css', 'src/css/dictionary.css', 'src/css
 JS = [
     'src/js/core/store.js',            # хранилище, PARTS (оглавление курса)
     'src/data/corpus/levels.js',        # общий корпус: порядок изучения тем, уровни доступа, разборы
+    'src/data/corpus/orthograms.js',    # ORTHO_R — правила орфограмм для разметки слов
     'src/data/corpus/sentences.js',     # CORPUS_S — предложения с полной разметкой
     'src/data/corpus/words.js',         # CORPUS_W — слова
     'src/chapters/nn/lessons.js',       # глава «Н и НН»: теория
@@ -19,6 +20,7 @@ JS = [
     'src/js/core/trainer.js',           # общий тренажёр
     'src/js/core/classic.js',           # общий вывод упражнений
     'src/chapters/nn/index.js',         #   сборка главы «Н и НН»
+    'src/chapters/nn/workshop.js',      #   механики тренажёра «Н и НН»
     'src/chapters/prichastie/lessons.js',
     'src/chapters/prichastie/bank.js',
     'src/chapters/prichastie/classic.js',

@@ -20,7 +20,9 @@ const wkWords=u=>u.filter(x=>!x.pu||x.t!==',');               // без запя
 const unitsText=(u,withCommas=true)=>u.filter(x=>withCommas||x.t!==',').reduce((s,x)=>x.pu?s+x.t:(s?s+' ':'')+x.t,'');
 // слова из общего корпуса: k — разряд причастия или «пр» для прилагательного
 const allWords=c=>corpusWords(c.id,x=>x.pos==='прич'||x.pos==='прил').map(x=>({w:x.w,k:x.pos==='прил'?'пр':x.r}));
-const lesOK=(m,les)=>MECH[m].l.some(l=>les.includes(l));
+// уроки механики: глава может задать свой набор механик и уроков (c.wk.mech), иначе — по умолчанию
+const mLes=(c,m)=>(c.wk&&c.wk.mech?c.wk.mech[m]:MECH[m].l)||[];
+const lesOK=(c,m,les)=>mLes(c,m).some(l=>les.includes(l));
 
 const MECH={
  // ── А. Выделить слова в наборе (уроки 1, 2)
@@ -102,8 +104,9 @@ const MECH={
    why:(t.fi<2?'Настоящее время — от основы «они …».':'Прошедшее время — от основы инфинитива.')+(t.note?' Обратите внимание: '+t.note+'.':'')}}},
  // ── Е. Разобрать по составу (уроки 3, 4)
  mp:{t:'Морфемный разбор (2)',l:[3,4],d:'Нажимать между буквами, чтобы разделить слово на части, затем назвать каждую часть.',
-  gen(){const E=DICT.filter(e=>e.pos==='причастие'&&e.morph&&!MP_SKIP.includes(e.w)),e=pick1(E);
-   return mFinal({k:'m',m:'mp',l:3,q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
+  gen(c,les){const E=DICT.filter(e=>e.morph&&!MP_SKIP.includes(e.w)&&(c.wk.mpWords?c.wk.mpWords.includes(e.w):e.pos==='причастие')),e=pick1(E);
+   const lw=((e.orth||[]).map(o=>o.at||'').find(a=>a.startsWith(c.id))||'').replace(/\D/g,'');
+   return mFinal({k:'m',m:'mp',l:c.wk.mpWords?(+lw||1):3,q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
   body(t){const L=[...t.w],segs=mSegs(t),tools=['pref','root','suf','end','post'];
    let h=`<div class="mpal">${tools.map(k=>`<button class="mtool ${t.tool===k?'on':''}" data-ma="tool" data-v="${k}" ${t.res?'disabled':''}><i class="lg m-${k}" style="--mc:${MT[k][1]}"></i>${MT[k][0]}</button>`).join('')}</div>`;
    h+=`<div class="mlet">${L.map((ch,i)=>`<span class="ml">${esc(ch)}</span>${i<L.length-1?`<button class="mcut ${t.b.includes(i)?'on':''}" data-ma="cut" data-i="${i}" ${t.res?'disabled':''} aria-label="Граница после ${esc(ch)}">${t.b.includes(i)?'|':''}</button>`:''}`).join('')}</div>`;
@@ -154,13 +157,39 @@ const MECH={
    why:'Настоящее время — только у глаголов несовершенного вида, страдательные — только у переходных.'+(t.note?' '+t.note:'')}}},
  // ── К. Буква и почему (урок 4)
  gw:{t:'Буква и «почему?»',l:[4],d:'Вставить букву и выбрать правило, по которому она пишется.',
-  gen(c){const G=c.wk.gapWhy,[w,a,o,r]=pick1(G.items),rs=shuffle([r,...sample(G.reasons.map((_,i)=>i).filter(i=>i!==r),3)]);
-   return mFinal({k:'m',m:'gw',l:4,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r,rs:rs.map(i=>[i,G.reasons[i]]),sel:null,rsel:null})},
+  gen(c,les){const G=c.wk.gapWhy;
+   if(G.keys){ // правила — из ORTHO_R; верными считаются все перечисленные у слова, ни одно не идёт в ловушки
+    const it=pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items),[w,a,o,valid,l]=it,rs=shuffle([valid[0],...orthTraps(ORTHO_R[valid[0]].topic,valid,l)]);
+    return mFinal({k:'m',m:'gw',l,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r:valid[0],valid,rs:rs.map(k=>[k,ORTHO_R[k].t]),sel:null,rsel:null})}
+   const [w,a,o,r]=pick1(G.items),rs=shuffle([r,...sample(G.reasons.map((_,i)=>i).filter(i=>i!==r),3)]);
+   return mFinal({k:'m',m:'gw',l:4,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r,valid:[r],rs:rs.map(i=>[i,G.reasons[i]]),sel:null,rsel:null})},
   body:t=>`<div class="word">${tFill(t.w,t.sel)}</div><div class="ans" style="justify-content:center">${t.o.map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${esc(v)}" ${t.res?'disabled':''} style="min-width:64px;min-height:48px;font-size:19px">${esc(v)}</button>`).join('')}</div>
-   ${t.sel?`<div class="tl">Почему?</div><div class="tsopts">${t.rs.map(([i,x])=>`<button class="opt ${t.res?(i===t.r?'eok':i===t.rsel?'ebad':''):t.rsel===i?'on':''}" data-ma="why" data-i="${i}" ${t.res?'disabled':''}>${esc(x)}</button>`).join('')}</div>`:''}`,
+   ${t.sel?mWhyHTML(t):''}`,
   ready:t=>t.sel!=null&&t.rsel!=null,
-  act(t,d){if(d.ma==='ltr')t.sel=d.v;if(d.ma==='why')t.rsel=+d.i},
-  grade(t){const ok=t.sel===t.a&&t.rsel===t.r;return {ok,right:`${fill(t.w,t.a)} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Буква верна, но правило выбрано не то.':''}}},
+  act(t,d){if(d.ma==='ltr')t.sel=d.v;if(d.ma==='why')t.rsel=t.rs[+d.i][0]},
+  grade(t){const ok=t.sel===t.a&&t.valid.includes(t.rsel);return {ok,right:`${fill(t.w,t.a)} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Буква верна, но правило выбрано не то.':''}}},
+ // ── М. Н или НН в предложении + «почему?» (орфограммы общего корпуса)
+ gs:{t:'Буква в предложении и «почему?»',l:[],d:'Вставить пропущенное в предложение и выбрать правило.',
+  gen(c,les){const [u,i]=pick1(orthPool(c,les)),o=u[i].or,rs=shuffle([o.r[0],...orthTraps(c.id,o.r,ORTHO_R[o.r[0]].l)]);
+   return mFinal({k:'m',m:'gs',l:ORTHO_R[o.r[0]].l,q:'Вставить пропущенную букву (буквы). Почему так?',u:u.map(x=>({t:x.t,pu:x.pu})),gi:i,g:o.g,a:o.a,o:shuffle(orthOpts(o)),r:o.r[0],valid:o.r,rs:rs.map(k=>[k,ORTHO_R[k].t]),sel:null,rsel:null})},
+  body:t=>`<div class="mst mgs">${t.u.map((x,i)=>x.pu?`<span class="mpu">${x.t}</span>`:`<span class="mword2">${i===t.gi?gapWord(x.t,t.g,t.a,t.sel,t.res):esc(x.t)}</span>`).join(' ')}</div>
+   <div class="ans" style="justify-content:center">${t.o.map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${esc(v)}" ${t.res?'disabled':''} style="min-width:64px;min-height:48px;font-size:19px">${esc(v)}</button>`).join('')}</div>
+   ${t.sel?mWhyHTML(t):''}`,
+  ready:t=>t.sel!=null&&t.rsel!=null,
+  act(t,d){if(d.ma==='ltr')t.sel=d.v;if(d.ma==='why')t.rsel=t.rs[+d.i][0]},
+  grade(t){const ok=t.sel===t.a&&t.valid.includes(t.rsel);return {ok,right:`${t.g.replace('_',t.a)} — ${lc1(ORTHO_R[t.r].t)}`,why:t.sel===t.a&&!ok?'Написание верное, но правило выбрано не то.':''}}},
+ // ── Н. Текст с пропусками (орфограммы общего корпуса)
+ gt:{t:'Предложения с пропусками',l:[],d:'Вставить пропущенное во все слова нескольких предложений.',
+  gen(c,les){const P=orthPool(c,les),byS=[...new Set(P.map(p=>p[0]))],ss=sample(byS,Math.min(4,byS.length));
+   const gaps=[];ss.forEach((u,si)=>u.forEach((x,ui)=>{if(P.some(p=>p[0]===u&&p[1]===ui))gaps.push({si,ui,g:x.or.g,a:x.or.a,o:orthOpts(x.or),r:x.or.r[0]})}));
+   return mFinal({k:'m',m:'gt',l:ORTHO_R[gaps[0].r].l,q:'Вставить пропущенные буквы во все слова.',ss:ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
+  body(t){return `<div class="mgt">${t.ss.map((u,si)=>`<p>${u.map((x,ui)=>{if(x.pu)return `<span class="mpu">${x.t}</span>`;const gi=t.gaps.findIndex(g=>g.si===si&&g.ui===ui);
+    if(gi<0)return ' '+esc(x.t);const g=t.gaps[gi],v=t.sel[gi];
+    return ' '+gapWord(x.t,g.g,g.a,v,t.res)+`<span class="gtopt">${g.o.map(o=>`<button class="${t.res?(o===g.a?'ok':o===v?'bad':''):v===o?'on':''}" data-ma="gt" data-i="${gi}" data-v="${esc(o)}" ${t.res?'disabled':''}>${esc(o)}</button>`).join('')}</span>`}).join('')}</p>`).join('')}</div>`},
+  ready:t=>t.gaps.every((_,i)=>t.sel[i]!=null),
+  act(t,d){if(d.ma==='gt')t.sel[+d.i]=d.v},
+  grade(t){const bad=t.gaps.filter((g,i)=>t.sel[i]!==g.a);return {ok:!bad.length,right:(bad.length?bad:t.gaps).map(g=>`${g.g.replace('_',g.a)} — ${lc1(ORTHO_R[g.r].t)}`).join('; '),
+   why:bad.length?`Ошибок: ${bad.length} из ${t.gaps.length}.`:''}}},
  // ── Л. «Не» и почему (урок 6)
  nw:{t:'«Не» и «почему?»',l:[6],d:'Решить, слитно или раздельно, и выбрать правило.',
   gen(c){const N=c.wk.neWhy,[w,a,r]=pick1(N.items),bad=r===5?[1]:[],rs=shuffle([r,...sample(N.reasons.map((_,i)=>i).filter(i=>i!==r&&!bad.includes(i)),3)]); // «вовсе» иногда считают зависимым словом
@@ -172,12 +201,23 @@ const MECH={
   grade(t){const ok=t.sel===t.a&&t.rsel===t.r;const sp=t.a==='слитно'?t.w.replace('(не)','не'):t.w.replace('(не)','не ');
    return {ok,right:`${sp} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Написание верное, но правило выбрано не то.':''}}}
 };
+// орфограммы общего корпуса для темы главы: [предложение, номер единицы]
+function orthPool(c,les){const out=[];corpusSents(c.id,{has:u=>u.some(x=>x.or)}).forEach(u=>u.forEach((x,i)=>{const R=x.or&&ORTHO_R[x.or.r[0]];if(R&&R.topic===c.id&&les.includes(R.l))out.push([u,i])}));return out}
+// ловушки «почему?»: сначала правила уже пройденных уроков темы, затем остальные
+function orthTraps(topic,valid,l,n=3){const ks=Object.keys(ORTHO_R).filter(k=>ORTHO_R[k].topic===topic&&!valid.includes(k));
+ const a=shuffle(ks.filter(k=>ORTHO_R[k].l<=l)),b=shuffle(ks.filter(k=>ORTHO_R[k].l>l));return [...a,...b].slice(0,n)}
+const orthOpts=o=>o.a==='н'||o.a==='нн'?['н','нн']:[o.a];
+// слово единицы с пропуском на месте орфограммы
+function gapWord(text,g,a,v,res){const ws=text.split(' '),full=g.replace('_',a).toLowerCase(),wi=ws.findIndex(w=>w.toLowerCase()===full);if(wi<0)return esc(text);
+ const w=ws[wi],p=g.indexOf('_'),cl=res?(v===a?'ok':'bad'):'';ws[wi]=`${esc(w.slice(0,p))}<span class="slot ${cl}">${v==null?'…':esc(v)}</span>${esc(w.slice(p+a.length))}`;
+ return ws.map((x,i)=>i===wi?x:esc(x)).join(' ')}
+const mWhyHTML=t=>`<div class="tl">Почему?</div><div class="tsopts">${t.rs.map(([k,x],i)=>`<button class="opt ${t.res?(t.valid.includes(k)?'eok':k===t.rsel?'ebad':''):t.rsel===k?'on':''}" data-ma="why" data-i="${i}" ${t.res?'disabled':''}>${esc(x)}</button>`).join('')}</div>`;
 const lc1=x=>x.charAt(0).toLowerCase()+x.slice(1);
 function mTog(a,i){const k=a.indexOf(i);k<0?a.push(i):a.splice(k,1)}
 function mSelCls(t,i,y){const on=t.sel.includes(i);if(!t.res)return on?'on':'';return on&&y?'ok':on?'bad':y?'miss':''}
 function mSegs(t){const n=t.w.length,b=[...t.b].sort((x,y)=>x-y),out=[];let s=0;b.forEach(i=>{out.push([s,i]);s=i+1});out.push([s,n-1]);return out}
-const MNEED={hls:c=>corpusSents(c.id).length,cm:c=>corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}).length,sx:c=>corpusSents(c.id,{mem:true}).length,hlw:c=>allWords(c).length,gr:c=>allWords(c).length};
-const mAvail=(c,les)=>c.wk?Object.keys(MECH).filter(m=>lesOK(m,les)&&(!MNEED[m]||MNEED[m](c)>0)):[];
+const MNEED={gs:(c,les)=>orthPool(c,les).length,gt:(c,les)=>orthPool(c,les).length,hls:c=>corpusSents(c.id).length,cm:c=>corpusSents(c.id,{commas:true,has:u=>u.some(x=>x.ob)}).length,sx:c=>corpusSents(c.id,{mem:true}).length,hlw:c=>allWords(c).length,gr:c=>allWords(c).length};
+const mAvail=(c,les)=>c.wk?Object.keys(MECH).filter(m=>lesOK(c,m,les)&&(!MNEED[m]||MNEED[m](c,les)>0)):[];
 function mGen(c,m,les){const t=MECH[m].gen(c,les);return t}
 
 function mechHTML(t){
@@ -197,4 +237,4 @@ document.addEventListener('click',e=>{
 });
 
 // самопроверка механик в тестах: доступ к движку только при адресе с ?selftest
-if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
+if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,mAvail,ORTHO_R,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
