@@ -14,20 +14,22 @@ const COURSE_ORDER=[
  'prostoe',                                  // члены предложения (вводный курс синтаксиса)
  'odnor',
  'chisl','mest',
- 'prichastie','nn',                          // 7 кл.: причастие, затем Н и НН
- 'deeprich','narech','ne','sluzh',
+ 'prichastie','deeprich','narech',         // 7 кл.
+ 'nn',                                       // Н и НН — после причастий и наречий (глава охватывает и наречия)
+ 'sluzh','ne',                               // НЕ и НИ — после частицы как части речи
  'obos','vvod','slozhnoe','rech',            // 8–9 кл.
  'stili','normy'
 ];
 const tIdx=id=>{const i=COURSE_ORDER.indexOf(id);return i<0?999:i};
-const tKnown=(ch,topic)=>tIdx(topic)<=tIdx(ch);
+const tKnown=(ch,topic)=>COURSE_ORDER.includes(ch)&&COURSE_ORDER.includes(topic)&&tIdx(topic)<=tIdx(ch); // неизвестная тема — ничего не открывает
 // часть речи → тема
 const POS_TOPIC={сущ:'sush',прил:'pril',числ:'chisl',мест:'mest',гл:'glag',прич:'prichastie',дееп:'deeprich',нар:'narech',предл:'sluzh',союз:'sluzh',част:'sluzh'};
 const POS_NAME={сущ:'существительное',прил:'прилагательное',числ:'числительное',мест:'местоимение',гл:'глагол',прич:'причастие',дееп:'деепричастие',нар:'наречие',предл:'предлог',союз:'союз',част:'частица'};
 // пометка предложения или запятой → тема. Всё предложение: одн — однородные члены, обос — обособленные
 // (кроме причастного оборота), ввод — вводные слова, обр — обращение, сл — сложное, пр — прямая речь.
-// Запятая: ,{об} — причастный оборот, ,{дееп} — деепричастный, ,{одн}, ,{обр}, ,{ввод}, ,{сл}, ,{пр}.
-const FLAG_TOPIC={об:'prichastie',дееп:'deeprich',одн:'odnor',обос:'obos',ввод:'vvod',обр:'vvod',сл:'slozhnoe',пр:'rech'};
+// Знак внутри предложения (, — : ;) — всегда с причиной: ,{об} — причастный оборот, ,{дееп} — деепричастный, ,{одн}, ,{обр}, ,{ввод}, ,{сл}, ,{пр}, ,{сравн}.
+// Причины знаков действуют как пометки всего предложения: знак по неизученному правилу закрывает предложение для темы.
+const FLAG_TOPIC={об:'prichastie',дееп:'deeprich',одн:'odnor',обос:'obos',сравн:'obos',ввод:'vvod',обр:'vvod',сл:'slozhnoe',пр:'rech'};
 // Разборы: название и школьная цифра (цифру показываем там, где она уместна).
 // Морфемный (состав слова) и словообразовательный (от чего и как образовано) — разные разборы;
 // у словообразовательного единой школьной цифры нет.
@@ -39,17 +41,18 @@ function corpusUnits(s){
  const body=s.replace(/^#\S*\s+/,'');
  return body.split(' ').map(tok=>{const m=tok.match(/^(.+?)(?:\{(.+)\})?$/),tg=m[2]?m[2].split(';'):[],cp=tg.find(x=>x.startsWith('ч:'));
   return {t:m[1].replace(/_/g,' '),mem:tg.find(x=>MEMB[x])||'',ob:tg.includes('о'),ov:tg.includes('ов'),pr:(tg.find(x=>x.startsWith('п:'))||'').slice(2),kr:tg.includes('к'),
-   pos:cp?cp.slice(2).split(','):[],why:m[1]===','?tg[0]||'':'',pu:/^[,.!?:;—]$/.test(m[1])}})}
+   pos:cp?cp.slice(2).split(','):[],why:/^[,:;—]$/.test(m[1])?tg[0]||'':'',mark:/^[,:;—]$/.test(m[1]),pu:/^[,.!?:;—]$/.test(m[1])}})}
 const corpusFlags=s=>{const m=s.match(/^#(\S+)\s/);return m?m[1].split(','):[]};
-// Материал для задания в теме ch. need: {mem — задание про члены предложения, pos — про части речи,
-// commas — про знаки, has(u) — в предложении должно быть то, что проверяет задание}
+// Материал для задания в теме ch. need: {mem — задание про члены предложения, pos — список частей речи, о которых
+// спрашивает задание (['прич','прил']), commas — задание про знаки, has(u) — в предложении есть то, что проверяет задание}
 function corpusSents(ch,need={}){
  return CORPUS_S.map(s=>({s,u:corpusUnits(s),f:corpusFlags(s)})).filter(({u,f})=>{
-  if(!f.every(x=>FLAG_TOPIC[x]&&tKnown(ch,FLAG_TOPIC[x])))return false;              // сложные, однородные и т. п. — только после своей темы
+  if(u.some(x=>x.mark&&!x.why))return false;                                          // знак без причины — не даём никогда
+  const ff=[...f,...u.filter(x=>x.why).map(x=>x.why)];                                 // причины знаков — как пометки предложения
+  if(!ff.every(x=>FLAG_TOPIC[x]&&tKnown(ch,FLAG_TOPIC[x])))return false;             // сложные, однородные, обращения, знаки — только после своей темы
   if(u.some(x=>x.ob)&&!tKnown(ch,'prichastie'))return false;                           // причастный оборот — после «Причастия»
   if(need.mem&&!tKnown(ch,'prostoe'))return false;                                    // члены предложения — после «Простого предложения»
-  if(need.pos&&!u.every(x=>x.pos.every(p=>tKnown(ch,POS_TOPIC[p]))))return false;     // все части речи в предложении уже изучены
-  if(need.commas&&!u.every(x=>x.t!==','||(FLAG_TOPIC[x.why]&&tKnown(ch,FLAG_TOPIC[x.why]))))return false; // каждая запятая — по изученному правилу
+  if(need.pos&&!need.pos.every(p=>tKnown(ch,POS_TOPIC[p])))return false;            // спрашиваем только об изученных частях речи
   return !need.has||need.has(u);
  }).map(x=>x.u);
 }

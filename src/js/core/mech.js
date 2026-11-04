@@ -42,7 +42,7 @@ const MECH={
   gen(c,les){const S_=corpusSents(c.id),vars=[];
    if(les.includes(1))vars.push(['Выделить все причастия.','pr',1]);
    if(les.includes(7))vars.push(['Выделить причастный оборот целиком.','ob',7],['Нажать на определяемое слово — к нему относится причастный оборот.','ov',7]);
-   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)));
+   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)&&(key!=='pr'||les.includes(5)||!u.some(x=>x.kr)))); // краткие причастия — только вместе с уроком 5
    return mFinal({k:'m',m:'hls',l,q,key,u:u.map(x=>({t:x.t,pu:x.pu,y:!!(key==='pr'?x.pr:key==='ob'?x.ob:x.ov),pr:x.pr})),sel:[]})},
   body:t=>`<div class="mst">${t.u.map((x,i)=>x.pu?`<span class="mpu">${x.t}</span>`:`<button class="mw sw ${mSelCls(t,i,x.y)}" data-ma="tog" data-i="${i}" ${t.res?'disabled':''}>${esc(x.t)}</button>`).join('')}</div>`,
   ready:t=>t.sel.length>0,
@@ -197,4 +197,4 @@ document.addEventListener('click',e=>{
 });
 
 // самопроверка механик в тестах: доступ к движку только при адресе с ?selftest
-if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,corpusSents,corpusWords,CORPUS_S};
+if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,trRe,mGen,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};

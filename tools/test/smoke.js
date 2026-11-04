@@ -93,8 +93,10 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
   const units=T.CORPUS_S.map(s=>s.replace(/^#\S*\s+/,'').split(' '));
   const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи
   const badComma=units.flat().filter(t=>/^,/.test(t)&&!/^,\{\S+\}$/.test(t)).length;                     // у каждой запятой — причина
-  return {all:T.CORPUS_S.length,pr:T.corpusSents('prichastie',{commas:true,has:u=>u.some(x=>x.ob)}).length,sushPos:T.corpusSents('sush',{pos:true}).length,
+  return {all:T.CORPUS_S.length,pr:T.corpusSents('prichastie',{commas:true,has:u=>u.some(x=>x.ob)}).length,sushPos:T.corpusSents('sush',{pos:['прич']}).length,
    sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
+ const ord=await p.evaluate(()=>window.__T.orderCheck());
+ check(ord==='',`порядок изучения: все главы и темы на месте${ord?' — нет: '+ord:''}`);
  check(cor.unmarked===0&&cor.badComma===0,`корпус: разметка полная (${cor.all} предложений)`);
  check(cor.pr>=10&&cor.sushPos===0&&cor.sushOb===0&&cor.zvukiW===0,`корпус: уровни — «Причастие» ${cor.pr} предложений с оборотом, «Существительное» без причастий, «Звуки» без слов`);
  await p.click('[data-tab="train"]');if(await p.$('[data-trsetup]'))await p.click('[data-trsetup]');await p.click('[data-trm="all"]');await p.click('[data-trgo]');
