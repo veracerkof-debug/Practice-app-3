@@ -37,10 +37,12 @@ function clMapHTML(c){
  <div class="cmleg"><span><i class="cmb dn"></i>выполнено</span><span><i class="cmb"></i>не выполнено</span></div>`;
 }
 
+// материал упражнения: каждое пронумерованное предложение — с новой строки, подпись автора — отдельно и мельче
+const clBody=b=>esc(b).replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ').replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>');
 function clExHTML(c,e){
  const dn=S.done[clKey(e)];
  return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>
-  <p class="task">${e.task}</p>${e.obr?(S.easy?`<div class="obr"><b>Образец.</b> ${e.obr}</div>`:`<details class="bkhelp"><summary>Образец</summary><div class="body"><p>${e.obr}</p></div></details>`):''}<p class="cbody">${esc(e.body)}</p>
+  <p class="task">${e.task}</p>${e.obr?(S.easy?`<div class="obr"><b>Образец.</b> ${e.obr}</div>`:`<details class="bkhelp"><summary>Образец</summary><div class="body"><p>${e.obr}</p></div></details>`):''}<p class="cbody">${clBody(e.body)}</p>
   <details class="bkhelp"><summary>Ответы</summary><div class="body"><p>${e.key}</p></div></details>
   <button class="pill ${dn?'done':''}" data-cldone="${e.n}">${dn?'✓ Выполнено':'Отметить: выполнено'}</button></section>`;
 }
