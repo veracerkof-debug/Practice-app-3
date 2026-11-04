@@ -10,6 +10,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSS = ['src/css/base.css', 'src/css/nav.css', 'src/css/dictionary.css', 'src/css/wide.css', 'src/css/end.css']
 JS = [
     'src/js/core/store.js',            # хранилище, PARTS (оглавление курса)
+    'src/data/corpus/levels.js',        # общий корпус: порядок изучения тем, уровни доступа, разборы
+    'src/data/corpus/sentences.js',     # CORPUS_S — предложения с полной разметкой
+    'src/data/corpus/words.js',         # CORPUS_W — слова
     'src/chapters/nn/lessons.js',       # глава «Н и НН»: теория
     'src/chapters/nn/bank.js',          #   тренажёр
     'src/chapters/nn/classic.js',       #   упражнения в тетрадь

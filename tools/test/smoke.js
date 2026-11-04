@@ -88,6 +88,15 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
    gr:t=>{t.items.forEach((x,i)=>t.mk[i]=x.k)},pr:t=>{t.L.forEach(v=>t.pm[v]=t.a[v])},mx:t=>{t.mk=[...t.a]},gw:t=>{t.sel=t.a;t.rsel=t.r},nw:t=>{t.sel=t.a;t.rsel=t.r}};
   return Object.keys(MECH).map(m=>{let ok=0,wrong=0;for(let k=0;k<30;k++){const t=mGen(c,m,les);if(MECH[m].grade(t).ok&&!(m==='cm'&&!t.need.length))wrong++; /* без запятых пустой ответ верен */solve[m](t);if(MECH[m].ready(t)&&MECH[m].grade(t).ok)ok++}return [m,ok,wrong]})});
  mres.forEach(([m,ok,wrong])=>check(ok===30&&wrong===0,`механика ${m}: верное решение засчитано ${ok}/30, пустое — ${wrong}`));
+ // общий корпус: уровни доступа и полнота разметки
+ const cor=await p.evaluate(()=>{const T=window.__T,u=T.CORPUS_S.map(s=>[s,T.corpusSents('prichastie',{}).length]);
+  const units=T.CORPUS_S.map(s=>s.replace(/^#\S*\s+/,'').split(' '));
+  const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи
+  const badComma=units.flat().filter(t=>/^,/.test(t)&&!/^,\{\S+\}$/.test(t)).length;                     // у каждой запятой — причина
+  return {all:T.CORPUS_S.length,pr:T.corpusSents('prichastie',{commas:true,has:u=>u.some(x=>x.ob)}).length,sushPos:T.corpusSents('sush',{pos:true}).length,
+   sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
+ check(cor.unmarked===0&&cor.badComma===0,`корпус: разметка полная (${cor.all} предложений)`);
+ check(cor.pr>=10&&cor.sushPos===0&&cor.sushOb===0&&cor.zvukiW===0,`корпус: уровни — «Причастие» ${cor.pr} предложений с оборотом, «Существительное» без причастий, «Звуки» без слов`);
  await p.click('[data-tab="train"]');if(await p.$('[data-trsetup]'))await p.click('[data-trsetup]');await p.click('[data-trm="all"]');await p.click('[data-trgo]');
  check(!!(await p.$('#trainer .card')),'серия «все виды вперемешку» запускается');
  errs.forEach(e=>fail.push('JS: '+e));
