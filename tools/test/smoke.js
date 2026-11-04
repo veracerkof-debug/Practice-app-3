@@ -122,7 +122,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  // общий корпус: уровни доступа и полнота разметки
  const cor=await p.evaluate(()=>{const T=window.__T,u=T.CORPUS_S.map(s=>[s,T.corpusSents('prichastie',{}).length]);
   const units=[...T.CORPUS_S,...T.CORPUS_T.flatMap(x=>x.s)].map(s=>s.replace(/^#\S*\s+/,'').split(' ')); // предложения и связные тексты
-  const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи
+  const unmarked=units.flat().filter(t=>!/^[,.!?:;—]/.test(t)&&!/\{(?:о;)?ч:(?:союз|част)(?:,(?:союз|част))*\}$/.test(t)&&!(/\{[^}]*[ПСОДБ][;}]/.test(t)&&/ч:/.test(t))).length; // у каждой единицы — член предложения и часть речи (союз и частица отдельно — не член предложения)
   const badComma=units.flat().filter(t=>/^,/.test(t)&&!/^,\{\S+\}$/.test(t)).length;
   const badOrth=units.flat().filter(t=>/ор:/.test(t)).filter(t=>{const m=t.match(/^(.+?)\{.*ор:([^:;}]+):([^:;}]+):([^;}]+)/);if(!m)return true;const words=m[1].split('_').map(w=>w.toLowerCase());
    return !words.includes(m[2].replace('_',m[3]).toLowerCase())||!m[4].split('|').every(k=>k in window.__T.ORTHO_R)}).length; // пропуск находится в слове, правила существуют                     // у каждой запятой — причина
