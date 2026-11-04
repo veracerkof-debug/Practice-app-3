@@ -19,8 +19,10 @@ JS = [
     'src/chapters/prichastie/lessons.js',
     'src/chapters/prichastie/bank.js',
     'src/chapters/prichastie/classic.js',
+    'src/chapters/prichastie/tests.js', #   тесты «Причастия»
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
+    'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/inline-ex.js',
     'src/js/core/cards.js',             # карточки (интервальное повторение)
     'src/data/glossary.js',             # GLOSS — глоссарий

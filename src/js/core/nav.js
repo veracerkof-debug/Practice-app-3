@@ -34,14 +34,26 @@ function enhance(root,chId){
    }
    if(last){frag.append(s.slice(last));n.replaceWith(frag)}
   });
-  // первое упоминание каждого термина в уроке
-  GL.forEach(g=>{
-   if(!g.re||linked.has(g.id))return;
-   for(const n of nodes()){const m=g.re.exec(n.nodeValue);if(!m)continue;
-    const st=m.index+m[1].length,en=st+m[2].length,s=n.nodeValue;
-    const b=document.createElement('button');b.className='bterm';b.dataset.term=g.id;b.textContent=s.slice(st,en);
-    n.replaceWith(s.slice(0,st),b,s.slice(en));linked.add(g.id);break}
-  });
+  // термины — все упоминания
+  termsIn(sec);
+ });
+}
+// термины в любом блоке: каждое упоминание становится кнопкой с карточкой термина.
+// Не трогаем примеры (.ex), морфемы, кнопки, схемы, материал упражнений (.cbody) и поля ввода.
+const TSKIP=SKIP+',.cbody,.bterm,.wl,.opt,.tsw,.word,.slot,.tsinfo,.tshead,.tsres,.tsa,.chhead,a';
+const GLR=GL.filter(g=>g.re).map(g=>({id:g.id,re:new RegExp(g.re.source,'gi')}));
+function termsIn(root){
+ if(!root)return;
+ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>!n.nodeValue.trim()||n.parentElement.closest(TSKIP)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+ const ns=[];let n;while(n=w.nextNode())ns.push(n);
+ ns.forEach(n=>{
+  const s=n.nodeValue,hits=[];
+  GLR.forEach(g=>{g.re.lastIndex=0;let m;while(m=g.re.exec(s)){const st=m.index+m[1].length,en=st+m[2].length;
+   if(!hits.some(h=>st<h.en&&en>h.st))hits.push({st,en,id:g.id});if(g.re.lastIndex===m.index)g.re.lastIndex++}});
+  if(!hits.length)return;hits.sort((a,b)=>a.st-b.st);
+  const f=document.createDocumentFragment();let last=0;
+  hits.forEach(h=>{f.append(s.slice(last,h.st));const b=document.createElement('button');b.className='bterm';b.dataset.term=h.id;b.textContent=s.slice(h.st,h.en);f.append(b);last=h.en});
+  f.append(s.slice(last));n.replaceWith(f);
  });
 }
 
@@ -78,13 +90,13 @@ function outline(chId){
  const terms=GLA.filter(g=>ch.lessons.some(l=>(TUSE[g.id]||[]).includes(l.id)));
  if((S.tab||'theory')==='classic'){
   s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1} · ${meta.t}</div><div class="t">Упражнения</div>${clFindHTML()}${clMapHTML(ch)}
-  <div class="big2"><button class="ghost" data-otab="theory">Теория</button><button class="ghost" data-otab="train">Тренажёр</button></div>
+  <div class="big2"><button class="ghost" data-otab="theory">Теория</button><button class="ghost" data-otab="train">Тренажёр</button>${ch.tests?'<button class="ghost" data-otab="tests">Тесты</button>':''}</div>
   <button class="ghost" style="min-height:44px;border-radius:14px;border:0" data-close>Закрыть</button>`;
   document.body.append(bg,s);return}
  s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><div class="t">${meta.t}</div>
  <ol class="otl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
   ${S.easy?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>
- <div class="big2"><button class="ghost" data-otab="train">Тренажёр</button><button class="ghost" data-otab="classic">Упражнения</button></div>
+ <div class="big2"><button class="ghost" data-otab="train">Тренажёр</button><button class="ghost" data-otab="classic">Упражнения</button>${ch.tests?'<button class="ghost" data-otab="tests">Тесты</button>':''}</div>
  <div class="slab">Термины главы · ${terms.length}</div><div class="chips">${terms.map(g=>`<button class="chipc sm" data-term="${g.id}">${g.t}</button>`).join('')}</div>
  <button class="ghost" style="min-height:44px;border-radius:14px;border:0" data-close>Закрыть</button>`;
  document.body.append(bg,s);
@@ -116,7 +128,7 @@ function bookTOC(){
    const ch=CHAPTERS[c.id],num=`${p.n}.${i+1}`;
    if(!ch){h+=`<li class="tch soon"><button data-ch="${c.id}"><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}</span><span class="cs">${c.s}</span></span><span class="wait">скоро</span></button></li>`;return}
    const d=ch.lessons.filter(l=>S.done[l.id]).length,n=ch.lessons.length;
-   h+=`<li class="tch"><details ${S.tocOpen&&S.tocOpen[c.id]===false?'':'open'} data-tdet="${c.id}"><summary><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}</span><span class="cs">${c.s}</span></span><span class="rg">${ringSVG(d/n,p.c)}<i>${d}/${n}</i></span></summary>
+   h+=`<li class="tch"><details ${S.tocOpen&&S.tocOpen[c.id]===false?'':'open'} data-tdet="${c.id}"><summary><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}${chTestsDone(ch)?' <span class="chok">✓ глава завершена</span>':''}</span><span class="cs">${c.s}</span></span><span class="rg">${ringSVG(d/n,p.c)}<i>${d}/${n}</i></span></summary>
    <ol class="tles">${ch.lessons.map((l,k)=>`<li><button data-ojump2="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="ln">${num}.${k+1}</span><span class="lb"><span class="lt">${l.t}</span>${secs(l).length?`<span class="ls">${secs(l).map(x=>x.t).join(' · ')}</span>`:''}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button></li>`).join('')}</ol>
    <div class="tquick"><button data-ch="${c.id}" data-tabto="theory">Теория</button><button data-ch="${c.id}" data-tabto="train">Тренажёр · ${ch.bank.length}</button><button data-ch="${c.id}" data-tabto="classic">Упражнения · ${ch.classic.length}</button>${c.deck?`<button data-deck="${c.deck}">Карточки</button>`:''}</div></details></li>`;
   });
