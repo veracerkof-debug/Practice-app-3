@@ -34,7 +34,8 @@ function chapterHTML(id){
  const meta=chById(id); const ch=CHAPTERS[id];
  const idx=ALLCH.indexOf(meta);
  const prev=ALLCH[idx-1],next=ALLCH[idx+1];
- let h=`<div class="bkhbar"><div class="in"><button class="back" data-home>‹ Оглавление</button><span class="tools"><span class="where">${meta.part.t} · ${meta.part.ch.indexOf(meta)+1} из ${meta.part.ch.length}</span>${ch?`<button class="ibtn" data-outline="${id}" aria-label="Содержание главы"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Содержание</button>`:''}</span></div></div><div class="wrap">`;
+ let h=`<div class="bkhbar"><div class="in"><button class="back" data-home>‹ Оглавление</button><span class="tools"><span class="where">${meta.part.t} · ${meta.part.ch.indexOf(meta)+1} из ${meta.part.ch.length}</span>${ch?`<button class="ibtn" data-outline="${id}" aria-label="Содержание главы"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Содержание</button>`:''}</span></div></div><div class="wrap${ch?' chwide':''}">`;
+ if(ch)h+=`<div class="chgrid">${chSide(id)}<div class="chmain">`;
  h+=`<header class="chhead"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><h2>${meta.t}</h2><div class="sub">${ch?ch.s:meta.s}</div></div>${ch?`<button class="easy" data-easy aria-pressed="${!!S.easy}"><span class="sw"><i></i></span>Проще</button>`:''}</header>`;
  if(!ch){
   h+=`<div class="bins btip"><div class="h">Глава готовится</div><p>В образце готова одна глава — «Н и НН». На ней показано, как будут устроены все остальные: уроки, схема, упражнения, тонкости и карточки.</p><div><button class="linkbtn" data-ch="nn">Открыть «Н и НН» ›</button></div></div>`;
@@ -60,11 +61,26 @@ function chapterHTML(id){
   });
   h+=`</article>`;}
   if(meta.deck&&DECKS[meta.deck])h+=`<div class="bins bkey" style="max-width:72ch"><div class="h">Повторить</div><p>По этой главе есть колода карточек с интервальным повторением.</p><div><button class="linkbtn" data-deck="${meta.deck}">Учить карточки ›</button></div></div>`;
-  h+=`<div class="bsrc">По книгам: ${ch.src}</div>`;
+  h+=`<div class="bsrc">По книгам: ${ch.src}</div></div></div>`;
  }
  h+=`<nav class="bpn"><button data-ch="${prev?prev.id:''}" ${prev?'':'disabled'}>‹ ${prev?prev.t:''}</button><button data-ch="${next?next.id:''}" ${next?'':'disabled'}>${next?next.t:''} ›</button></nav></div>`;
  return h;
 }
+
+// боковое содержание главы (видно на широких экранах, ≥1100px)
+function chSide(id){
+ const ch=CHAPTERS[id],tab=S.tab||'theory',d=ch.lessons.filter(l=>S.done[l.id]).length;
+ return `<aside class="chside" aria-label="Содержание главы"><div class="kick">Содержание · ${d} из ${ch.lessons.length}</div>
+ <ol class="otl sotl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" data-sl="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
+  ${S.easy||tab!=='theory'?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>
+ <div class="stabs">${[['train','Тренажёр'],['classic','Упражнения']].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div></aside>`;
+}
+// подсветка текущего урока в боковом содержании
+let SIDEF=0;
+addEventListener('scroll',()=>{if(SIDEF)return;SIDEF=requestAnimationFrame(()=>{SIDEF=0;
+ const side=document.querySelector('.chside');if(!side||!side.offsetParent)return;
+ let cur=null;document.querySelectorAll('.bkles').forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s.id});
+ side.querySelectorAll('[data-sl]').forEach(b=>b.classList.toggle('cur',b.dataset.sl===cur))})},{passive:true});
 
 function deckHTML(k){
  const d=DECKS[k],s=deckStats(k);
