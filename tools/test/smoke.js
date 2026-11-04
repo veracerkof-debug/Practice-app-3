@@ -60,6 +60,25 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  await p.goto(U+'#toc');await p.fill('#q','4.6.12');check(await p.evaluate(()=>!!document.querySelector('[data-exgo="prichastie:12"]')),'поиск упражнения по номеру 4.6.12');
  await p.click('[data-exgo="prichastie:12"]');check(await cnt()===1,'переход из поиска к упражнению');
  await p.goto(U+'#ch-prichastie');await p.click('[data-tab="theory"]');
+ // тесты «Причастия» и термины в упражнениях
+ p.on('dialog',d=>d.accept());
+ await p.goto(U+'#ch-prichastie');await p.click('[data-tab="classic"]');
+ check(await p.evaluate(()=>document.querySelectorAll('.clex .bterm').length)>50,'термины кликабельны в упражнениях');
+ await p.click('[data-tab="tests"]');check(await p.evaluate(()=>document.querySelectorAll('#tests [data-tsgo]').length)===8,'список тестов: 7 уроков + итоговый');
+ for(const key of ['2','final']){
+  await p.click(`#tests [data-tsgo="${key}"]`);let qn=0;
+  for(let k=0;k<20;k++){
+   if(!(await p.$('.tscard')))break;qn++;
+   const kind=await p.evaluate(()=>document.querySelector('.tscard .ty').innerText);
+   if(/вписать/i.test(kind))await p.fill('[data-tsform] input','а');
+   else if(/разложить/i.test(kind)){const n=(await p.$$('.tssr')).length;for(let i=0;i<n;i++)await p.click(`[data-tss="${i}"]`)}
+   else await p.click('[data-tsa="0"]');
+   await p.click('[data-tsnext]');
+  }
+  check(!!(await p.$('.tsgrade'))&&qn===(key==='final'?12:6),`тест ${key==='final'?'итоговый':'по уроку '+key}: ${qn} вопросов, оценка`);
+  await p.click('[data-tslist]');
+ }
+ check(await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('rus-uchebnik-v1'));return !!(s.tests&&s.tests['prichastie:final']&&s.tlog&&s.tlog.length===2)}),'результаты тестов сохраняются');
  errs.forEach(e=>fail.push('JS: '+e));
  ok.forEach(m=>console.log('  ✓ '+m));fail.forEach(m=>console.log('  ✗ '+m));
  console.log(fail.length?`Ошибок: ${fail.length}`:`Всё работает (${ok.length} проверок)`);

@@ -39,15 +39,16 @@ function chapterHTML(id){
  const prev=ALLCH[idx-1],next=ALLCH[idx+1];
  let h=`<div class="bkhbar"><div class="in"><button class="back" data-home>‹ Оглавление</button><span class="tools"><span class="where">${meta.part.t} · ${meta.part.ch.indexOf(meta)+1} из ${meta.part.ch.length}</span>${ch?`<button class="ibtn" data-outline="${id}" aria-label="Содержание главы"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Содержание</button>`:''}</span></div></div><div class="wrap${ch?' chwide':''}">`;
  if(ch)h+=`<div class="chgrid">${chSide(id)}<div class="chmain">`;
- h+=`<header class="chhead"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><h2>${meta.t}</h2><div class="sub">${ch?ch.s:meta.s}</div></div>${ch?`<button class="easy" data-easy aria-pressed="${!!S.easy}"><span class="sw"><i></i></span>Проще</button>`:''}</header>`;
+ h+=`<header class="chhead"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}${ch&&chTestsDone(ch)?' · <span class="chok">✓ глава завершена</span>':''}</div><h2>${meta.t}</h2><div class="sub">${ch?ch.s:meta.s}</div></div>${ch?`<button class="easy" data-easy aria-pressed="${!!S.easy}"><span class="sw"><i></i></span>Проще</button>`:''}</header>`;
  if(!ch){
   h+=`<div class="bins btip"><div class="h">Глава готовится</div><p>В образце готова одна глава — «Н и НН». На ней показано, как будут устроены все остальные: уроки, схема, упражнения, тонкости и карточки.</p><div><button class="linkbtn" data-ch="nn">Открыть «Н и НН» ›</button></div></div>`;
   if(meta.deck) h+=`<div class="bins bkey"><div class="h">Карточки уже есть</div><p>Для этой темы готова колода «${DECKS[meta.deck].t}».</p><div><button class="linkbtn" data-deck="${meta.deck}">Открыть колоду ›</button></div></div>`;
  } else {
   const tab=S.tab||'theory';
-  h+=`<div class="seg" role="tablist" aria-label="Раздел главы">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения']].map(t=>`<button role="tab" data-tab="${t[0]}" aria-pressed="${tab===t[0]}">${t[1]}</button>`).join('')}</div>`;
+  h+=`<div class="seg" role="tablist" aria-label="Раздел главы">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения'],...(ch.tests?[['tests','Тесты']]:[])].map(t=>`<button role="tab" data-tab="${t[0]}" aria-pressed="${tab===t[0]}">${t[1]}</button>`).join('')}</div>`;
   if(tab==='train'){h+=trainerHTML();}
   else if(tab==='classic'){h+=classicHTML();}
+  else if(tab==='tests'&&ch.tests){h+=testsHTML();}
   else {
   h+=`<nav class="bklnav" aria-label="Уроки">`+ch.lessons.map((l,i)=>`<button class="pill ${S.done[l.id]?'done':''}" data-jump="${l.id}">${S.done[l.id]?'✓ ':''}${i+1}. ${l.t}</button>`).join('')+`</nav><article class="bktext">`;
   ch.lessons.forEach((l,i)=>{
@@ -56,7 +57,8 @@ function chapterHTML(id){
    const nb=ch.bank.filter(b=>b.l===i+1).length, cl=ch.classic.filter(e=>e.l===i+1);
    h+=`<div class="bklex"><div class="top"><b>Практика по уроку</b></div>
    <div class="prac"><button class="pbtn" data-trles="${i+1}"><b>Тренажёр</b><span>${nb} заданий: по одному, столбики, найти ошибку</span></button>
-   <button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n} с ответами</span></button></div>
+   <button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n} с ответами</span></button>
+   ${ch.tests?(()=>{const r=tRes(ch,i+1),ok=tPassed(ch,i+1);return `<button class="pbtn ${ok?'tsp':''}" data-tsgo="${i+1}"><b>${ok?'✓ Тест сдан':'Тест'}</b><span>${r?`Лучшая оценка ${r.best} · пройти ещё раз`:`${Math.min(TEST_LEN,ch.tests.filter(s=>s.l===i+1).length)} вопросов без подсказок`}</span></button>`})():''}</div>
    <details class="bkhelp"><summary>Проще</summary><div class="body"><p>${l.easy}</p></div></details>
    <details class="bkhelp fix"><summary>Если не получается</summary><div class="body"><p>${l.fix}</p></div></details>
    ${l.deep&&!S.easy?`<details class="bkhelp deep"><summary>Тонкости</summary><div class="body">${l.deep}</div></details>`:''}${S.easy?'<div class="bkhint">Полное объяснение со всеми исключениями — если выключить «Проще» вверху главы.</div>':''}
@@ -73,7 +75,7 @@ function chapterHTML(id){
 // боковое содержание главы (видно на широких экранах, ≥1100px)
 function chSide(id){
  const ch=CHAPTERS[id],tab=S.tab||'theory',d=ch.lessons.filter(l=>S.done[l.id]).length;
- const tabs=`<div class="stabs">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения']].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div>`;
+ const tabs=`<div class="stabs">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения'],...(ch.tests?[['tests','Тесты']]:[])].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div>`;
  if(tab==='classic'){const dn=ch.classic.filter(e=>S.done['cl-'+id+'-'+e.n]).length;
   return `<aside class="chside" aria-label="Упражнения главы"><div class="kick">Упражнения · выполнено ${dn} из ${ch.classic.length}</div>${clFindHTML(1)}${clMapHTML(ch)}${tabs}</aside>`}
  return `<aside class="chside" aria-label="Содержание главы"><div class="kick">Содержание · ${d} из ${ch.lessons.length}</div>
@@ -150,6 +152,7 @@ function render(){
  else app.innerHTML=tocHTML();
  const q=$('#q'); if(q){q.addEventListener('input',search);}
  if(route.v==='ch'&&(S.tab||'theory')==='theory'){enhance(app.querySelector('.bktext'),route.id);linkWords(app.querySelector('.bktext'))}
+ else if(route.v==='ch')termsIn(app.querySelector('.chmain')||app);
  const gq=$('#gq');if(gq)gq.addEventListener('input',e=>{GQ=e.target.value;$('#glist').innerHTML=glossList()});
  const dq=$('#dq');if(dq)dq.addEventListener('input',e=>{DQ=e.target.value;$('#dlist').innerHTML=dictList()});
 }
@@ -254,7 +257,7 @@ document.addEventListener('click',e=>{
  if(d.pick){study.pick=d.pick;render();return}
  if(d.vow!==undefined){study.pick=+d.vow;render();return}
 });
-function trRe(top){const el=document.getElementById('trainer');if(!el){render();return}el.outerHTML=trainerHTML();if(top){const t=document.getElementById('trainer');const y=t.getBoundingClientRect().top+window.scrollY-70;if(window.scrollY>y)window.scrollTo(0,y)}}
+function trRe(top){const el=document.getElementById('trainer');if(!el){render();return}el.outerHTML=trainerHTML();termsIn(document.getElementById('trainer'));if(top){const t=document.getElementById('trainer');const y=t.getBoundingClientRect().top+window.scrollY-70;if(window.scrollY>y)window.scrollTo(0,y)}}
 function rerenderEx(les){const old=document.getElementById('ex-'+les.id);const open=[...old.querySelectorAll('details')].map(x=>x.open);
  old.outerHTML=exHTML(les);const nw=document.getElementById('ex-'+les.id);nw.querySelectorAll('details').forEach((x,i)=>x.open=open[i]);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
