@@ -79,6 +79,33 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
   await p.click('[data-tslist]');
  }
  check(await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('rus-uchebnik-v1'));return !!(s.tests&&s.tests['prichastie:final']&&s.tlog&&s.tlog.length===2)}),'результаты тестов сохраняются');
+ // тесты «Н и НН»: список и прохождение
+ await p.goto(U+'#ch-nn');await p.click('[data-tab="tests"]');check(await p.evaluate(()=>document.querySelectorAll('#tests [data-tsgo]').length)===7,'«Н и НН»: список тестов — 6 уроков + итоговый');
+ for(const key of ['1','final']){
+  await p.click(`#tests [data-tsgo="${key}"]`);let qn=0;
+  for(let k=0;k<20;k++){
+   if(!(await p.$('.tscard')))break;qn++;
+   const kind=await p.evaluate(()=>document.querySelector('.tscard .ty').innerText);
+   if(/вписать/i.test(kind))await p.fill('[data-tsform] input','н');
+   else if(/разложить/i.test(kind)){const n=(await p.$$('.tssr')).length;for(let i=0;i<n;i++)await p.click(`[data-tss="${i}"]`)}
+   else await p.click('[data-tsa="0"]');
+   await p.click('[data-tsnext]');
+  }
+  check(!!(await p.$('.tsgrade'))&&qn===(key==='final'?12:6),`«Н и НН», тест ${key==='final'?'итоговый':'по уроку '+key}: ${qn} вопросов, оценка`);
+  await p.click('[data-tslist]');
+ }
+ // банки тестов всех глав: данные согласованы (ответ среди вариантов, группы известны, в уроке не меньше 6 вопросов)
+ await p.goto(U+'?selftest#toc');
+ const tbad=await p.evaluate(()=>{const out=[];for(const c of Object.values(window.__T.CHAPTERS)){if(!c.tests)continue;
+  c.lessons.forEach((_,i)=>{const n=c.tests.filter(s=>s.l===i+1).length;if(n<6)out.push(c.id+': урок '+(i+1)+' — '+n+' вопросов')});
+  c.tests.forEach((s,j)=>{const id=c.id+'#'+j;if(!s.q||!s.q.length)out.push(id+' нет формулировки');
+   const its=s.items||[null];its.forEach(it=>{let a=s.a,o=s.o;if(Array.isArray(it)){a=it[1]}else if(it){a=it.a!==undefined?it.a:a;o=it.o||o}
+    if(s.k==='one'&&!(o||[]).includes(a))out.push(id+' ответ «'+a+'» не среди вариантов');
+    if(s.k==='sort'&&!s.cats.includes(a))out.push(id+' группа «'+a+'» неизвестна');
+    if(s.k==='type'&&!(a&&String(a).trim()))out.push(id+' пустой ответ')});
+   if(s.k==='many'&&!(s.a||[]).every(x=>s.o.includes(x)))out.push(id+' ответ не среди вариантов')})}
+  return out});
+ check(!tbad.length,'банки тестов согласованы'+(tbad.length?': '+tbad.slice(0,5).join('; '):''));
  // механики тренажёра: каждое сгенерированное задание решаемо, верное решение засчитывается
  await p.goto(U+'?selftest#ch-prichastie');
  const mres=await p.evaluate(()=>{const {MECH,CHAPTERS,mGen,mAvail}=window.__T,out=[];
