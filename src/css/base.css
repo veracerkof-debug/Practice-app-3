@@ -433,3 +433,12 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .mtool.g-дн,.mw.g-дн{--gc:var(--S)}.mtool.g-дп,.mw.g-дп{--gc:var(--T)}.mtool.g-сн,.mw.g-сн{--gc:var(--A)}.mtool.g-сп,.mw.g-сп{--gc:var(--V)}
 .mtool[class*="g-"]{border-left:5px solid var(--gc)}
 .mw[class*="g-"]:not(.ok):not(.bad){border-color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,var(--cell))}
+/* текст с пропусками */
+.mgt{display:flex;flex-direction:column;gap:10px;font-size:18px;line-height:2.1}
+.mgt p{margin:0}
+.gtopt{display:inline-flex;gap:3px;margin:0 6px 0 4px;vertical-align:middle}
+.gtopt button{min-width:40px;min-height:34px;border:1.5px solid var(--sep);border-radius:9px;background:var(--cell);font-size:15px;font-weight:700;line-height:1;padding:0 6px}
+.gtopt button.on{border-color:var(--tint);background:color-mix(in srgb,var(--tint) 14%,var(--cell))}
+.gtopt button.ok{border-color:var(--T);color:var(--T);background:color-mix(in srgb,var(--T) 12%,var(--cell))}
+.gtopt button.bad{border-color:var(--red);color:var(--red)}
+.mgs{font-size:19px;gap:4px 6px}

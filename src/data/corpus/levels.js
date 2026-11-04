@@ -40,7 +40,8 @@ const razborName=k=>{const [n,d]=RAZBOR[k];return d?`${n} разбор (${d})`:`
 function corpusUnits(s){
  const body=s.replace(/^#\S*\s+/,'');
  return body.split(' ').map(tok=>{const m=tok.match(/^(.+?)(?:\{(.+)\})?$/),tg=m[2]?m[2].split(';'):[],cp=tg.find(x=>x.startsWith('ч:'));
-  return {t:m[1].replace(/_/g,' '),mem:tg.find(x=>MEMB[x])||'',ob:tg.includes('о'),ov:tg.includes('ов'),pr:(tg.find(x=>x.startsWith('п:'))||'').slice(2),kr:tg.includes('к'),
+  const om=tg.find(x=>x.startsWith('ор:')),op=om?om.split(':'):null;
+  return {t:m[1].replace(/_/g,' '),or:op?{g:op[1],a:op[2],r:op[3].split('|')}:null,mem:tg.find(x=>MEMB[x])||'',ob:tg.includes('о'),ov:tg.includes('ов'),pr:(tg.find(x=>x.startsWith('п:'))||'').slice(2),kr:tg.includes('к'),
    pos:cp?cp.slice(2).split(','):[],why:/^[,:;—]$/.test(m[1])?tg[0]||'':'',mark:/^[,:;—]$/.test(m[1]),pu:/^[,.!?:;—]$/.test(m[1])}})}
 const corpusFlags=s=>{const m=s.match(/^#(\S+)\s/);return m?m[1].split(','):[]};
 // Материал для задания в теме ch. need: {mem — задание про члены предложения, pos — список частей речи, о которых
@@ -48,6 +49,7 @@ const corpusFlags=s=>{const m=s.match(/^#(\S+)\s/);return m?m[1].split(','):[]};
 function corpusSents(ch,need={}){
  return CORPUS_S.map(s=>({s,u:corpusUnits(s),f:corpusFlags(s)})).filter(({u,f})=>{
   if(u.some(x=>x.mark&&!x.why))return false;                                          // знак без причины — не даём никогда
+  if(!u.every(x=>!x.or||orthKnown(ch,x.or.r)))return false;                            // орфограмма неизученной темы — предложение рано давать
   const ff=[...f,...u.filter(x=>x.why).map(x=>x.why)];                                 // причины знаков — как пометки предложения
   if(!ff.every(x=>FLAG_TOPIC[x]&&tKnown(ch,FLAG_TOPIC[x])))return false;             // сложные, однородные, обращения, знаки — только после своей темы
   if(u.some(x=>x.ob)&&!tKnown(ch,'prichastie'))return false;                           // причастный оборот — после «Причастия»

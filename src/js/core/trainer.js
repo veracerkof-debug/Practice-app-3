@@ -49,7 +49,7 @@ function trSetupHTML(){
   <div class="tl">Выбор варианта</div><div class="chips">${['pick','cols','err'].map(k=>chip(k,TR_OLD[k])).join('')}</div>`
   :`<div class="tl">Вид задания</div><div class="seg" role="radiogroup">${Object.entries(TR_OLD).map(m=>`<button role="radio" data-trm="${m[0]}" aria-pressed="${TR.mode===m[0]}">${m[1]}</button>`).join('')}</div>`;
  const mech=trIsMech(TR.mode),can=mech?av.length>0:n>0;
- return `<div class="blab"><div class="cap"><b>Тренажёр</b><span class="bkhint">${c.wk?`${Object.keys(MECH).length} видов действий · `:''}в банке ${c.bank.length} заданий</span></div>
+ return `<div class="blab"><div class="cap"><b>Тренажёр</b><span class="bkhint">${c.wk?`${mAvail(c,c.lessons.map((_,i)=>i+1)).length} видов действий · `:''}в банке ${c.bank.length} заданий</span></div>
  <div class="tl">Уроки</div><div class="chips">${c.lessons.map((l,i)=>`<button class="chipc" data-trl="${i+1}" aria-pressed="${TR.les.includes(i+1)}">${i+1}. ${c.lnames[i+1]}</button>`).join('')}</div>
  ${modes}
  <div class="tl">Сколько заданий</div><div class="seg" role="radiogroup">${(mech?[10,15,20]:[10,20,40,'all']).map(x=>`<button role="radio" data-trc="${x}" aria-pressed="${String(TR.cnt)===String(x)}">${x==='all'?'Все ('+n+')':x}</button>`).join('')}</div>
