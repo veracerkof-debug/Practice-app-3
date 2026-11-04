@@ -18,6 +18,7 @@ npx playwright install chromium
 npm test                    # сборка + дымовой тест + проверка вёрстки (360/768/1280 px)
 ```
 
+- **Основы и политика учебника — [docs/PRINCIPLES.md](docs/PRINCIPLES.md)**
 - Устройство кода и модели данных — [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Как писать главу — [docs/CONTENT-GUIDE.md](docs/CONTENT-GUIDE.md)
 - Умный словарь — [docs/DICTIONARY.md](docs/DICTIONARY.md)
