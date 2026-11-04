@@ -22,7 +22,7 @@ function tBuild(s){
  const q=pick1(s.q),inl=q.includes('{w}');
  const B={k:s.k,l:s.l,text:q.replace('{w}',it.w||'').replace('{x}',it.x||''),w:inl?null:(it.w||null),a:it.a,why:it.why||s.why||''};
  if(s.k==='one'){const all=it.o||s.o,n=s.n||all.length;B.opts=shuffle([B.a,...shuffle(all.filter(x=>x!==B.a)).slice(0,n-1)])}
- if(s.k==='many')B.opts=shuffle(s.o);
+ if(s.k==='many')B.opts=shuffle(it.o||s.o);
  if(s.k==='sort'){B.cats=s.cats;B.items=shuffle(s.items).slice(0,s.n||6)}
  return B;
 }
@@ -47,6 +47,7 @@ function tScore(B,a){ // 0…1
  if(B.k==='type'){const ok=Array.isArray(B.a)?B.a:[B.a];return ok.some(v=>tNorm(v)===tNorm(a||''))?1:0}
  if(B.k==='sort')return B.items.filter((it,i)=>a&&a[i]===it[1]).length/B.items.length;
 }
+const tGap=t=>esc(t).replace(/_/g,'<span class="slot">…</span>'); // пропуск «_» в тексте вопроса, вариантах и словах — одинаковым значком
 const tFill=(w,v)=>esc(w).replace('_',`<span class="slot">${v==null?'…':esc(v)}</span>`);
 function tShowAns(B,a){ // ответ ученика / верный ответ — текстом для разбора
  if(B.k==='sort')return B.items.map((it,i)=>`${esc(it[0])} — ${esc(a&&a[i]!=null?a[i]:'?')}`).join('; ');
@@ -86,11 +87,11 @@ function tRunHTML(c){
  const B=TS.qs[TS.i],a=TS.ans[TS.i],N=TS.qs.length,last=TS.i===N-1;
  let body='';
  if(B.k==='one'||B.k==='many')body=`<div class="tsopts">${B.opts.map((v,j)=>{const on=B.k==='one'?a===v:!!(a&&a.includes(v));
-  return `<button class="opt tsopt ${on?'on':''}" data-tsa="${j}" aria-pressed="${on}">${B.k==='many'?`<i class="tsbox">${on?'✓':''}</i>`:''}${esc(v)}</button>`}).join('')}</div>`;
+  return `<button class="opt tsopt ${on?'on':''}" data-tsa="${j}" aria-pressed="${on}">${B.k==='many'?`<i class="tsbox">${on?'✓':''}</i>`:''}${tGap(v)}</button>`}).join('')}</div>`;
  if(B.k==='type')body=`<form class="tsform" data-tsform><input name="a" value="${esc(a||'')}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="Ответ" placeholder="Ответ"></form>`;
- if(B.k==='sort')body=`<div class="tssort">${B.items.map((it,i)=>`<div class="tssr"><span class="tsw">${esc(it[0])}</span><span class="seg">${B.cats.map(ct=>`<button data-tss="${i}" data-v="${esc(ct)}" aria-pressed="${!!a&&a[i]===ct}">${esc(ct)}</button>`).join('')}</span></div>`).join('')}</div>`;
+ if(B.k==='sort')body=`<div class="tssort">${B.items.map((it,i)=>`<div class="tssr"><span class="tsw">${tGap(it[0])}</span><span class="seg">${B.cats.map(ct=>`<button data-tss="${i}" data-v="${esc(ct)}" aria-pressed="${!!a&&a[i]===ct}">${esc(ct)}</button>`).join('')}</span></div>`).join('')}</div>`;
  return `<div class="tshead"><div class="kick">${TS.title}</div><span>Вопрос ${TS.i+1} из ${N}</span></div><div class="bar"><i style="width:${TS.i/N*100}%"></i></div>
- <div class="card tscard"><div class="ty">${T_KIND[B.k]}</div><div class="tq">${esc(B.text)}</div>${B.w?`<div class="word tsword">${B.k==='type'&&B.w.includes('_')?tFill(B.w,null):esc(B.w)}</div>`:''}${body}</div>
+ <div class="card tscard"><div class="ty">${T_KIND[B.k]}</div><div class="tq">${tGap(B.text)}</div>${B.w?`<div class="word tsword">${B.k==='type'&&B.w.includes('_')?tFill(B.w,null):tGap(B.w)}</div>`:''}${body}</div>
  <div class="tsnav">${TS.i?'<button class="ghost" data-tsprev>‹ Назад</button>':'<span></span>'}<button class="bkldone" data-tsnext>${last?'Завершить тест':'Дальше'}</button></div>
  <button class="linkbtn tsquit" data-tsquit>Прервать тест</button>`;
 }
@@ -99,7 +100,7 @@ function tResHTML(c){
  const fmt=x=>Math.round(x*10)/10;
  return `<div class="tsres ${ok?'ok':'bad'}"><div class="kick">${TS.title}</div><div class="tsgrade">${R.g}</div>
  <div class="tsrs"><b>${ok?'Тест сдан':'Тест не сдан'}</b><span>Верно ${fmt(R.sum)} из ${N} (${Math.round(R.p*100)}%)${ok?'':` · нужна оценка ${TEST_PASS} или выше`}</span></div></div>
- ${wrong.length?`<h3>Разбор ошибок</h3>${wrong.map(([B,i])=>`<div class="tsm"><div class="q">${esc(B.text)}${B.w?` <b>${esc(B.w)}</b>`:''}</div>
+ ${wrong.length?`<h3>Разбор ошибок</h3>${wrong.map(([B,i])=>`<div class="tsm"><div class="q">${tGap(B.text)}${B.w?` <b>${tGap(B.w)}</b>`:''}</div>
   <div class="tsa"><span class="tsn">Ответ: ${tShowAns(B,TS.ans[i])}</span><span class="tsy">Верно: ${tRight(B)}</span></div>${B.why?`<div class="why">${esc(B.why)}</div>`:''}
   <button class="linkbtn" data-ojump="${c.lessons[B.l-1].id}">Повторить урок ${B.l} ›</button></div>`).join('')}`:'<p class="note">Ошибок нет.</p>'}
  <div class="tsnav"><button class="ghost" data-tslist>К списку тестов</button><button class="bkldone" data-tsgo="${TS.key}">Пройти ещё раз</button></div>`;
