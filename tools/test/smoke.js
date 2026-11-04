@@ -48,6 +48,18 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  await p.goto(U+'#ch-prichastie');check(await p.evaluate(()=>document.querySelectorAll('.bktext .wl').length)>5,'ссылки на слова в примерах');
  // поиск
  await p.goto(U+'#toc');await p.fill('#q','деревян');check(await p.evaluate(()=>document.querySelectorAll('#sres button').length)>1,'поиск на главной');
+ // упражнения: номера, задание по номерам, ссылка, поиск номера
+ const cnt=()=>p.evaluate(()=>document.querySelectorAll('.clex').length);
+ await p.goto(U+'#ch-prichastie');await p.click('[data-tab="classic"]');
+ check(await p.evaluate(()=>document.querySelectorAll('.clnav [data-clgo]').length)===40,'карта номеров упражнений');
+ await p.fill('.clnav [data-clform] input','12–15');await p.press('.clnav [data-clform] input','Enter');
+ check(await cnt()===4&&(await p.evaluate(()=>location.hash))==='#ex-prichastie-12-15','задание «12–15»: только 4 упражнения и ссылка');
+ await p.click('[data-clall]');await p.click('[data-cls="5"]');await p.click('.clnav [data-clgo="3"]');await p.waitForTimeout(100);
+ check(await cnt()===40,'переход к номеру снимает фильтры');
+ await p.goto(U+'#ex-nn-4-6,10');await p.reload();check(await cnt()===4,'ссылка на упражнения 4–6, 10');
+ await p.goto(U+'#toc');await p.fill('#q','4.6.12');check(await p.evaluate(()=>!!document.querySelector('[data-exgo="prichastie:12"]')),'поиск упражнения по номеру 4.6.12');
+ await p.click('[data-exgo="prichastie:12"]');check(await cnt()===1,'переход из поиска к упражнению');
+ await p.goto(U+'#ch-prichastie');await p.click('[data-tab="theory"]');
  errs.forEach(e=>fail.push('JS: '+e));
  ok.forEach(m=>console.log('  ✓ '+m));fail.forEach(m=>console.log('  ✗ '+m));
  console.log(fail.length?`Ошибок: ${fail.length}`:`Всё работает (${ok.length} проверок)`);

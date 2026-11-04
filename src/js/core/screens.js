@@ -2,9 +2,12 @@
 let route={v:'toc'};
 let skipHash=false;
 const viewHash=()=>({cards:'cards',gloss:'glossary',dict:'dict'}[S.view]||'toc');
-function hashFor(r){return r.v==='word'?'w-'+encodeURIComponent(r.id):r.v==='ch'?'ch-'+r.id:r.v==='deck'?'deck-'+r.id:r.v==='study'?'study-'+r.id:viewHash()}
-let NAVN=0;function go(r,keep){NAVN++;route=r;const nh=hashFor(r);if(location.hash.slice(1)!==nh){skipHash=true;location.hash=nh}render();if(!keep)window.scrollTo(0,0)}
+function hashFor(r){return r.v==='word'?'w-'+encodeURIComponent(r.id):r.v==='ch'?(CLR&&S.tab==='classic'?'ex-'+r.id+'-'+clFmt(CLR,true):'ch-'+r.id):r.v==='deck'?'deck-'+r.id:r.v==='study'?'study-'+r.id:viewHash()}
+let NAVN=0;function go(r,keep){NAVN++;if(r.v!=='ch'||r.id!==route.id)CLR=null;route=r;const nh=hashFor(r);if(location.hash.slice(1)!==nh){skipHash=true;location.hash=nh}render();if(!keep)window.scrollTo(0,0)}
 function fromHash(){const h=location.hash.slice(1);
+ CLR=null;
+ const ex=h.match(/^ex-([a-z0-9_]+)-([\d,-]+)$/);
+ if(ex&&CHAPTERS[ex[1]]){route={v:'ch',id:ex[1]};S.tab='classic';const l=clParse(CHAPTERS[ex[1]],ex[2].replace(/,/g,', '));CLR=l.length?l:null;return}
  if(h.startsWith('w-')) route={v:'word',id:decodeURIComponent(h.slice(2))};
  else if(h.startsWith('ch-')) route={v:'ch',id:h.slice(3)};
  else if(h.startsWith('deck-')&&DECKS[h.slice(5)]) route={v:'deck',id:h.slice(5)};
@@ -70,10 +73,13 @@ function chapterHTML(id){
 // боковое содержание главы (видно на широких экранах, ≥1100px)
 function chSide(id){
  const ch=CHAPTERS[id],tab=S.tab||'theory',d=ch.lessons.filter(l=>S.done[l.id]).length;
+ const tabs=`<div class="stabs">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения']].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div>`;
+ if(tab==='classic'){const dn=ch.classic.filter(e=>S.done['cl-'+id+'-'+e.n]).length;
+  return `<aside class="chside" aria-label="Упражнения главы"><div class="kick">Упражнения · выполнено ${dn} из ${ch.classic.length}</div>${clFindHTML(1)}${clMapHTML(ch)}${tabs}</aside>`}
  return `<aside class="chside" aria-label="Содержание главы"><div class="kick">Содержание · ${d} из ${ch.lessons.length}</div>
  <ol class="otl sotl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" data-sl="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
   ${S.easy||tab!=='theory'?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>
- <div class="stabs">${[['train','Тренажёр'],['classic','Упражнения']].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div></aside>`;
+ ${tabs}</aside>`;
 }
 // подсветка текущего урока в боковом содержании
 let SIDEF=0;
@@ -149,8 +155,13 @@ function render(){
 }
 function search(e){
  const v=e.target.value.trim().toLowerCase().replace(/\u0301/g,''),box=$('#sres');
- if(v.length<2){box.innerHTML='';return}
+ if(v.length<2&&!/^\d$/.test(v)){box.innerHTML='';return}
  const res=[],R=(ty,t,sub,attr)=>res.push(`<button ${attr}><span class="ty">${ty}</span><b>${t}</b>${sub?`<small>${sub}</small>`:''}</button>`);
+ // упражнение по номеру: «12», «упр. 12», «4.6.12»
+ const xm=v.match(/^(?:упр[а-яё]*\.?\s*|№\s*)?(?:(\d)\.(\d+)[.\s]+)?(\d+)$/);
+ if(xm)ALLCH.forEach(c=>{const ch=CHAPTERS[c.id];if(!ch)return;const i=c.part.ch.indexOf(c);
+  if(xm[1]&&(+xm[1]!==c.part.n||+xm[2]!==i+1))return;const e=ch.classic.find(x=>x.n===+xm[3]);
+  if(e)R('Упражнение',`Упражнение ${e.n}`,`Глава ${c.part.n}.${i+1} · ${c.t}`,`data-exgo="${c.id}:${e.n}"`)});
  ALLCH.forEach(c=>{if((c.t+' '+c.s).toLowerCase().includes(v))R('Глава',c.t,c.part.t+(CHAPTERS[c.id]?'':' · готовится'),`data-ch="${c.id}"`)});
  Object.values(CHAPTERS).forEach(ch=>ch.lessons.forEach(l=>{
   if(l.t.toLowerCase().includes(v))R('Урок',l.t,lesName(l.id),`data-ojump2="${l.id}"`);
@@ -182,7 +193,7 @@ document.addEventListener('click',e=>{
  if(d.dword){S.view='dict';DQ=d.dword;DTAG='';save();go({v:'toc'});return}
  if(d.outline){outline(d.outline);return}
  if(d.ojump){const id=d.ojump;closeSheet();if((S.tab||'theory')!=='theory'){S.tab='theory';save();render()}setTimeout(()=>jump(id),30);return}
- if(d.otab){closeSheet();S.tab=d.otab;save();render();setTimeout(()=>{const t=document.querySelector('.seg[role=tablist]');if(t)t.scrollIntoView({behavior:RM()?'auto':'smooth'})},30);return}
+ if(d.otab){closeSheet();S.tab=d.otab;CLR=null;save();go({v:'ch',id:route.id},true);setTimeout(()=>{const t=document.querySelector('.seg[role=tablist]');if(t)t.scrollIntoView({behavior:RM()?'auto':'smooth'})},30);return}
  if(d.ojump2){const id=d.ojump2,lid=id.replace(/-s\d+$/,'');openLesson(lid,()=>{if(id===lid)return false;jump(id);return true});return}
  if(d.tabto&&d.ch){S.tab=d.tabto;save();go({v:'ch',id:d.ch});return}
  if(d.view){S.view=d.view;save();go({v:'toc'});return}
@@ -211,9 +222,15 @@ document.addEventListener('click',e=>{
  if(d.morph!==undefined){mSel=+d.morph;relab('morph');return}
  if(d.chain){cSel=d.chain;relab('chain');return}
  if(d.noun!==undefined){nSel=nSel===+d.noun?null:+d.noun;relab('nouns');return}
- if(d.tab){S.tab=d.tab;save();render();window.scrollTo(0,0);return}
+ if(d.tab){S.tab=d.tab;CLR=null;save();go({v:'ch',id:route.id});return}
  if(d.trles){S.tab='train';trSync();TR.les=[+d.trles];TR.run=null;save();render();window.scrollTo(0,0);return}
- if(d.clto){S.tab='classic';CLF=0;S.cls=0;save();render();setTimeout(()=>{const t=CC().classic.find(e=>e.l===+d.clto);if(t)jump('cl'+t.n)},30);return}
+ if(d.clto){CLR=null;CLF=+d.clto;S.cls=0;CLU=false;S.tab='classic';save();go({v:'ch',id:CC().id});return}
+ if(d.clgo){closeSheet();clJump(+d.clgo);return}
+ if(d.cllink){clCopy(clLink(CC(),[+d.cllink]));return}
+ if('clcopy' in d){clCopy(clLink(CC(),CLR||[]));return}
+ if('clall' in d){CLR=null;go({v:'ch',id:CC().id});return}
+ if('clu' in d){CLU=!CLU;const y=window.scrollY;render();window.scrollTo(0,y);return}
+ if(d.exgo){const [id,n]=d.exgo.split(':');route={v:'ch',id};CLR=[+n];S.tab='classic';save();go({v:'ch',id});return}
  if(d.trl){const l=+d.trl;TR.les=TR.les.includes(l)?TR.les.filter(x=>x!==l):[...TR.les,l].sort();if(!TR.les.length)TR.les=[l];trRe();return}
  if(d.trm){TR.mode=d.trm;trRe();return}
  if(d.trc){TR.cnt=d.trc==='all'?'all':+d.trc;trRe();return}
@@ -226,7 +243,7 @@ document.addEventListener('click',e=>{
  if(d.trcol!==undefined){const t=TR.run.tasks[TR.run.i];delete t.set[+d.trcol];trRe();return}
  if('trcheck' in d){const t=TR.run.tasks[TR.run.i];t.checked=true;trScore(t.items.map((it,i)=>[it,t.set[i]===it.a]));trRe();return}
  if('trnext' in d){TR.run.i++;trRe(true);return}
- if(d.clf!==undefined){CLF=+d.clf;render();return}
+ if(d.clf!==undefined){CLF=+d.clf;const y=window.scrollY;render();window.scrollTo(0,y);return}
  if(d.cls!==undefined){S.cls=+d.cls;save();render();return}
  if(d.cldone){const k='cl-'+CC().id+'-'+d.cldone;S.done[k]=!S.done[k];save();const y=window.scrollY;render();window.scrollTo(0,y);return}
  if(d.ex){const les=NN.lessons.find(l=>l.id===d.ex);(exState[d.ex]||(exState[d.ex]={}))[d.i]=d.v;rerenderEx(les);return}
