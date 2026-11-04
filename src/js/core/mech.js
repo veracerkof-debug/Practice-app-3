@@ -203,8 +203,8 @@ const MECH={
  tx:{t:'Текст с пропусками',l:[],d:'Прочитать отрывок писателя и вставить пропущенное во все слова.',
   gen(c,les){const T=pick1(txPool(c,les)),gaps=[];
    T.ss.forEach((u,si)=>u.forEach((x,ui)=>{if(txGap(c,x,les))gaps.push({si,ui,g:x.or.g,a:x.or.a,o:orthOpts(x.or),r:x.or.r[0]})}));
-   return mFinal({k:'m',m:'tx',l:ORTHO_R[gaps[0].r].l,q:'Прочитать отрывок. Вставить пропущенные буквы во все слова.',src:`${T.a}, «${T.w}»`,ss:T.ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
-  body(t){return MECH.gt.body(t)+`<div class="clsrc">${esc(t.src)}</div>`},
+   return mFinal({k:'m',m:'tx',l:ORTHO_R[gaps[0].r].l,q:'Прочитать отрывок. Вставить пропущенные буквы во все слова.',src:`${T.a}, «${T.w}»`,gl:T.g||'',ss:T.ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
+  body(t){return MECH.gt.body(t)+`<div class="clsrc">${esc(t.src)}</div>`+(t.gl?`<div class="clgl"><b>Пояснения:</b> ${esc(t.gl)}</div>`:'')},
   ready:t=>t.gaps.every((_,i)=>t.sel[i]!=null),
   act(t,d){if(d.ma==='gt')t.sel[+d.i]=d.v},
   grade(t){return MECH.gt.grade(t)}},
