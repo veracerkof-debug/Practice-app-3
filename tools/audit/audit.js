@@ -12,7 +12,7 @@ const ROOT=path.resolve(__dirname,'../..');const id=process.argv[2]||'prichastie
  await p.goto('file://'+T+'?selftest#toc');
  const R=await p.evaluate(id=>{
   const c=window.__T.CHAPTERS[id],out={};
-  const words=s=>(String(s).toLowerCase().replace(/<[^>]+>/g,' ').replace(/\([^)]*«[^)]*»\)/g,' ').match(/[а-яё]+/g)||[]); // подписи авторов «(А. С. Пушкин, «…»)» не считаем
+  const words=s=>(String(s).replace(/ Пояснения: .*$/,'').toLowerCase().replace(/<[^>]+>/g,' ').replace(/\([^)]*«[^)]*»\)/g,' ').match(/[а-яё]+/g)||[]); // подписи авторов «(А. С. Пушкин, «…»)» не считаем
   const STOP=new Set('и в во не на с со к по за из у о об от до для что как а но же ли бы то это он она они мы вы я ты его её их же ещё уже все всё был была были быть'.split(' '));
   const root=w=>w.replace(/(ющийся|ющиеся|ющийся|ящийся|вшийся|ющий|ющая|ющее|ющие|ящий|ящая|ящее|ящие|ущий|ущая|ащий|ащая|вший|вшая|вшее|вшие|емый|емая|имый|имая|омый|енный|ённый|анный|янный|енная|анная|ённая|енные|анные|тый|тая|тые|ший|шая|ые|ый|ий|ая|ое|ее|ой|ом|ем|им|ым|ую|юю|ах|ях|ами|ями|ть|ти|л|ла|ли|ло|ет|ит|ут|ют|ат|ят|а|я|о|е|ы|и|у|ю)$/,'').slice(0,6);
   const freq=(list)=>{const f={};list.forEach(w=>{if(w.length<4||STOP.has(w))return;const r=root(w);f[r]=(f[r]||0)+1});return Object.entries(f).sort((a,b)=>b[1]-a[1])};

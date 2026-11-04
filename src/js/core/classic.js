@@ -37,8 +37,9 @@ function clMapHTML(c){
  <div class="cmleg"><span><i class="cmb dn"></i>выполнено</span><span><i class="cmb"></i>не выполнено</span></div>`;
 }
 
-// материал упражнения: каждое пронумерованное предложение — с новой строки, подпись автора — отдельно и мельче
-const clBody=b=>esc(b).replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ').replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>');
+// материал упражнения: каждое пронумерованное предложение — с новой строки, подпись автора — отдельно и мельче,
+// «Пояснения: …» в конце (значения редких и старых слов в цитатах) — отдельной строкой
+const clBody=b=>esc(b).replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ').replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>').replace(/ Пояснения: (.*)$/,'<span class="clgl"><b>Пояснения:</b> $1</span>');
 function clExHTML(c,e){
  const dn=S.done[clKey(e)];
  return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>

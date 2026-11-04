@@ -446,4 +446,5 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .mfo{gap:4px;justify-content:center}
 .mfl{min-width:34px;min-height:46px;padding:0 4px;font-size:24px;font-weight:700}
 .mfs{display:inline-block;width:14px}
+.clgl{display:block;font-size:13px;color:var(--l2);line-height:1.45;margin-top:8px;padding-top:6px;border-top:1px dashed var(--sep)}
 .clsrc{display:block;font-size:13px;color:var(--l2);font-style:italic;text-align:right;line-height:1.4;margin:2px 0 4px}
