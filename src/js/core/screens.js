@@ -57,7 +57,7 @@ function chapterHTML(id){
    const nb=ch.bank.filter(b=>b.l===i+1).length, cl=ch.classic.filter(e=>e.l===i+1);
    h+=`<div class="bklex"><div class="top"><b>Практика по уроку</b></div>
    <div class="prac"><button class="pbtn" data-trles="${i+1}"><b>Тренажёр</b><span>${nb} заданий: по одному, столбики, найти ошибку</span></button>
-   <button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n} с ответами</span></button>
+   <button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n}${TEACHER?" с ответами":""}</span></button>
    ${ch.tests?(()=>{const r=tRes(ch,i+1),ok=tPassed(ch,i+1);return `<button class="pbtn ${ok?'tsp':''}" data-tsgo="${i+1}"><b>${ok?'✓ Тест сдан':'Тест'}</b><span>${r?`Лучшая оценка ${r.best} · пройти ещё раз`:`${Math.min(TEST_LEN,ch.tests.filter(s=>s.l===i+1).length)} вопросов без подсказок`}</span></button>`})():''}</div>
    <details class="bkhelp"><summary>Проще</summary><div class="body"><p>${l.easy}</p></div></details>
    <details class="bkhelp fix"><summary>Если не получается</summary><div class="body"><p>${l.fix}</p></div></details>

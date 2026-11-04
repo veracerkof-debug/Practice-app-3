@@ -1,4 +1,5 @@
 // ---------- упражнения в тетрадь ----------
+// Ответы показываются только в версии для учителя (TEACHER, см. tools/build.py); в версии ученика их нет в файле.
 // Навигация: карта номеров (по урокам), поле «Найти по номеру», ссылка на упражнения.
 // Номер упражнения (e.n) постоянный: задан в данных главы и никогда не меняется.
 // Задание от учителя («упр. 12–15») открывается отдельным видом: видны только эти упражнения,
@@ -44,7 +45,7 @@ function clExHTML(c,e){
  const dn=S.done[clKey(e)];
  return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>
   <p class="task">${e.task}</p>${e.obr?(S.easy?`<div class="obr"><b>Образец.</b> ${e.obr}</div>`:`<details class="bkhelp"><summary>Образец</summary><div class="body"><p>${e.obr}</p></div></details>`):''}<p class="cbody">${clBody(e.body)}</p>
-  <details class="bkhelp"><summary>Ответы</summary><div class="body"><p>${e.key}</p></div></details>
+  ${TEACHER&&e.key?`<details class="bkhelp tkey"><summary>Ответы (для учителя)</summary><div class="body"><p>${e.key}</p></div></details>`:''}
   <button class="pill ${dn?'done':''}" data-cldone="${e.n}">${dn?'✓ Выполнено':'Отметить: выполнено'}</button></section>`;
 }
 function clList(c,list,books){
@@ -69,7 +70,7 @@ function classicHTML(){
   ${clList(c,L,false)}
   <div class="row"><button class="pill" data-clall>‹ Все упражнения главы</button></div></div>`;
  }
- let h=`<div class="bktext"><details class="bins btip clhow"${S.clhow?' open':''} data-clhow><summary class="h">Как работать с упражнениями</summary><p>Упражнения выполняются письменно, в тетради. После выполнения — сверка с ответами и отметка «Выполнено».</p><p>У каждого упражнения <b>свой постоянный номер</b>. Задали, например, «упражнения 12–15» — ввести номера в поле ниже или открыть ссылку от учителя: на экране останутся только заданные упражнения.</p><p>Сложность — от одной до пяти звёзд: ${STARS(1)} по образцу, ${STARS(2)} простое применение правила, ${STARS(3)} с объяснением, ${STARS(4)} поиск ошибок и разбор, ${STARS(5)} текст, диктант, сочинение.</p></details>
+ let h=`<div class="bktext">${TEACHER?'<div class="bins bkey tnote"><div class="h">Версия для учителя</div><p>Ответы к упражнениям открыты. В версии для учеников ответов нет.</p></div>':''}<details class="bins btip clhow"${S.clhow?' open':''} data-clhow><summary class="h">Как работать с упражнениями</summary><p>Упражнения выполняются письменно, в тетради. Проверяет учитель; после выполнения — отметка «Выполнено».</p><p>У каждого упражнения <b>свой постоянный номер</b>. Задали, например, «упражнения 12–15» — ввести номера в поле ниже или открыть ссылку от учителя: на экране останутся только заданные упражнения.</p><p>Сложность — от одной до пяти звёзд: ${STARS(1)} по образцу, ${STARS(2)} простое применение правила, ${STARS(3)} с объяснением, ${STARS(4)} поиск ошибок и разбор, ${STARS(5)} текст, диктант, сочинение.</p></details>
  <div class="clnav">${clFindHTML()}${clMapHTML(c)}</div>
  <div class="tl">Урок</div><div class="chips">${LN.map((n,l)=>`<button class="chipc" data-clf="${l}" aria-pressed="${CLF===l}">${l?clLabel(c,l):'Все уроки'}</button>`).join('')}</div>
  <div class="tl">Сложность</div><div class="chips">${[0,1,2,3,4,5].map(s=>`<button class="chipc" data-cls="${s}" aria-pressed="${(S.cls||0)===s}">${s?'★'.repeat(s):'Любая'}</button>`).join('')}<button class="chipc" data-clu aria-pressed="${CLU}">Только невыполненные</button></div>
