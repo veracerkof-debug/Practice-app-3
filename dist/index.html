@@ -449,6 +449,7 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .mfo{gap:4px;justify-content:center}
 .mfl{min-width:34px;min-height:46px;padding:0 4px;font-size:24px;font-weight:700}
 .mfs{display:inline-block;width:14px}
+.clos{display:inline-block;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:999px;background:var(--fill);color:var(--l2);margin-left:8px;white-space:nowrap}
 .clgl{display:block;font-size:13px;color:var(--l2);line-height:1.45;margin-top:8px;padding-top:6px;border-top:1px dashed var(--sep)}
 .clsrc{display:block;font-size:13px;color:var(--l2);font-style:italic;text-align:right;line-height:1.4;margin:2px 0 4px}
 
@@ -1398,6 +1399,7 @@ function trainerHTML(){trSync();return `<div class="study" id="trainer">${TR.run
 let CLF=0;      // фильтр по уроку (0 — все)
 let CLR=null;   // показаны только эти номера (массив) — по полю номера или по ссылке
 let CLU=false;  // только невыполненные
+let CLO=false;  // только особые (диктант, сочинение, изложение, работа с текстом — длинные жанры, поле e.os)
 const clKey=e=>'cl-'+CC().id+'-'+e.n;
 const STARS=n=>`<span class="stars" title="Сложность: ${n} из 5">${'★'.repeat(n)}<span>${'★'.repeat(5-n)}</span></span>`;
 const clLabel=(c,l)=>l<c.lnames.length-1?'Урок '+l:c.lnames[l];
@@ -1425,7 +1427,7 @@ function clMapHTML(c){
  const by={};c.classic.forEach(e=>(by[e.l]||(by[e.l]=[])).push(e));
  return `<div class="clmap" aria-label="Номера упражнений">${Object.keys(by).map(l=>`<div class="cmr"><span class="cml">${clLabel(c,+l)}</span><div class="cmn">${by[l].map(e=>{
   const dn=S.done['cl-'+c.id+'-'+e.n],on=CLR&&CLR.includes(e.n);
-  return `<button class="cmb${dn?' dn':''}${on?' on':''}" data-clgo="${e.n}" title="Упражнение ${e.n} · сложность ${e.st} из 5${dn?' · выполнено':''}" aria-label="Упражнение ${e.n}${dn?', выполнено':''}">${e.n}</button>`}).join('')}</div></div>`).join('')}</div>
+  return `<button class="cmb${dn?' dn':''}${on?' on':''}" data-clgo="${e.n}" title="Упражнение ${e.n} · сложность ${e.st} из 5${e.os?' · особое: '+e.os:''}${dn?' · выполнено':''}" aria-label="Упражнение ${e.n}${dn?', выполнено':''}">${e.n}</button>`}).join('')}</div></div>`).join('')}</div>
  <div class="cmleg"><span><i class="cmb dn"></i>выполнено</span><span><i class="cmb"></i>не выполнено</span></div>`;
 }
 
@@ -1434,7 +1436,7 @@ function clMapHTML(c){
 const clBody=b=>esc(b).replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ').replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>').replace(/ Пояснения: (.*)$/,'<span class="clgl"><b>Пояснения:</b> $1</span>');
 function clExHTML(c,e){
  const dn=S.done[clKey(e)];
- return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>
+ return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${e.os?`<span class="clos" title="Особое упражнение: длинный жанр">особое · ${e.os}</span>`:''}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>
   <p class="task">${e.task}</p>${e.obr?(S.easy?`<div class="obr"><b>Образец.</b> ${e.obr}</div>`:`<details class="bkhelp"><summary>Образец</summary><div class="body"><p>${e.obr}</p></div></details>`):''}<p class="cbody">${clBody(e.body)}</p>
   ${TEACHER&&e.key?`<details class="bkhelp tkey"><summary>Ответы (для учителя)</summary><div class="body"><p>${e.key}</p></div></details>`:''}
   <button class="pill ${dn?'done':''}" data-cldone="${e.n}">${dn?'✓ Выполнено':'Отметить: выполнено'}</button></section>`;
@@ -1461,12 +1463,12 @@ function classicHTML(){
   ${clList(c,L,false)}
   <div class="row"><button class="pill" data-clall>‹ Все упражнения главы</button></div></div>`;
  }
- let h=`<div class="bktext">${TEACHER?'<div class="bins bkey tnote"><div class="h">Версия для учителя</div><p>Ответы к упражнениям открыты. В версии для учеников ответов нет.</p></div>':''}<details class="bins btip clhow"${S.clhow?' open':''} data-clhow><summary class="h">Как работать с упражнениями</summary><p>Упражнения выполняются письменно, в тетради. Проверяет учитель; после выполнения — отметка «Выполнено».</p><p>У каждого упражнения <b>свой постоянный номер</b>. Задали, например, «упражнения 12–15» — ввести номера в поле ниже или открыть ссылку от учителя: на экране останутся только заданные упражнения.</p><p>Сложность — от одной до пяти звёзд: ${STARS(1)} по образцу, ${STARS(2)} простое применение правила, ${STARS(3)} с объяснением, ${STARS(4)} поиск ошибок и разбор, ${STARS(5)} текст, диктант, сочинение.</p></details>
+ let h=`<div class="bktext">${TEACHER?'<div class="bins bkey tnote"><div class="h">Версия для учителя</div><p>Ответы к упражнениям открыты. В версии для учеников ответов нет.</p></div>':''}<details class="bins btip clhow"${S.clhow?' open':''} data-clhow><summary class="h">Как работать с упражнениями</summary><p>Упражнения выполняются письменно, в тетради. Проверяет учитель; после выполнения — отметка «Выполнено».</p><p>У каждого упражнения <b>свой постоянный номер</b>. Задали, например, «упражнения 12–15» — ввести номера в поле ниже или открыть ссылку от учителя: на экране останутся только заданные упражнения.</p><p>Сложность — от одной до пяти звёзд: ${STARS(1)} по образцу, ${STARS(2)} простое применение правила, ${STARS(3)} с объяснением, ${STARS(4)} поиск ошибок и разбор, ${STARS(5)} самое сложное — с тонкостями и неочевидными случаями. Пометка <span class="clos">особое</span> — длинные жанры: диктант, сочинение, изложение, работа с текстом; на них уходит больше времени.</p></details>
  <div class="clnav">${clFindHTML()}${clMapHTML(c)}</div>
  <div class="tl">Урок</div><div class="chips">${LN.map((n,l)=>`<button class="chipc" data-clf="${l}" aria-pressed="${CLF===l}">${l?clLabel(c,l):'Все уроки'}</button>`).join('')}</div>
- <div class="tl">Сложность</div><div class="chips">${[0,1,2,3,4,5].map(s=>`<button class="chipc" data-cls="${s}" aria-pressed="${(S.cls||0)===s}">${s?'★'.repeat(s):'Любая'}</button>`).join('')}<button class="chipc" data-clu aria-pressed="${CLU}">Только невыполненные</button></div>
+ <div class="tl">Сложность</div><div class="chips">${[0,1,2,3,4,5].map(s=>`<button class="chipc" data-cls="${s}" aria-pressed="${(S.cls||0)===s}">${s?'★'.repeat(s):'Любая'}</button>`).join('')}${CL.some(e=>e.os)?`<button class="chipc" data-clo aria-pressed="${CLO}">Особые</button>`:''}<button class="chipc" data-clu aria-pressed="${CLU}">Только невыполненные</button></div>
  <div class="prog"><span>Выполнено ${doneN} из ${CL.length}</span></div><div class="bar"><i style="width:${doneN/CL.length*100}%"></i></div>`;
- const L=CL.filter(e=>(!CLF||e.l===CLF)&&(!S.cls||e.st===S.cls)&&(!CLU||!S.done[clKey(e)]));
+ const L=CL.filter(e=>(!CLF||e.l===CLF)&&(!S.cls||e.st===S.cls)&&(!CLU||!S.done[clKey(e)])&&(!CLO||e.os));
  h+=L.length?clList(c,L,true):'<p class="note">Под этот отбор упражнений нет.</p>';
  return h+'</div>';
 }
@@ -1475,8 +1477,8 @@ function classicHTML(){
 function clShow(list){CLR=list.length?list:null;S.tab='classic';save();go({v:'ch',id:CC().id});setTimeout(()=>{const t=document.getElementById('clset');if(t)t.scrollIntoView({block:'start'})},30)}
 function clJump(n){ // к одному упражнению в общем списке: снять мешающие фильтры
  const c=CC(),e=c.classic.find(x=>x.n===n);if(!e)return;
- const hidden=(CLF&&e.l!==CLF)||(S.cls&&e.st!==S.cls)||(CLU&&S.done[clKey(e)]);
- if(CLR||hidden||(S.tab||'theory')!=='classic'){CLR=null;CLF=0;S.cls=0;CLU=false;S.tab='classic';save();go({v:'ch',id:c.id},true)}
+ const hidden=(CLF&&e.l!==CLF)||(S.cls&&e.st!==S.cls)||(CLU&&S.done[clKey(e)])||(CLO&&!e.os);
+ if(CLR||hidden||(S.tab||'theory')!=='classic'){CLR=null;CLF=0;S.cls=0;CLU=false;CLO=false;S.tab='classic';save();go({v:'ch',id:c.id},true)}
  setTimeout(()=>{const el=document.getElementById('cl'+n);if(!el)return;el.scrollIntoView({behavior:RM()?'auto':'smooth',block:'start'});el.classList.add('clhl');setTimeout(()=>el.classList.remove('clhl'),1600)},40);
 }
 function clCopy(text){
@@ -8061,6 +8063,7 @@ document.addEventListener('click',e=>{
  if('clcopy' in d){clCopy(clLink(CC(),CLR||[]));return}
  if('clall' in d){CLR=null;go({v:'ch',id:CC().id});return}
  if('clu' in d){CLU=!CLU;const y=window.scrollY;render();window.scrollTo(0,y);return}
+ if('clo' in d){CLO=!CLO;const y=window.scrollY;render();window.scrollTo(0,y);return}
  if(d.exgo){const [id,n]=d.exgo.split(':');route={v:'ch',id};CLR=[+n];S.tab='classic';save();go({v:'ch',id});return}
  if(d.trl){const l=+d.trl;TR.les=TR.les.includes(l)?TR.les.filter(x=>x!==l):[...TR.les,l].sort();if(!TR.les.length)TR.les=[l];trRe();return}
  if(d.trm){TR.mode=d.trm;trRe();return}

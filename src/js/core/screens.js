@@ -233,6 +233,7 @@ document.addEventListener('click',e=>{
  if('clcopy' in d){clCopy(clLink(CC(),CLR||[]));return}
  if('clall' in d){CLR=null;go({v:'ch',id:CC().id});return}
  if('clu' in d){CLU=!CLU;const y=window.scrollY;render();window.scrollTo(0,y);return}
+ if('clo' in d){CLO=!CLO;const y=window.scrollY;render();window.scrollTo(0,y);return}
  if(d.exgo){const [id,n]=d.exgo.split(':');route={v:'ch',id};CLR=[+n];S.tab='classic';save();go({v:'ch',id});return}
  if(d.trl){const l=+d.trl;TR.les=TR.les.includes(l)?TR.les.filter(x=>x!==l):[...TR.les,l].sort();if(!TR.les.length)TR.les=[l];trRe();return}
  if(d.trm){TR.mode=d.trm;trRe();return}
