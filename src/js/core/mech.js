@@ -159,7 +159,7 @@ const MECH={
  gw:{t:'Буква и «почему?»',l:[4],d:'Вставить букву и выбрать правило, по которому она пишется.',
   gen(c,les){const G=c.wk.gapWhy;
    if(G.keys){ // правила — из ORTHO_R; верными считаются все перечисленные у слова, ни одно не идёт в ловушки
-    const it=pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items),[w,a,o,valid,l]=it,rs=shuffle([valid[0],...sample(G.keys.filter(k=>!valid.includes(k)),3)]);
+    const it=pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items),[w,a,o,valid,l]=it,rs=shuffle([valid[0],...orthTraps(ORTHO_R[valid[0]].topic,valid,l)]);
     return mFinal({k:'m',m:'gw',l,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r:valid[0],valid,rs:rs.map(k=>[k,ORTHO_R[k].t]),sel:null,rsel:null})}
    const [w,a,o,r]=pick1(G.items),rs=shuffle([r,...sample(G.reasons.map((_,i)=>i).filter(i=>i!==r),3)]);
    return mFinal({k:'m',m:'gw',l:4,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r,valid:[r],rs:rs.map(i=>[i,G.reasons[i]]),sel:null,rsel:null})},
@@ -170,7 +170,7 @@ const MECH={
   grade(t){const ok=t.sel===t.a&&t.valid.includes(t.rsel);return {ok,right:`${fill(t.w,t.a)} — ${lc1(t.rs.find(x=>x[0]===t.r)[1])}`,why:t.sel===t.a&&!ok?'Буква верна, но правило выбрано не то.':''}}},
  // ── М. Н или НН в предложении + «почему?» (орфограммы общего корпуса)
  gs:{t:'Буква в предложении и «почему?»',l:[],d:'Вставить пропущенное в предложение и выбрать правило.',
-  gen(c,les){const [u,i]=pick1(orthPool(c,les)),o=u[i].or,keys=Object.keys(ORTHO_R).filter(k=>ORTHO_R[k].topic===c.id&&!o.r.includes(k)),rs=shuffle([o.r[0],...sample(keys,3)]);
+  gen(c,les){const [u,i]=pick1(orthPool(c,les)),o=u[i].or,rs=shuffle([o.r[0],...orthTraps(c.id,o.r,ORTHO_R[o.r[0]].l)]);
    return mFinal({k:'m',m:'gs',l:ORTHO_R[o.r[0]].l,q:'Вставить пропущенную букву (буквы). Почему так?',u:u.map(x=>({t:x.t,pu:x.pu})),gi:i,g:o.g,a:o.a,o:shuffle(orthOpts(o)),r:o.r[0],valid:o.r,rs:rs.map(k=>[k,ORTHO_R[k].t]),sel:null,rsel:null})},
   body:t=>`<div class="mst mgs">${t.u.map((x,i)=>x.pu?`<span class="mpu">${x.t}</span>`:`<span class="mword2">${i===t.gi?gapWord(x.t,t.g,t.a,t.sel,t.res):esc(x.t)}</span>`).join(' ')}</div>
    <div class="ans" style="justify-content:center">${t.o.map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${esc(v)}" ${t.res?'disabled':''} style="min-width:64px;min-height:48px;font-size:19px">${esc(v)}</button>`).join('')}</div>
@@ -179,7 +179,7 @@ const MECH={
   act(t,d){if(d.ma==='ltr')t.sel=d.v;if(d.ma==='why')t.rsel=t.rs[+d.i][0]},
   grade(t){const ok=t.sel===t.a&&t.valid.includes(t.rsel);return {ok,right:`${t.g.replace('_',t.a)} — ${lc1(ORTHO_R[t.r].t)}`,why:t.sel===t.a&&!ok?'Написание верное, но правило выбрано не то.':''}}},
  // ── Н. Текст с пропусками (орфограммы общего корпуса)
- gt:{t:'Текст с пропусками',l:[],d:'Вставить пропущенное во все слова небольшого текста.',
+ gt:{t:'Предложения с пропусками',l:[],d:'Вставить пропущенное во все слова нескольких предложений.',
   gen(c,les){const P=orthPool(c,les),byS=[...new Set(P.map(p=>p[0]))],ss=sample(byS,Math.min(4,byS.length));
    const gaps=[];ss.forEach((u,si)=>u.forEach((x,ui)=>{if(P.some(p=>p[0]===u&&p[1]===ui))gaps.push({si,ui,g:x.or.g,a:x.or.a,o:orthOpts(x.or),r:x.or.r[0]})}));
    return mFinal({k:'m',m:'gt',l:ORTHO_R[gaps[0].r].l,q:'Вставить пропущенные буквы во все слова.',ss:ss.map(u=>u.map(x=>({t:x.t,pu:x.pu}))),gaps,sel:{}})},
@@ -203,6 +203,9 @@ const MECH={
 };
 // орфограммы общего корпуса для темы главы: [предложение, номер единицы]
 function orthPool(c,les){const out=[];corpusSents(c.id,{has:u=>u.some(x=>x.or)}).forEach(u=>u.forEach((x,i)=>{const R=x.or&&ORTHO_R[x.or.r[0]];if(R&&R.topic===c.id&&les.includes(R.l))out.push([u,i])}));return out}
+// ловушки «почему?»: сначала правила уже пройденных уроков темы, затем остальные
+function orthTraps(topic,valid,l,n=3){const ks=Object.keys(ORTHO_R).filter(k=>ORTHO_R[k].topic===topic&&!valid.includes(k));
+ const a=shuffle(ks.filter(k=>ORTHO_R[k].l<=l)),b=shuffle(ks.filter(k=>ORTHO_R[k].l>l));return [...a,...b].slice(0,n)}
 const orthOpts=o=>o.a==='н'||o.a==='нн'?['н','нн']:[o.a];
 // слово единицы с пропуском на месте орфограммы
 function gapWord(text,g,a,v,res){const ws=text.split(' '),full=g.replace('_',a).toLowerCase(),wi=ws.findIndex(w=>w.toLowerCase()===full);if(wi<0)return esc(text);
