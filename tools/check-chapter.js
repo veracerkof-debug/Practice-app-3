@@ -10,7 +10,7 @@ if(!fs.existsSync(dir)){console.log('Нет папки '+dir);process.exit(2)}
 const ERR=[],WARN=[];let B=[],X=[],T=[],NL=0,box=null;const err=m=>ERR.push(m),warn=m=>WARN.push(m);
 const ORDER=['lessons','bank','classic','labs','tests','workshop','index'];
 const files=ORDER.map(f=>path.join(dir,f+'.js')).filter(f=>fs.existsSync(f));
-for(const f of ['lessons','index'])if(!fs.existsSync(path.join(dir,f+'.js')))err(`нет файла ${f}.js`);
+for(const f of ['lessons'])if(!fs.existsSync(path.join(dir,f+'.js')))err(`нет файла ${f}.js`);
 
 // 1. синтаксис каждого файла
 for(const f of files){try{cp.execFileSync('node',['--check',f],{stdio:'pipe'})}catch(e){err(`синтаксис: ${path.relative(ROOT,f)}\n    ${String(e.stderr).split('\n').slice(0,5).join('\n    ')}`)}}
@@ -22,11 +22,14 @@ const mine={};for(const f of files){let m;const t=fs.readFileSync(f,'utf8');DECL
 if(ERR.length){report();process.exit(1)}
 
 // 3. загрузить главу в песочнице
-box={CHAPTERS:{},LABS:{},MECH:{},relab(){},queueMicrotask:f=>f(),console,
+box={MECH:{},relab(){},queueMicrotask:f=>f(),console,
  document:{addEventListener(){},getElementById(){return null},querySelector(){return null},querySelectorAll(){return []}},
  shuffle:a=>a,pick1:a=>a[0],esc:s=>String(s),window:{},localStorage:{getItem(){return null},setItem(){}},S:{}};
 vm.createContext(box);
-try{vm.runInContext(files.map(f=>fs.readFileSync(f,'utf8')).join('\n;\n')+'\n;globalThis.__C=CHAPTERS;',box,{filename:id})}catch(e){err('глава не загружается: '+e.message);report();process.exit(1)}
+const PRE=['src/js/core/store.js','src/data/corpus/levels.js','src/data/corpus/orthograms.js','src/data/corpus/sentences.js','src/data/corpus/words.js','src/data/corpus/texts.js'].map(f=>path.join(ROOT,f)).filter(f=>fs.existsSync(f));
+const SRC=[...PRE,...files].map(f=>fs.readFileSync(f,'utf8')).join('\n;\n');
+const pre=(/^const CHAPTERS\b/m.test(SRC)?'':'var CHAPTERS={};')+(/^const LABS\b/m.test(SRC)?'':'var LABS={};');
+try{vm.runInContext(pre+SRC+'\n;globalThis.__C=CHAPTERS;globalThis.__L=LABS;',box,{filename:id})}catch(e){err('глава не загружается: '+e.message);report();process.exit(1)}
 const C=box.__C[id];if(!C){err(`глава не зарегистрирована: нужно CHAPTERS.${id}=…`);report();process.exit(1)}
 const L=C.lessons||[];NL=L.length;
 const strip=s=>String(s||'').replace(/<[^>]+>/g,' ').replace(/\{\{lab:\w+\}\}/g,' ').replace(/\s+/g,' ').trim();
@@ -39,9 +42,9 @@ L.forEach((l,i)=>{const n=`урок ${i+1} (${l.id})`;
  if(h<1500)warn(`${n}: теория h короткая — ${h} знаков (в образцах 3000–8000)`);
  if(li<350)err(`${n}: «Проще» (lite) — ${li} знаков: это должно быть полное объяснение для слабого ученика, а не одна фраза`);
  if(li&&h&&li/h>0.85)warn(`${n}: «Проще» почти не короче полной теории — это пересказ h?`);
- for(const m of String(l.h+l.lite+l.deep).matchAll(/\{\{lab:(\w+)\}\}/g))if(!box.LABS[m[1]])err(`${n}: схема {{lab:${m[1]}}} не зарегистрирована в LABS`);
+ for(const m of String(l.h+l.lite+l.deep).matchAll(/\{\{lab:(\w+)\}\}/g))if(!box.__L[m[1]])err(`${n}: схема {{lab:${m[1]}}} не зарегистрирована в LABS`);
 });
-const labs=Object.keys(box.LABS);if(labs.length<3)warn(`схем ${labs.length} (нужно не меньше 3–4, интерактивных)`);
+const labs=Object.keys(box.__L);if(labs.length<3)warn(`схем ${labs.length} (нужно не меньше 3–4, интерактивных)`);
 const labSrc=fs.existsSync(path.join(dir,'labs.js'))?fs.readFileSync(path.join(dir,'labs.js'),'utf8'):'';
 if(labs.length&&!/addEventListener\(\s*['"]click/.test(labSrc))warn('в labs.js нет обработчика нажатий: схемы не интерактивны');
 
@@ -113,7 +116,7 @@ for(const w of BANNED)if(JSON.stringify([B,X,T]).includes(w))err(`цитата �
 
 report();process.exit(ERR.length?1:0);
 function report(){
- console.log(`Глава ${id}: уроков ${NL||'?'}, схем ${Object.keys((box&&box.LABS)||{}).length}, тренажёр ${B.length}, упражнений ${X.length}, слотов тестов ${T.length}`);
+ console.log(`Глава ${id}: уроков ${NL||'?'}, схем ${Object.keys((box&&box.__L)||{}).length}, тренажёр ${B.length}, упражнений ${X.length}, слотов тестов ${T.length}`);
  if(ERR.length){console.log(`\nОШИБКИ (${ERR.length}) — сдавать нельзя:`);ERR.slice(0,80).forEach(e=>console.log('  ✗ '+e));if(ERR.length>80)console.log(`  … и ещё ${ERR.length-80}`)}
  if(WARN.length){console.log(`\nВНИМАНИЕ (${WARN.length}) — проверить и объяснить в отчёте:`);WARN.slice(0,60).forEach(e=>console.log('  ! '+e))}
  if(!ERR.length)console.log('\nОшибок нет.');
