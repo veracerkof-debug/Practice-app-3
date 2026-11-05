@@ -33,6 +33,9 @@ function tocHTML(){
  return h+'</div>';
 }
 
+// вкладки главы: только то, что в главе уже есть (глава может быть пока только теорией)
+const chTabs=ch=>[['theory','Теория'],...(ch.bank&&ch.bank.length||ch.wk?[['train','Тренажёр']]:[]),...(ch.classic&&ch.classic.length?[['classic','Упражнения']]:[]),...(ch.tests?[['tests','Тесты']]:[])];
+const chTab=ch=>{const t=S.tab||'theory';return chTabs(ch).some(x=>x[0]===t)?t:'theory'};
 function chapterHTML(id){
  const meta=chById(id); const ch=CHAPTERS[id];
  const idx=ALLCH.indexOf(meta);
@@ -44,8 +47,8 @@ function chapterHTML(id){
   h+=`<div class="bins btip"><div class="h">Глава готовится</div><p>В образце готова одна глава — «Н и НН». На ней показано, как будут устроены все остальные: уроки, схема, упражнения, тонкости и карточки.</p><div><button class="linkbtn" data-ch="nn">Открыть «Н и НН» ›</button></div></div>`;
   if(meta.deck) h+=`<div class="bins bkey"><div class="h">Карточки уже есть</div><p>Для этой темы готова колода «${DECKS[meta.deck].t}».</p><div><button class="linkbtn" data-deck="${meta.deck}">Открыть колоду ›</button></div></div>`;
  } else {
-  const tab=S.tab||'theory';
-  h+=`<div class="seg" role="tablist" aria-label="Раздел главы">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения'],...(ch.tests?[['tests','Тесты']]:[])].map(t=>`<button role="tab" data-tab="${t[0]}" aria-pressed="${tab===t[0]}">${t[1]}</button>`).join('')}</div>`;
+  const tab=chTab(ch);
+  h+=`<div class="seg" role="tablist" aria-label="Раздел главы">${chTabs(ch).map(t=>`<button role="tab" data-tab="${t[0]}" aria-pressed="${tab===t[0]}">${t[1]}</button>`).join('')}</div>`;
   if(tab==='train'){h+=trainerHTML();}
   else if(tab==='classic'){h+=classicHTML();}
   else if(tab==='tests'&&ch.tests){h+=testsHTML();}
@@ -54,10 +57,10 @@ function chapterHTML(id){
   ch.lessons.forEach((l,i)=>{
    h+=`<section class="bkles" id="${l.id}"><div class="bklh"><span class="kick">Урок ${i+1}</span><span class="t">${S.done[l.id]?'✓ ':''}${l.t}</span></div>`;
    h+=h4ids(termify(S.easy&&l.lite?l.lite:l.h),l.id).replace('{{table}}',ch.table||'').replace(/\{\{lab:(\w+)\}\}/g,(m,id)=>labHTML(id));
-   const nb=ch.bank.filter(b=>b.l===i+1).length, cl=ch.classic.filter(e=>e.l===i+1);
+   const nb=(ch.bank||[]).filter(b=>b.l===i+1).length, cl=(ch.classic||[]).filter(e=>e.l===i+1);
    h+=`<div class="bklex"><div class="top"><b>Практика по уроку</b></div>
-   <div class="prac"><button class="pbtn" data-trles="${i+1}"><b>Тренажёр</b><span>${nb} заданий: по одному, столбики, найти ошибку</span></button>
-   <button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n}${TEACHER?" с ответами":""}</span></button>
+   <div class="prac">${nb?`<button class="pbtn" data-trles="${i+1}"><b>Тренажёр</b><span>${nb} заданий: по одному, столбики, найти ошибку</span></button>`:''}
+   ${cl.length?`<button class="pbtn" data-clto="${i+1}"><b>В тетрадь</b><span>Упражнения ${cl[0].n}–${cl[cl.length-1].n}${TEACHER?" с ответами":""}</span></button>`:''}${!nb&&!cl.length&&!ch.tests?'<span class="note">Тренажёр, упражнения и тесты к этой главе готовятся.</span>':''}
    ${ch.tests?(()=>{const r=tRes(ch,i+1),ok=tPassed(ch,i+1);return `<button class="pbtn ${ok?'tsp':''}" data-tsgo="${i+1}"><b>${ok?'✓ Тест сдан':'Тест'}</b><span>${r?`Лучшая оценка ${r.best} · пройти ещё раз`:`${Math.min(TEST_LEN,ch.tests.filter(s=>s.l===i+1).length)} вопросов без подсказок`}</span></button>`})():''}</div>
    <details class="bkhelp"><summary>Проще</summary><div class="body"><p>${l.easy}</p></div></details>
    <details class="bkhelp fix"><summary>Если не получается</summary><div class="body"><p>${l.fix}</p></div></details>
@@ -74,8 +77,8 @@ function chapterHTML(id){
 
 // боковое содержание главы (видно на широких экранах, ≥1100px)
 function chSide(id){
- const ch=CHAPTERS[id],tab=S.tab||'theory',d=ch.lessons.filter(l=>S.done[l.id]).length;
- const tabs=`<div class="stabs">${[['theory','Теория'],['train','Тренажёр'],['classic','Упражнения'],...(ch.tests?[['tests','Тесты']]:[])].map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div>`;
+ const ch=CHAPTERS[id],tab=chTab(ch),d=ch.lessons.filter(l=>S.done[l.id]).length;
+ const tabs=`<div class="stabs">${chTabs(ch).map(([k,t])=>`<button class="ghost" data-otab="${k}" aria-pressed="${tab===k}">${t}</button>`).join('')}</div>`;
  if(tab==='classic'){const dn=ch.classic.filter(e=>S.done['cl-'+id+'-'+e.n]).length;
   return `<aside class="chside" aria-label="Упражнения главы"><div class="kick">Упражнения · выполнено ${dn} из ${ch.classic.length}</div>${clFindHTML(1)}${clMapHTML(ch)}${tabs}</aside>`}
  return `<aside class="chside" aria-label="Содержание главы"><div class="kick">Содержание · ${d} из ${ch.lessons.length}</div>

@@ -30,6 +30,8 @@ JS = [
     'src/chapters/prichastie/classic.js',
     'src/chapters/prichastie/tests.js', #   тесты «Причастия»
     'src/chapters/prichastie/workshop.js', # размеченный материал для механик тренажёра
+    'src/chapters/deeprich/lessons.js',  # глава «Деепричастие»: теория
+    'src/chapters/deeprich/index.js',    #   подключение (пока только теория)
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
