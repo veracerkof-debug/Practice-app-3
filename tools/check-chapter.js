@@ -107,6 +107,10 @@ for(const m of all.matchAll(/\[([а-яё'́\- ]{2,})\]/g)){const t=m[1];if(!/[а
 const BAD=/(?<![а-яё])(водк|пив[оа]|вин[оа](?![а-яё]*(ват|вн))|пьян|курил|сигар|табак|убил|убийств|кров[ьи]|самоубий)/i;
 const bm=strip(JSON.stringify([B,X,T])).match(BAD);if(bm)warn(`проверить содержание: «${bm[0]}…» — без сомнительного для детей (PRINCIPLES §6.4)`);
 
+// 11. произведения, которые владелец убрал как неподходящие для детей (решение 05.11.2026); список пополнять
+const BANNED=['«Ася»','«Барыня»'];
+for(const w of BANNED)if(JSON.stringify([B,X,T]).includes(w))err(`цитата из ${w} — произведение убрано владельцем (PRINCIPLES §6.4), взять другое`);
+
 report();process.exit(ERR.length?1:0);
 function report(){
  console.log(`Глава ${id}: уроков ${NL||'?'}, схем ${Object.keys((box&&box.LABS)||{}).length}, тренажёр ${B.length}, упражнений ${X.length}, слотов тестов ${T.length}`);
