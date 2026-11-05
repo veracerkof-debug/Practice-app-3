@@ -65,6 +65,10 @@ JS = [
     'src/js/core/dictionary.js',        # карточка слова
     'src/js/core/screens.js',           # экраны, маршруты, обработчики
 ]
+# главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут обе проверки;
+# так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
+DRAFT = {'zvuki', 'slog'}
+JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
 # ключи упражнений в тетрадь: поле key:'…' в src/chapters/*/classic.js

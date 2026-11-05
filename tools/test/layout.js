@@ -10,12 +10,15 @@ const ROOT=path.resolve(__dirname,'../..');const TMP=path.join(ROOT,'dist','_tes
   const routes=['toc','glossary','dict','cards','deck-nn','deck-udar'];
   for(const ch of ['nn','prichastie'])for(const tab of ['theory','train','classic'])routes.push('ch-'+ch+'|'+tab);
   routes.push('ch-deeprich|theory'); // главы «пока только теория»
+  // главы фонетики — если они в сборке (черновики DRAFT из tools/build.py в неё не входят)
+  for(const ch of ['zvuki','slog','udar'])for(const tab of ['theory','train','classic','tests'])routes.push('?'+ch+'|'+tab);
   await p.goto('file://'+TMP+'#toc');
   const words=await p.evaluate(()=>[...document.querySelectorAll('[data-word]')].length?[]:[]);
   await p.goto('file://'+TMP+'#dict');const ws=await p.evaluate(()=>[...new Set([...document.querySelectorAll('.wcloud [data-word]')].map(b=>b.dataset.word))]);
   ws.forEach(w=>routes.push('w-'+encodeURIComponent(w)));
-  for(const r of routes){const [h,tab]=r.split('|');
+  for(const r0 of routes){const opt=r0[0]==='?',r=opt?'ch-'+r0.slice(1):r0;const [h,tab]=r.split('|');
    await p.goto('file://'+TMP+'#'+h);
+   if(opt&&!(await p.$(`[data-tab="${tab}"]`)))continue; // главы нет в сборке или вкладки ещё нет
    if(tab){await p.click(`[data-tab="${tab}"]`);if(tab==='train'){const g=await p.$('[data-trgo]');if(g){await g.click()}}}
    await p.evaluate(()=>document.querySelectorAll('details').forEach(d=>d.open=true));
    await p.waitForTimeout(30);
