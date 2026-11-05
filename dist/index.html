@@ -1486,6 +1486,8 @@ const trIsMech=m=>m==='all'||!!MECH[m];
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const fill=(w,v)=>w.replace('_',v);
 const OPTS=it=>it.opts||['н','нн'];
+// варианты, свои у каждого задания (например, одно слово с разным ударением), — в случайном порядке, иначе верный узнаётся по месту кнопки; общий набор (н/нн, можно/нельзя) — в постоянном порядке
+const OPTU=it=>{if(!it.opts)return false;const k=it.opts.join('|');return CC().bank.filter(b=>b.opts&&b.opts.join('|')===k).length<3};
 const gap=it=>it.w.includes('_');
 function trPool(){return CC().bank.filter(b=>TR.les.includes(b.l))}
 function groupCols(pool){
@@ -1541,7 +1543,7 @@ function trTaskHTML(t){
  const c=CC();
  if(t.k==='m')return mechHTML(t);
  if(t.k==='pick'){
-  const it=t.it,a=t.ans,op=OPTS(it),g=gap(it);
+  const it=t.it,a=t.ans,op=t.op||(t.op=OPTU(it)?shuffle(OPTS(it)):OPTS(it)),g=gap(it);
   const w=g?esc(it.w).replace('_',`<span class="slot ${a?(a===it.a?'ok':'bad'):''}">${a?it.a:'…'}</span>`):esc(it.w);
   const long=op.some(v=>v.length>4);
   return `<div class="card"><div class="ty">${it.q||(g?'Выбрать вариант':'Ответить')} · урок ${it.l}</div><div class="word" style="font-size:${g?26:22}px">${w}</div>
