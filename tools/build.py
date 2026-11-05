@@ -32,8 +32,20 @@ JS = [
     'src/chapters/prichastie/workshop.js', # размеченный материал для механик тренажёра
     'src/chapters/deeprich/lessons.js',  # глава «Деепричастие»: теория
     'src/chapters/deeprich/index.js',    #   подключение (пока только теория)
+    'src/chapters/zvuki/lessons.js',
+    'src/chapters/zvuki/bank.js',
+    'src/chapters/zvuki/classic.js',
+    'src/chapters/zvuki/tests.js',
+    'src/chapters/zvuki/index.js',
+    'src/chapters/udar/lessons.js',
+    'src/chapters/udar/bank.js',
+    'src/chapters/udar/classic.js',
+    'src/chapters/udar/tests.js',
+    'src/chapters/udar/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
+    'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
+    'src/chapters/udar/labs.js',        # схемы «Ударения»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',

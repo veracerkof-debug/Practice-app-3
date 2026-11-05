@@ -57,8 +57,8 @@ function udmoveHTML(){
  return `<div class="blab" data-lab="udmove"><div class="cap"><b>Бегает ли ударение?</b><span class="bkhint">выбрать слово</span></div>
  <div class="chips">${UD_MOVE.map((x,i)=>`<button class="chipc" data-udmv="${i}" aria-pressed="${i===udMv}">${x[0]}</button>`).join('')}</div>
  <div class="tblw"><table class="bktbl"><tbody>${rows}</tbody></table></div>
- <div class="result" style="background:color-mix(in srgb,var(${mv?'--tint':'--S'}) 12%,var(--cell))"><div class="big" style="color:var(${mv?'--tint-text':'--S'});font-size:22px">${mv?'подвижное':'неподвижное'}</div>
- <div class="bkhint">${mv?'В разных формах ударение переходит с одного слога на другой. Проверять нужно ту форму, которая стоит в тексте.':'Во всех формах ударение на одном и том же слоге. Переносить его нельзя'+(k==='торт'?': то́рты, а не «торты́».':k==='квартал'?': кварта́лы, а не «ква́ртал».':k==='звонить'?': звони́т, а не «зво́нит».':'.')}</div></div></div>`;
+ <div class="result" style="background:color-mix(in srgb,var(${mv?'--tint':'--S'}) 12%,var(--cell))"><div><div style="font-size:18px;font-weight:700;color:var(${mv?'--tint-text':'--S'})">Ударение ${mv?'подвижное':'неподвижное'}</div>
+ <div class="bkhint">${mv?'В разных формах ударение переходит с одного слога на другой. Проверять нужно ту форму, которая стоит в тексте.':'Во всех формах ударение на одном и том же слоге. Переносить его нельзя'+(k==='торт'?': то́рты, а не «торты́».':k==='квартал'?': кварта́лы, а не «ква́ртал».':k==='звонить'?': звони́т, а не «зво́нит».':'.')}</div></div></div></div>`;
 }
 
 // ---------- урок 3: смысл меняется — омографы в предложениях ----------
@@ -123,7 +123,7 @@ function udformsHTML(){
  const [inf,f,t]=UD_FORMS[udFo],a=udFq[udFo],right=f[1];
  const wrong=t===0?(()=>{const {p,i}=udParse(right);const vs=[...p].map((c,j)=>UD_VOW.includes(c)?j:-1).filter(j=>j>=0&&j!==i);const k=vs[vs.length-1];return p.slice(0,k+1)+UD_AC+p.slice(k+1)})()
   :(()=>{const {p}=udParse(right);const vs=[...p].map((c,j)=>UD_VOW.includes(c)?j:-1).filter(j=>j>=0);const k=vs[0];return p.slice(0,k+1)+UD_AC+p.slice(k+1)})();
- const opts=[right,wrong].sort();
+ const opts=udFo%2?[right,wrong]:[wrong,right]; // порядок не подсказывает ответ
  return `<div class="blab" data-lab="udforms"><div class="cap"><b>Он — она — они</b><span class="bkhint">выбрать слово, ответить, как сказать «она…»</span></div>
  <div class="chips">${UD_FORMS.map((x,i)=>`<button class="chipc" data-udfo="${i}" aria-pressed="${i===udFo}">${x[0]}</button>`).join('')}</div>
  <div class="st2"><span class="n2">?</span><div style="flex:1">Вчера она (${inf}) — как сказать?<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${opts.map(o=>{const cl=a?(o===right?'eok':o===a?'ebad':''):'';return `<button class="opt ${cl}" data-udfq="${o}" ${a?'disabled':''} style="font-size:19px">${udHi(o)}</button>`}).join('')}</div></div></div>
