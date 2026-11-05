@@ -69,7 +69,7 @@ function trTaskHTML(t){
   const w=g?esc(it.w).replace('_',`<span class="slot ${a?(a===it.a?'ok':'bad'):''}">${a?it.a:'…'}</span>`):esc(it.w);
   const long=op.some(v=>v.length>4);
   return `<div class="card"><div class="ty">${it.q||(g?'Выбрать вариант':'Ответить')} · урок ${it.l}</div><div class="word" style="font-size:${g?26:22}px">${w}</div>
-  <div class="${long?'errl':'ans'}" style="justify-content:center">${op.map(v=>{let cl='';if(a){if(v===it.a)cl='ok';else if(v===a)cl='bad'}if(!a&&t.first===v)cl='bad';
+  <div class="${long?'errl':'ans'}" style="justify-content:center;flex-wrap:wrap">${op.map(v=>{let cl='';if(a){if(v===it.a)cl='ok';else if(v===a)cl='bad'}if(!a&&t.first===v)cl='bad';
    return long?`<button class="opt ${cl?'e'+cl:''}" data-trp="${esc(v)}" ${a||t.first===v?'disabled':''}>${esc(v)}</button>`:`<button data-trp="${esc(v)}" class="${cl}" ${a||t.first===v?'disabled':''} style="min-width:80px;min-height:52px;font-size:19px">${esc(v)}</button>`}).join('')}</div>
   ${t.hinted&&!a?`<div class="obr"><b>Подсказка.</b> ${c.lessons[it.l-1].hint} Попробовать ещё раз.</div>`:''}
   ${a?`<div class="aa"><div>${a===it.a?ok_(t.hinted?'Теперь верно.':'Верно.'):bad_} ${it.why}</div></div>`:''}</div>`;
