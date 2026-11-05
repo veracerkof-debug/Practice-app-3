@@ -32,7 +32,7 @@ queueMicrotask(()=>{ // l:[] — у других глав этих механи�
    body:t=>slGaps(t,t.w,'|'),
    ready:t=>t.sel.length>0||t.need.length===0,
    act(t,d){if(d.ma==='gap')mTog(t.sel,+d.i)},
-   grade(t){const ok=slSameSet(t.sel,t.need);return {ok,right:t.d,why:t.d.split('-').map(x=>`${x} — ${slSylOpen(x)?'открытый':'закрытый'}`).join('; ')+'. Один согласный уходит к следующему гласному; [й] и сонорный перед шумным остаются в предыдущем слоге.'}}}
+   grade(t){const ok=slSameSet(t.sel,t.need);return {ok,right:t.d,why:t.d.split('-').map(x=>`${x} — ${slSylOpen(x)?'открытый':'закрытый'}`).join('; ')+'. Один согласный уходит к следующему гласному; [й\'] и сонорный перед шумным остаются в предыдущем слоге.'}}}
  });
 });
 SL.wk={mech:{slp:[3,4,5],slc:[2,5]}};
