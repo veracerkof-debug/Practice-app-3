@@ -127,7 +127,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
   const badOrth=units.flat().filter(t=>/ор:/.test(t)).filter(t=>{const m=t.match(/^(.+?)\{.*ор:([^:;}]+):([^:;}]+):([^;}]+)/);if(!m)return true;const words=m[1].split('_').map(w=>w.toLowerCase());
    return !words.includes(m[2].replace('_',m[3]).toLowerCase())||!m[4].split('|').every(k=>k in window.__T.ORTHO_R)}).length; // пропуск находится в слове, правила существуют                     // у каждой запятой — причина
   return {badOrth,all:T.CORPUS_S.length,pr:T.corpusSents('prichastie',{commas:true,has:u=>u.some(x=>x.ob)}).length,sushPos:T.corpusSents('sush',{pos:['прич']}).length,
-   sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,texts:T.CORPUS_T.length,textsNN:T.corpusTexts('nn').length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
+   sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,texts:T.CORPUS_T.length,textsNN:T.corpusTexts('nn',{orthOnly:true}).length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
  const ord=await p.evaluate(()=>window.__T.orderCheck());
  check(ord==='',`порядок изучения: все главы и темы на месте${ord?' — нет: '+ord:''}`);
  check(cor.badOrth===0,'корпус: все орфограммы на месте и с известными правилами');
