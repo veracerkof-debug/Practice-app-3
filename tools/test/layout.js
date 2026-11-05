@@ -9,6 +9,7 @@ const ROOT=path.resolve(__dirname,'../..');const TMP=path.join(ROOT,'dist','_tes
   const p=await b.newPage({viewport:{width:W,height:900}});p.on('pageerror',e=>errs.push(W+' '+e.message));
   const routes=['toc','glossary','dict','cards','deck-nn','deck-udar'];
   for(const ch of ['nn','prichastie'])for(const tab of ['theory','train','classic'])routes.push('ch-'+ch+'|'+tab);
+  routes.push('ch-deeprich|theory'); // главы «пока только теория»
   await p.goto('file://'+TMP+'#toc');
   const words=await p.evaluate(()=>[...document.querySelectorAll('[data-word]')].length?[]:[]);
   await p.goto('file://'+TMP+'#dict');const ws=await p.evaluate(()=>[...new Set([...document.querySelectorAll('.wcloud [data-word]')].map(b=>b.dataset.word))]);

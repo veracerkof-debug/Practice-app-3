@@ -130,7 +130,7 @@ function bookTOC(){
    const d=ch.lessons.filter(l=>S.done[l.id]).length,n=ch.lessons.length;
    h+=`<li class="tch"><details ${S.tocOpen&&S.tocOpen[c.id]===false?'':'open'} data-tdet="${c.id}"><summary><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}${chTestsDone(ch)?' <span class="chok">✓ глава завершена</span>':''}</span><span class="cs">${c.s}</span></span><span class="rg">${ringSVG(d/n,p.c)}<i>${d}/${n}</i></span></summary>
    <ol class="tles">${ch.lessons.map((l,k)=>`<li><button data-ojump2="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="ln">${num}.${k+1}</span><span class="lb"><span class="lt">${l.t}</span>${secs(l).length?`<span class="ls">${secs(l).map(x=>x.t).join(' · ')}</span>`:''}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button></li>`).join('')}</ol>
-   <div class="tquick"><button data-ch="${c.id}" data-tabto="theory">Теория</button><button data-ch="${c.id}" data-tabto="train">Тренажёр · ${ch.bank.length}</button><button data-ch="${c.id}" data-tabto="classic">Упражнения · ${ch.classic.length}</button>${c.deck?`<button data-deck="${c.deck}">Карточки</button>`:''}</div></details></li>`;
+   <div class="tquick"><button data-ch="${c.id}" data-tabto="theory">Теория</button>${ch.bank&&ch.bank.length?`<button data-ch="${c.id}" data-tabto="train">Тренажёр · ${ch.bank.length}</button>`:''}${ch.classic&&ch.classic.length?`<button data-ch="${c.id}" data-tabto="classic">Упражнения · ${ch.classic.length}</button>`:''}${c.deck?`<button data-deck="${c.deck}">Карточки</button>`:''}</div></details></li>`;
   });
   h+='</ol></section>';
  });
