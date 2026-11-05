@@ -23,7 +23,7 @@ const zvTr=w=>'['+zvP(w).map(c=>c.s.join('')).join('')+']';
 const zvCnt=w=>{const p=zvP(w);return [p.length,p.reduce((n,c)=>n+c.s.length,0)]};
 // характеристика согласного звука (по школьному плану)
 function zvCons(s){const b=zvBase(s);
- const zv='лмнрй'.includes(b)?'зв. непарн.':'хцчщ'.includes(b)?'глух. непарн.':'бвгджз'.includes(b)?'зв. парн.':'глух. парн.';
+ const zv='лмнрй'.includes(b)?'сонорн., зв. непарн.':'хцчщ'.includes(b)?'глух. непарн.':'бвгджз'.includes(b)?'зв. парн.':'глух. парн.';
  const tv='жшц'.includes(b)?'тв. непарн.':'чщй'.includes(b)?'мягк. непарн.':s.includes("'")?'мягк. парн.':'тв. парн.';
  return 'согл., '+zv+', '+tv}
 const zvChar=s=>zvKind(s)==='v'?'гл., '+(s.includes(ZV_ACC)?'уд.':'безуд.'):zvCons(s);
@@ -42,7 +42,7 @@ function zvWhy(p,i){
   if(!c.s[0].includes(ZV_ACC)&&zvBase(c.s[0])!==L&&'оея'.includes(L))r+=' Без ударения «'+L+'» звучит как ['+zvBase(c.s[0])+'].';
   return r}
  if(!c.s.length)return 'Непроизносимый согласный: буква есть, звука нет.';
- const s=c.s[0],b=zvBase(s);let r='Звук ['+s+']: '+zvCons(s).replace('согл., ','').replace(/зв\./,'звонкий').replace(/глух\./,'глухой').replace(/тв\./,'твёрдый').replace(/мягк\./,'мягкий').replace(/непарн\./g,'непарный').replace(/парн\./g,'парный')+'.';
+ const s=c.s[0],b=zvBase(s);let r='Звук ['+s+']: '+zvCons(s).replace('согл., ','').replace(/сонорн\./,'сонорный').replace(/зв\./,'звонкий').replace(/глух\./,'глухой').replace(/тв\./,'твёрдый').replace(/мягк\./,'мягкий').replace(/непарн\./g,'непарный').replace(/парн\./g,'парный')+'.';
  if(b!==L&&ZV_PAIR[L]===b){const voiced='бвгджз'.includes(L);
   r+=voiced?(next===''||(next==='ь'&&i===p.length-2)?' Оглушение на конце слова: «'+L+'» звучит как ['+s+'].':' Оглушение перед глухим: «'+L+'» звучит как ['+s+'].'):' Озвончение перед звонким: «'+L+'» звучит как ['+s+'].'}
  if(s.includes("'")&&!'чщй'.includes(b))r+=next==='ь'?' Мягкость показывает ь.':' Мягкость показывает буква «'+next+'».';
