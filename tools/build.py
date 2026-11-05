@@ -37,6 +37,11 @@ JS = [
     'src/chapters/zvuki/classic.js',
     'src/chapters/zvuki/tests.js',
     'src/chapters/zvuki/index.js',
+    'src/chapters/slog/lessons.js',
+    'src/chapters/slog/bank.js',
+    'src/chapters/slog/classic.js',
+    'src/chapters/slog/tests.js',
+    'src/chapters/slog/index.js',
     'src/chapters/udar/lessons.js',
     'src/chapters/udar/bank.js',
     'src/chapters/udar/classic.js',
@@ -45,6 +50,7 @@ JS = [
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
+    'src/chapters/slog/labs.js',        # схемы «Слога и переноса»
     'src/chapters/udar/labs.js',        # схемы «Ударения»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
