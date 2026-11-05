@@ -79,13 +79,13 @@ function zvAlphaHTML(){
 }
 // ---------- 3. Гласные буквы ----------
 const ZV_VOWL={
- 'а':['[а]','мал [ма'+ZV_ACC+'л]','пишется после твёрдого согласного; после ч и щ — тоже а: час [ч\'а'+ZV_ACC+'с]','без ударения тоже [а]: сады [сады'+ZV_ACC+']'],
+ 'а':['[а]','мал [ма'+ZV_ACC+'л]','пишется после твёрдого согласного; после ч и щ — тоже а: час [ч\'а'+ZV_ACC+'с]','без ударения после твёрдых — [а]: сады [сады'+ZV_ACC+']; после ч, щ — [и]: часы [ч\'ису'+ZV_ACC+']'],
  'я':['[а] + мягкость или [й\'а]','мял [м\'а'+ZV_ACC+'л]; яма [й\'а'+ZV_ACC+'ма], моя [май\'а'+ZV_ACC+'], семья','после согласного — [а] и мягкость; в начале слова, после гласной, после ъ и ь — два звука','без ударения после мягкого — [и]: пятак [п\'ита'+ZV_ACC+'к]'],
  'о':['[о]','нос [но'+ZV_ACC+'с]','после твёрдого согласного','без ударения — [а]: вода [вада'+ZV_ACC+'], окно [акно'+ZV_ACC+']'],
- 'ё':['[о] + мягкость или [й\'о]','нёс [н\'о'+ZV_ACC+'с]; ёж [й\'о'+ZV_ACC+'ш], поёт','всегда под ударением; после ж и ш — только [о], без мягкости: шёл [шо'+ZV_ACC+'л]','без ударения в русских словах не бывает: мёд — медовый'],
+ 'ё':['[о] + мягкость или [й\'о]','нёс [н\'о'+ZV_ACC+'с]; ёж [й\'о'+ZV_ACC+'ш], поёт','в корне простого слова всегда под ударением; после ж и ш — только [о], без мягкости: шёл [шо'+ZV_ACC+'л]','без ударения в русских словах не бывает: мёд — медовый'],
  'у':['[у]','лук [лу'+ZV_ACC+'к]','после твёрдого согласного; после ч и щ — тоже у: щука','без ударения тоже [у]: рука [рука'+ZV_ACC+']'],
  'ю':['[у] + мягкость или [й\'у]','люк [л\'у'+ZV_ACC+'к]; юг [й\'у'+ZV_ACC+'к], каюта, вьюга','после согласного — [у] и мягкость; в начале слова, после гласной, после ъ и ь — два звука','без ударения тоже [у]: юла [й\'ула'+ZV_ACC+']'],
- 'э':['[э]','мэр [мэ'+ZV_ACC+'р], эхо','после твёрдого согласного и в начале слова','—'],
+ 'э':['[э]','мэр [мэ'+ZV_ACC+'р], эхо','после твёрдого согласного, в начале слова и после гласной: поэт','—'],
  'е':['[э] + мягкость или [й\'э]','мел [м\'э'+ZV_ACC+'л]; ель [й\'э'+ZV_ACC+'л\']','после согласного — [э] и мягкость (кроме ж, ш, ц: жест [жэ'+ZV_ACC+'ст]); в начале слова, после гласной, после ъ и ь — два звука','без ударения после мягкого — [и]: лесной [л\'исно'+ZV_ACC+'й\']'],
  'ы':['[ы]','был [бы'+ZV_ACC+'л]','после твёрдого согласного','без ударения тоже [ы]: дыра [дыра'+ZV_ACC+']'],
  'и':['[и] + мягкость, [ы] или [й\'и]','бил [б\'и'+ZV_ACC+'л]; жир [жы'+ZV_ACC+'р]; соловьи [салав\'й\'и'+ZV_ACC+']','после согласного — [и] и мягкость; после ж, ш, ц — [ы]; после ь — два звука','без ударения тоже [и]: лиса [л\'иса'+ZV_ACC+']']
@@ -126,14 +126,18 @@ function zvPairsHTML(){
 // ---------- 5. Сколько звуков и букв ----------
 const ZV_CNT=['ёж','ёлка','юла','яма','юг','язык','ещё','моя','каюта','поёт','день','конь','пальто','мышь','ночь','щука','чаща','жир','шёл','мяч','лёд','вьюга','объезд','объём','семья','друзья','ружьё','соловьи','дуб','просьба','кровь','морковь','честный','лесной','моряк'];
 let zcW='ёлка',zcA=null;
-const zvRel=w=>{const [b,s]=zvCnt(w);return b>s?'букв больше':s>b?'звуков больше':'поровну'};
+let zcB=null;
 function zvCountHTML(){
- const p=zvP(zcW),[nb,ns]=zvCnt(zcW),ok=zvRel(zcW);
+ const p=zvP(zcW),[nb,ns]=zvCnt(zcW);
+ if(zcB==null)zcB=Math.max(1,ns-Math.floor(Math.random()*3));
+ const opts=[zcB,zcB+1,zcB+2],ok=zcA!=null&&+zcA===ns;
  const notes=p.map((c,i)=>c.s.length===2?`<b>${c.l}</b> — два звука [${c.s.join('')}] (+1)`:!c.s.length?`<b>${c.l}</b> — без звука (−1)`:'').filter(Boolean);
- return `<div class="blab" data-lab="zvcount"><div class="cap"><b>Сколько букв и звуков</b><span class="bkhint">сначала ответить, потом проверить</span></div>
- <div class="word" style="text-align:center;font-size:28px">${zcA?p.map(c=>c.s.length===2?`<span style="background:color-mix(in srgb,var(--T) 22%,var(--cell));border-radius:6px">${c.l}</span>`:!c.s.length?`<span style="background:color-mix(in srgb,var(--l3) 40%,var(--cell));border-radius:6px">${c.l}</span>`:c.l).join(''):zcW}</div>
- <div class="seg" role="radiogroup">${['букв больше','поровну','звуков больше'].map(v=>`<button role="radio" data-zvca="${v}" aria-pressed="${zcA===v}">${v}</button>`).join('')}</div>
- ${zcA?`<div class="result" style="background:color-mix(in srgb,var(${zcA===ok?'--T':'--red'}) 12%,var(--cell))"><div class="big" style="color:var(${zcA===ok?'--T':'--red'});font-size:20px">${zcA===ok?'Верно':'Неверно'}</div><div><div>${nb} ${nb>4?'букв':'буквы'}, ${ns} ${ns>4?'звуков':ns===1?'звук':'звука'}: ${zvTr(zcW)}</div><div class="bkhint">${notes.join('; ')||'каждая буква — один звук'}</div></div></div>`:''}
+ const zw=n=>n===1?'звук':n<5?'звука':'звуков',bw=n=>n<5?'буквы':'букв';
+ return `<div class="blab" data-lab="zvcount"><div class="cap"><b>Сколько букв и звуков</b><span class="bkhint">сосчитать звуки, потом проверить</span></div>
+ <div class="word" style="text-align:center;font-size:28px">${zcA!=null?p.map(c=>c.s.length===2?`<span style="background:color-mix(in srgb,var(--T) 22%,var(--cell));border-radius:6px">${c.l}</span>`:!c.s.length?`<span style="background:color-mix(in srgb,var(--l3) 40%,var(--cell));border-radius:6px">${c.l}</span>`:c.l).join(''):zcW}</div>
+ <div class="bkhint" style="text-align:center">букв: ${nb} · сколько звуков?</div>
+ <div class="seg" role="radiogroup">${opts.map(v=>`<button role="radio" data-zvca="${v}" aria-pressed="${String(zcA)===String(v)}">${v}</button>`).join('')}</div>
+ ${zcA!=null?`<div class="result" style="background:color-mix(in srgb,var(${ok?'--T':'--red'}) 12%,var(--cell))"><div class="big" style="color:var(${ok?'--T':'--red'});font-size:20px">${ok?'Верно':'Неверно'}</div><div><div>${nb} ${bw(nb)}, ${ns} ${zw(ns)}: ${zvTr(zcW)} — ${nb>ns?'букв больше':ns>nb?'звуков больше':'поровну'}</div><div class="bkhint">${notes.join('; ')||'каждая буква — один звук'}</div></div></div>`:''}
  <div><button class="linkbtn" data-zvcnext>Другое слово</button></div></div>`;
 }
 // ---------- 6. Сильная и слабая позиция ----------
@@ -156,19 +160,27 @@ function zvPosHTML(){
 }
 // ---------- 7. Фонетический разбор по шагам ----------
 const ZV_RZ=[['ёлка','ёл-ка'],['моряк','мо-ряк'],['день','день'],['юла','ю-ла'],['вьюга','вью-га'],['мяч','мяч'],['щука','щу-ка'],['жир','жир'],['юг','юг'],['пятак','пя-так'],['ружьё','ру-жьё'],['кровь','кровь']];
-let zrSel=0,zrStep=1;
+let zrSel=0,zrStep=1,zrPick={},zrChk=false;
+function zvRzRight(s){if(zvKind(s)==='v')return {u:s.includes(ZV_ACC)?'уд.':'безуд.'};const c=zvCons(s);return {z:c.includes('зв.')?'зв.':'глух.',t:c.includes('тв.')?'тв.':'мягк.'}}
 function zvRazborHTML(){
  const [w,sl]=ZV_RZ[zrSel],p=zvP(w),[nb,ns]=zvCnt(w),all=p.flatMap(c=>c.s),vs=all.filter(s=>zvKind(s)==='v'),ui=vs.findIndex(s=>s.includes(ZV_ACC))+1;
  const sw=n=>n===1?'слог':n<5?'слога':'слогов';
  const step1=`<b>${w[0].toUpperCase()+w.slice(1)}</b> — ${vs.length>1?sl+', ':''}${vs.length} ${sw(vs.length)}${vs.length>1?', ударный '+ui+'-й':', ударный'}.`;
- const step3=p.map(c=>c.s.length?c.s.map((s,j)=>`${j?'&nbsp;&nbsp;&nbsp;&nbsp;':c.l+' — '}[${zvSnd(s)}] — ${zvChar(s)}`).join(';<br>'):`${c.l} — [—] — звука не обозначает`).join(';<br>');
+ const rec=p.map(c=>c.s.length?c.s.map((s,j)=>`${j?'&nbsp;&nbsp;&nbsp;&nbsp;':c.l+' — '}[${zvSnd(s)}] — ${zvChar(s)}`).join(';<br>'):`${c.l} — [—]`).join(';<br>');
+ // шаг 3: сначала ученик сам выбирает признаки каждого звука, потом проверка
+ let k=-1;const rows=all.map(s=>{k++;const R=zvRzRight(s),grp=Object.keys(R).map(f=>{const vals=f==='u'?['уд.','безуд.']:f==='z'?['зв.','глух.']:['тв.','мягк.'],cur=zrPick[k+':'+f];
+   return `<span class="seg" style="display:inline-flex;margin:2px">${vals.map(v=>{const st=zrChk?(v===R[f]?'border:2px solid var(--T)':cur===v?'border:2px solid var(--red)':''):'';return `<button data-zvrzp="${k}:${f}:${v}" aria-pressed="${cur===v}" style="${st}" ${zrChk?'disabled':''}>${v}</button>`}).join('')}</span>`}).join('');
+   return `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px"><span style="min-width:40px;font-size:18px">[${zvSnd(s)}]</span>${grp}</div>`}).join('');
+ const nOk=zrChk?all.reduce((n,s,i)=>{const R=zvRzRight(s);return n+Object.keys(R).every(f=>zrPick[i+':'+f]===R[f])},0):0;
+ const step3=zrChk?`<div class="bkhint">Верно: ${nOk} из ${all.length} звуков. Полная запись:</div>${rec}`:`<div class="bkhint">Отметить признаки каждого звука и нажать «Проверить».</div>${rows}<div><button class="linkbtn" data-zvrzchk>Проверить</button></div>`;
  const why=[];p.forEach(c=>{if(c.s.length===2)why.push(`буква ${c.l} обозначает два звука`);if(!c.s.length)why.push(`буква ${c.l} звука не обозначает`)});
  const step4=`${nb} ${nb>4?'букв':'буквы'}, ${ns} ${ns>4?'звуков':'звука'}${why.length?': '+why.join(', '):''}.`;
  const steps=[['Слоги и ударение',step1],['Транскрипция',zvTr(w)],['Звуки по порядку',step3],['Сколько букв и звуков',step4]];
+ const canNext=zrStep<4&&!(zrStep===3&&!zrChk);
  return `<div class="blab" data-lab="zvrazbor"><div class="cap"><b>Разбор по шагам</b><span class="bkhint">сначала ответить самому, потом открыть шаг</span></div>
  <div class="chips">${ZV_RZ.map((y,i)=>`<button class="chipc" data-zvrz="${i}" aria-pressed="${i===zrSel}">${y[0]}</button>`).join('')}</div>
  ${steps.slice(0,zrStep).map((s,i)=>`<div class="st2 ok"><span class="n2">${i+1}</span><div><div class="bkhint">${s[0]}</div><div>${s[1]}</div></div></div>`).join('')}
- <div>${zrStep<4?`<button class="linkbtn" data-zvrznext>Открыть шаг ${zrStep+1}: ${steps[zrStep][0].toLowerCase()}</button>`:`<button class="linkbtn" data-zvrzreset>Скрыть шаги</button>`}</div></div>`;
+ <div>${canNext?`<button class="linkbtn" data-zvrznext>Открыть шаг ${zrStep+1}: ${steps[zrStep][0].toLowerCase()}</button>`:zrStep===4?`<button class="linkbtn" data-zvrzreset>Скрыть шаги</button>`:''}</div></div>`;
 }
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  if(d.zvtape!==undefined){ztW=d.zvtape;ztC=null;relab('zvtape')}
@@ -178,10 +190,12 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
  if(d.zvpm!==undefined){zpMode=d.zvpm;zpSel=zpMode==='zg'?'б':'л';relab('zvpairs')}
  if(d.zvpr!==undefined){zpSel=d.zvpr;relab('zvpairs')}
  if(d.zvca!==undefined){zcA=d.zvca;relab('zvcount')}
- if(d.zvcnext!==undefined){const r=ZV_CNT.filter(w=>w!==zcW);zcW=r[Math.floor(Math.random()*r.length)];zcA=null;relab('zvcount')}
+ if(d.zvcnext!==undefined){const r=ZV_CNT.filter(w=>w!==zcW);zcW=r[Math.floor(Math.random()*r.length)];zcA=null;zcB=null;relab('zvcount')}
  if(d.zvpos!==undefined){zpoSel=+d.zvpos;relab('zvpos')}
- if(d.zvrz!==undefined){zrSel=+d.zvrz;zrStep=1;relab('zvrazbor')}
+ if(d.zvrz!==undefined){zrSel=+d.zvrz;zrStep=1;zrPick={};zrChk=false;relab('zvrazbor')}
+ if(d.zvrzp!==undefined){const [k,f,v]=d.zvrzp.split(':');zrPick[k+':'+f]=v;relab('zvrazbor')}
+ if(d.zvrzchk!==undefined){zrChk=true;relab('zvrazbor')}
  if(d.zvrznext!==undefined){zrStep=Math.min(4,zrStep+1);relab('zvrazbor')}
- if(d.zvrzreset!==undefined){zrStep=1;relab('zvrazbor')}
+ if(d.zvrzreset!==undefined){zrStep=1;zrPick={};zrChk=false;relab('zvrazbor')}
 });
 Object.assign(LABS,{zvtape:zvTapeHTML,zvalpha:zvAlphaHTML,zvvow:zvVowHTML,zvpairs:zvPairsHTML,zvcount:zvCountHTML,zvpos:zvPosHTML,zvrazbor:zvRazborHTML});
