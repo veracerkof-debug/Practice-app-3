@@ -31,7 +31,10 @@ JS = [
     'src/chapters/prichastie/tests.js', #   тесты «Причастия»
     'src/chapters/prichastie/workshop.js', # размеченный материал для механик тренажёра
     'src/chapters/deeprich/lessons.js',  # глава «Деепричастие»: теория
-    'src/chapters/deeprich/index.js',    #   подключение (пока только теория)
+    'src/chapters/deeprich/bank.js',     #   тренажёр
+    'src/chapters/deeprich/classic.js',  #   упражнения в тетрадь
+    'src/chapters/deeprich/tests.js',    #   тесты
+    'src/chapters/deeprich/index.js',    #   подключение
     'src/chapters/zvuki/lessons.js',
     'src/chapters/zvuki/bank.js',
     'src/chapters/zvuki/classic.js',
@@ -52,6 +55,7 @@ JS = [
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
     'src/chapters/slog/labs.js',        # схемы «Слога и переноса»
     'src/chapters/udar/labs.js',        # схемы «Ударения»
+    'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
@@ -67,7 +71,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = set()
+DRAFT = {'deeprich'}
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
