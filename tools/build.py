@@ -83,6 +83,21 @@ def js_for(teacher):
             assert "key:" not in t, p + ': ключ не вырезан'
         out.append(t if t.endswith('\n') else t + '\n')
     return ''.join(out)
+DECL_RE = re.compile(r'^(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)', re.M)
+def check_js():
+    """Защита от поломки всего учебника: одно имя верхнего уровня в двух файлах и синтаксические ошибки."""
+    seen, errs = {}, []
+    for p in JS:
+        for m in DECL_RE.finditer(read(p)):
+            n = m.group(1)
+            if n in seen and seen[n] != p: errs.append(f'имя {n} объявлено и в {seen[n]}, и в {p}')
+            seen.setdefault(n, p)
+    if errs: sys.exit('Ошибка сборки:\n  ' + '\n  '.join(errs))
+    import shutil, subprocess
+    if shutil.which('node'):
+        for p in JS:   # каждый файл — отдельно, чтобы ошибка указывала на файл
+            r = subprocess.run(['node', '--check', os.path.join(ROOT, p)], capture_output=True, text=True)
+            if r.returncode: sys.exit(f'Синтаксическая ошибка в {p}:\n{r.stderr.strip()[:600]}')
 def write(path, text):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f: f.write(text)
@@ -91,6 +106,7 @@ def page(t):
             '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             '</head><body>' + t + '</body></html>\n')
 def build():
+    check_js()
     tpl = read('src/index.html').replace('/*@CSS*/\n', ''.join(read(p) for p in CSS))
     for teacher, name in ((False, 'index'), (True, 'teacher')):
         t = tpl.replace('/*@JS*/\n', js_for(teacher))
