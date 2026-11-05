@@ -29,7 +29,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  check(nAll>=40&&n5>0&&n5<nAll,`упражнения: всего ${nAll}, ★★★★★ ${n5}`);
  // глава Н и НН
  await p.goto(U+'#ch-nn');await p.click('[data-tab="train"]');
- check((await p.evaluate(()=>document.querySelector('#trainer').innerText)).includes('84'),'тренажёр «Н и НН»: 84 задания');
+ check((await p.evaluate(()=>document.querySelector('#trainer').innerText)).includes('в банке 89 '),'тренажёр «Н и НН»: 89 заданий');
  // оглавление → урок
  await p.goto(U+'#toc');await p.click('[data-ojump2="pr4"]');await p.waitForTimeout(500);
  check(await p.evaluate(()=>Math.abs(document.getElementById('pr4').getBoundingClientRect().top)<200),'переход к уроку из оглавления');
