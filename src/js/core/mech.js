@@ -223,7 +223,7 @@ const MECH={
 // связные тексты темы, в которых есть хотя бы одна орфограмма уроков les (и все орфограммы текста — изученные)
 const TX_USED=new Set(); // тексты, уже выданные в этой серии: следующий — из невыданных
 const txGap=(c,x,les)=>{const R=x.or&&ORTHO_R[x.or.r[0]];return !!(R&&R.topic===c.id&&les.includes(R.l))};
-const txPool=(c,les)=>corpusTexts(c.id).filter(T=>T.ss.some(u=>u.some(x=>txGap(c,x,les))));
+const txPool=(c,les)=>corpusTexts(c.id,{orthOnly:true}).filter(T=>T.ss.some(u=>u.some(x=>txGap(c,x,les))));
 // орфограммы общего корпуса для темы главы: [предложение, номер единицы]
 function orthPool(c,les){const out=[];corpusSents(c.id,{has:u=>u.some(x=>x.or)}).forEach(u=>u.forEach((x,i)=>{const R=x.or&&ORTHO_R[x.or.r[0]];if(R&&R.topic===c.id&&les.includes(R.l))out.push([u,i])}));return out}
 // ловушки «почему?»: сначала правила уже пройденных уроков темы, затем остальные

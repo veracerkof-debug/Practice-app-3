@@ -48,14 +48,14 @@ const corpusFlags=s=>{const m=s.match(/^#(\S+)\s/);return m?m[1].split(','):[]};
 // спрашивает задание (['прич','прил']), commas — задание про знаки, has(u) — в предложении есть то, что проверяет задание}
 function corpusSents(ch,need={}){return corpusFilter(ch,CORPUS_S,need)}
 // связные тексты (CORPUS_T) для темы ch: отрывок доступен, только если доступно КАЖДОЕ его предложение
-function corpusTexts(ch,need={}){return (typeof CORPUS_T==='undefined'?[]:CORPUS_T).map(t=>({a:t.a,w:t.w,g:t.g,ss:corpusFilter(ch,t.s,{})})).filter((t,i)=>t.ss.length===CORPUS_T[i].s.length&&(!need.has||need.has(t.ss)))}
+function corpusTexts(ch,need={}){return (typeof CORPUS_T==='undefined'?[]:CORPUS_T).map(t=>({a:t.a,w:t.w,g:t.g,ss:corpusFilter(ch,t.s,{orthOnly:need.orthOnly})})).filter((t,i)=>t.ss.length===CORPUS_T[i].s.length&&(!need.has||need.has(t.ss)))}
 function corpusFilter(ch,list,need={}){
  return list.map(s=>({s,u:corpusUnits(s),f:corpusFlags(s)})).filter(({u,f})=>{
   if(u.some(x=>x.mark&&!x.why))return false;                                          // знак без причины — не даём никогда
   if(!u.every(x=>!x.or||orthKnown(ch,x.or.r)))return false;                            // орфограмма неизученной темы — предложение рано давать
   const ff=[...f,...u.filter(x=>x.why).map(x=>x.why)];                                 // причины знаков — как пометки предложения
-  if(!ff.every(x=>FLAG_TOPIC[x]&&tKnown(ch,FLAG_TOPIC[x])))return false;             // сложные, однородные, обращения, знаки — только после своей темы
-  if(u.some(x=>x.ob)&&!tKnown(ch,'prichastie'))return false;                           // причастный оборот — после «Причастия»
+  if(!need.orthOnly&&!ff.every(x=>FLAG_TOPIC[x]&&tKnown(ch,FLAG_TOPIC[x])))return false; // в заданиях только на орфографию знаки уже стоят и о них не спрашивают (решение владельца 05.11.2026)             // сложные, однородные, обращения, знаки — только после своей темы
+  if(!need.orthOnly&&u.some(x=>x.ob)&&!tKnown(ch,'prichastie'))return false;                           // причастный оборот — после «Причастия»
   if(need.mem&&!tKnown(ch,'prostoe'))return false;                                    // члены предложения — после «Простого предложения»
   if(need.pos&&!need.pos.every(p=>tKnown(ch,POS_TOPIC[p])))return false;            // спрашиваем только об изученных частях речи
   return !need.has||need.has(u);
