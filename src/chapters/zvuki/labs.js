@@ -159,7 +159,7 @@ function zvPosHTML(){
  <div><div class="colh">${x[1]==='—'?'проверка':'сильная позиция'}</div>${x[1]==='—'?`<div class="bkhint" style="text-align:center;padding-top:10px">${x[7]}</div>`:`<div style="font-size:22px;text-align:center">${x[1]}</div><div style="text-align:center;font-size:18px">${x[3]}</div><div class="bkhint" style="text-align:center">после согласного — гласный: звук слышен ясно</div>`}</div></div></div>`;
 }
 // ---------- 7. Фонетический разбор по шагам ----------
-const ZV_RZ=[['ёлка','ёл-ка'],['моряк','мо-ряк'],['день','день'],['юла','ю-ла'],['вьюга','вью-га'],['мяч','мяч'],['щука','щу-ка'],['жир','жир'],['юг','юг'],['пятак','пя-так'],['ружьё','ру-жьё'],['кровь','кровь']];
+const ZV_RZ=[['ёлка','ёл-ка'],['моряк','мо-ряк'],['день','день'],['юла','ю-ла'],['вьюга','вью-га'],['мяч','мяч'],['щука','щу-ка'],['жир','жир'],['юг','юг'],['пятак','пя-так'],['пьеса','пье-са'],['кровь','кровь']];
 let zrSel=0,zrStep=1,zrPick={},zrChk=false;
 function zvRzRight(s){if(zvKind(s)==='v')return {u:s.includes(ZV_ACC)?'уд.':'безуд.'};const c=zvCons(s);return {z:c.includes('зв.')?'зв.':'глух.',t:c.includes('тв.')?'тв.':'мягк.'}}
 function zvRazborHTML(){
