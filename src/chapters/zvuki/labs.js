@@ -181,8 +181,9 @@ function zvRazborHTML(){
  const step3=zrChk?`<div class="bkhint">Верно: ${nOk} из ${all.length} звуков. Полная запись:</div>${rec}`:`<div class="bkhint">Отметить признаки каждого звука и нажать «Проверить».</div>${rows}<div><button class="linkbtn" data-zvrzchk>Проверить</button></div>`;
  const why=[];p.forEach(c=>{if(c.s.length===2)why.push(`буква ${c.l} обозначает два звука`);if(!c.s.length)why.push(`буква ${c.l} звука не обозначает`)});
  const step4=`${nb} ${nb>4?'букв':'буквы'}, ${ns} ${ns>4?'звуков':'звука'}${why.length?': '+why.join(', '):''}.`;
-const steps=[['Слоги и ударение',step1],['Транскрипция',step2],['Звуки по порядку',step3],['Сколько букв и звуков',step4]];
- const canNext=zrStep<4&&!(zrStep===3&&!zrChk)&&!(zrStep===1&&zrS1==null)&&!(zrStep===2&&zrS2==null);
+// порядок — по плану Адамчика: транскрипция → слоги → буквы и звуки, их число → характеристика каждого звука
+const steps=[['Транскрипция',step2],['Слоги и ударение',step1],['Сколько букв и звуков',step4],['Звуки по порядку',step3]];
+ const canNext=zrStep<4&&!(zrStep===1&&zrS2==null)&&!(zrStep===2&&zrS1==null);
  return `<div class="blab" data-lab="zvrazbor"><div class="cap"><b>Разбор по шагам</b><span class="bkhint">сначала ответить самому, потом открыть шаг</span></div>
  <div class="chips">${ZV_RZ.map((y,i)=>`<button class="chipc" data-zvrz="${i}" aria-pressed="${i===zrSel}">${y[0]}</button>`).join('')}</div>
  ${steps.slice(0,zrStep).map((s,i)=>`<div class="st2 ok"><span class="n2">${i+1}</span><div><div class="bkhint">${s[0]}</div><div>${s[1]}</div></div></div>`).join('')}
