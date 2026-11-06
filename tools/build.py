@@ -80,6 +80,16 @@ JS = [
     'src/chapters/znaki/classic.js',
     'src/chapters/znaki/tests.js',
     'src/chapters/znaki/index.js',
+    'src/chapters/leks/lessons.js',
+    'src/chapters/leks/bank.js',
+    'src/chapters/leks/classic.js',
+    'src/chapters/leks/tests.js',
+    'src/chapters/leks/index.js',
+    'src/chapters/omon/lessons.js',
+    'src/chapters/omon/bank.js',
+    'src/chapters/omon/classic.js',
+    'src/chapters/omon/tests.js',
+    'src/chapters/omon/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -91,6 +101,8 @@ JS = [
     'src/chapters/pristavki/labs.js',
     'src/chapters/shipyashie/labs.js',
     'src/chapters/znaki/labs.js',
+    'src/chapters/leks/labs.js',
+    'src/chapters/omon/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
