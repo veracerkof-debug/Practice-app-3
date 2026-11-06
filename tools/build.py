@@ -50,11 +50,29 @@ JS = [
     'src/chapters/udar/classic.js',
     'src/chapters/udar/tests.js',
     'src/chapters/udar/index.js',
+    'src/chapters/proizn/lessons.js',
+    'src/chapters/proizn/bank.js',
+    'src/chapters/proizn/classic.js',
+    'src/chapters/proizn/tests.js',
+    'src/chapters/proizn/index.js',
+    'src/chapters/koren/lessons.js',
+    'src/chapters/koren/bank.js',
+    'src/chapters/koren/classic.js',
+    'src/chapters/koren/tests.js',
+    'src/chapters/koren/index.js',
+    'src/chapters/soglas/lessons.js',
+    'src/chapters/soglas/bank.js',
+    'src/chapters/soglas/classic.js',
+    'src/chapters/soglas/tests.js',
+    'src/chapters/soglas/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
     'src/chapters/slog/labs.js',        # схемы «Слога и переноса»
     'src/chapters/udar/labs.js',        # схемы «Ударения»
+    'src/chapters/proizn/labs.js',
+    'src/chapters/koren/labs.js',
+    'src/chapters/soglas/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
@@ -71,7 +89,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = set()
+DRAFT = {'proizn', 'koren'}
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
