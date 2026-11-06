@@ -74,6 +74,12 @@ X.forEach((e,i)=>{const n=`упражнение №${e.n??'?'}`;
   if(/^(пример|с пометками|составить|записать|работа со словар|отметить)[^.]*\.?$/i.test(k)||/для каждого\.?$/i.test(k))err(`${n}: ключ «${k.slice(0,60)}» — не ключ: нужен полный ответ или образец с критериями`)}
  if(e.st<=3&&!strip(e.obr)&&!e.os)warn(`${n}: ★${e.st} без образца obr`);
  if(!e.os&&strip(e.body).length<40&&!/сочин|составить|подобрать|найти в словар/i.test(e.task))warn(`${n}: мало материала (${strip(e.body).length} знаков) — упражнение меньше 5–7 минут?`)});
+// оформление и длина предложений (решение владельца 06.11.2026, PRINCIPLES §4.12)
+X.forEach(e=>{if(!e||!e.body)return;const n=`упражнение №${e.n}`;
+ const tags=String(e.body).replace(/<br\s*\/?>|<…>|<...>/g,'').match(/<[^>]+>/g);if(tags)err(`${n}: в тексте упражнения техническая разметка ${tags[0]} — она видна ученику`);
+ const parts=String(e.body).replace(/<br\s*\/?>/g,' ').split(/(?:^|\s)\d{1,2}[.)]\s/).map(x=>x.replace(/\([А-ЯЁ]\. .*?\)|Пояснения:.*$/g,'').trim()).filter(x=>x.length>8);
+ if(parts.length>=5&&!e.os){const L=parts.map(x=>x.split(/\s+/).length),m=L.reduce((a,b)=>a+b,0)/L.length,sd=Math.sqrt(L.reduce((a,b)=>a+(b-m)**2,0)/L.length);
+  if(sd/m<0.22)warn(`${n}: предложения почти одной длины (${Math.min(...L)}–${Math.max(...L)} слов) — нужны и короткие, и длинные (PRINCIPLES §4.12)`)}});
 const sorted=[...ns].sort((a,b)=>a-b);if(sorted.length&&sorted[sorted.length-1]!==sorted.length)warn('номера упражнений не идут подряд 1…N (пропуски допустимы, только если номер когда-то удалён)');
 if(X.length<=B.length)err(`упражнений в тетрадь ${X.length}, заданий тренажёра ${B.length}: упражнений должно быть больше (решение владельца)`);
 
