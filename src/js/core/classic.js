@@ -47,7 +47,8 @@ const clBody=b=>esc(b).replace(/&lt;br\s*\/?&gt;/g,'<br>')
  .replace(/(^|<br>)\s*([А-ЯЁ][а-яё]+(?: [а-яё]+){0,3}):\s/g,'$1<b class="cllab">$2:</b> ')
  .replace(/ ([Б-Е])\) (?=\S)/g,(m,l)=>/(^|\s|>)А\) /.test(b)?'<br>'+l+') ':m)
  .replace(/ ([2-9]|1\d)\) (?=[А-ЯЁ(«])/g,(m,d)=>/(^|\s|>)1\) /.test(b)?'<br>'+d+') ':m)
- .replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ').replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>').replace(/ Пояснения: (.*)$/,'<span class="clgl"><b>Пояснения:</b> $1</span>');
+ .replace(/ (\d{1,2})\. (?=[А-ЯЁ(])/g,'<br>$1. ')
+ .replace(/ (\d{1,2})\. (?=[а-яё«])/g,(m,d)=>/^\s*1\. /.test(b)&&/ 2\. /.test(b)?'<br>'+d+'. ':m).replace(/\(([А-ЯЁ]\. [А-ЯЁ]\. [А-ЯЁа-яё-]+, «[^»]+»)\)/g,'<span class="clsrc">$1</span>').replace(/ Пояснения: (.*)$/,'<span class="clgl"><b>Пояснения:</b> $1</span>');
 function clExHTML(c,e){
  const dn=S.done[clKey(e)];
  return `<section class="clex ${dn?'is':''}" id="cl${e.n}"><div class="clh"><span class="cln">Упражнение ${e.n}</span>${STARS(e.st)}${e.os?`<span class="clos" title="Особое упражнение: длинный жанр">особое · ${e.os}</span>`:''}${dn?'<span class="okm">✓ выполнено</span>':''}<button class="cllink" data-cllink="${e.n}" title="Скопировать ссылку на это упражнение">ссылка</button></div>
