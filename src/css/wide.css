@@ -34,6 +34,15 @@
   .bsrc{max-width:none}
   .chwide>.bpn{margin-left:310px}
 
+  /* навигатор: на компьютере — кнопка в боковом содержании и панель справа */
+  .fab{display:none}
+  .chwide{padding-bottom:48px}
+  .chside .navside{display:flex;align-items:center;gap:8px;border:0;border-radius:12px;min-height:42px;padding:0 12px;background:var(--tint);color:var(--on-tint);font-weight:700;font-size:15px}
+  .chside .navside svg{width:20px;height:20px}
+  .sheet.navs{left:auto;top:0;right:0;bottom:0;width:420px;max-width:calc(100vw - 40px);max-height:none;margin:0;border-radius:20px 0 0 20px;
+    padding:20px 22px 24px;box-shadow:-8px 0 30px rgba(0,0,0,.18)}
+  .sheet.navs .grab{display:none}
+
   /* главная: части курса в две колонки */
   .tparts{display:block;columns:2;column-gap:16px}
   .tparts>.tpart{break-inside:avoid;margin-bottom:16px}

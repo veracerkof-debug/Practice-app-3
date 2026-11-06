@@ -4,6 +4,7 @@
 // Глава завершена, когда сданы (на TEST_PASS и выше) все тесты по урокам и итоговый.
 const TEST_PASS=3,TEST_LEN=6,FINAL_LEN=12;
 let TS=null; // идущий тест: {ch,key,title,qs,i,ans,t0,res}
+let TSV='list'; // что показывать во вкладке «Тесты»: 'run' — идущий тест, 'list' — список (начатый тест не теряется: «Продолжить»)
 const tKey=(c,k)=>c.id+':'+k;
 const tRes=(c,k)=>(S.tests||{})[tKey(c,k)];
 const tPassed=(c,k)=>{const r=tRes(c,k);return !!(r&&r.best>=TEST_PASS)};
@@ -72,7 +73,8 @@ function tFinish(){
 
 function testsHTML(){
  const c=CC();
- if(TS&&TS.ch===c.id)return `<div id="tests" class="bktext">${TS.res?tResHTML(c):tRunHTML(c)}</div>`;
+ if(TS&&TS.ch===c.id&&TSV==='run')return `<div id="tests" class="bktext">${TS.res?tResHTML(c):tRunHTML(c)}</div>`;
+ const paused=TS&&TS.ch===c.id&&!TS.res?`<div class="tsrow tspause"><div class="tsinfo"><b>Начатый тест: ${TS.title.replace('Тест по уроку','урок')}</b><span>Отвечено ${TS.ans.filter((a,i)=>tAnswered(TS.qs[i],a)).length} из ${TS.qs.length}</span></div><button class="bkldone" data-tsgo="${TS.key}" data-tscont>Продолжить</button></div>`:'';
  const all=tAll(c),pass=all.filter(k=>tPassed(c,k)).length,done=chTestsDone(c);
  const row=k=>{const r=tRes(c,k),ok=tPassed(c,k),n=k==='final'?FINAL_LEN:Math.min(TEST_LEN,c.tests.filter(s=>s.l===k).length);
   return `<div class="tsrow ${ok?'ok':''} ${k==='final'?'fin':''}"><div class="tsinfo"><b>${k==='final'?'Итоговый тест по главе':`Урок ${k}. ${c.lnames[k]}`}</b>
@@ -81,7 +83,7 @@ function testsHTML(){
  return `<div id="tests" class="bktext">${done?`<div class="tsdone"><b>✓ Глава завершена</b><span>Все тесты сданы. Оценки можно улучшить — тест всегда можно пройти ещё раз.</span></div>`:''}
  <div class="bins btip"><div class="h">Как устроены тесты</div><p>Тест проверяет знания без подсказок. Вопросы и порядок ответов каждый раз новые. Тест сдан, если оценка ${TEST_PASS} или выше: 5 — от 90% верных ответов, 4 — от 75%, 3 — от 50%.</p><p><b>Глава считается завершённой, когда сданы тесты по всем урокам и итоговый.</b></p></div>
  <div class="prog"><span>Сдано ${pass} из ${all.length}</span></div><div class="bar"><i style="width:${pass/all.length*100}%"></i></div>
- <div class="tslist">${c.lessons.map((_,i)=>row(i+1)).join('')}${row('final')}</div></div>`;
+ ${paused}<div class="tslist">${c.lessons.map((_,i)=>row(i+1)).join('')}${row('final')}</div></div>`;
 }
 function tRunHTML(c){
  const B=TS.qs[TS.i],a=TS.ans[TS.i],N=TS.qs.length,last=TS.i===N-1;
@@ -116,12 +118,13 @@ function tsNext(){
 document.addEventListener('submit',e=>{if(!e.target.matches('[data-tsform]'))return;e.preventDefault();tsNext()});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
- if(d.tsgo!==undefined){const c=CC();tStart(c,d.tsgo==='final'?'final':+d.tsgo);S.tab='tests';CLR=null;save();go({v:'ch',id:c.id});return}
+ if(d.tsgo!==undefined){const c=CC(),k=d.tsgo==='final'?'final':+d.tsgo;if(!('tscont' in d&&TS&&TS.ch===c.id&&TS.key===k))tStart(c,k);TSV='run';S.tab='tests';CLR=null;save();
+  go({v:'ch',id:c.id,l:k==='final'?'final':c.lessons[k-1]&&c.lessons[k-1].id});return}
  if(!TS)return;
  if(d.tsa!==undefined){const B=TS.qs[TS.i],v=B.opts[+d.tsa];if(B.k==='one')TS.ans[TS.i]=v;else{const s=new Set(TS.ans[TS.i]||[]);s.has(v)?s.delete(v):s.add(v);TS.ans[TS.i]=[...s]}tsRe();return}
  if(d.tss!==undefined){const a=TS.ans[TS.i]||(TS.ans[TS.i]={});a[+d.tss]=d.v;tsRe();return}
  if('tsnext' in d){tsNext();return}
  if('tsprev' in d){const inp=document.querySelector('[data-tsform] input');if(inp)TS.ans[TS.i]=inp.value;TS.i--;tsRe();return}
  if('tsquit' in d){if(confirm('Прервать тест? Ответы не сохранятся.')){TS=null;tsRe()}return}
- if('tslist' in d){TS=null;tsRe();return}
+ if('tslist' in d){TS=null;TSV='list';tsRe();return}
 });

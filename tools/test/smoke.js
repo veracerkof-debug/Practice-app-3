@@ -33,6 +33,12 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  // оглавление → урок
  await p.goto(U+'#toc');await p.click('[data-ojump2="pr4"]');await p.waitForTimeout(500);
  check(await p.evaluate(()=>Math.abs(document.getElementById('pr4').getBoundingClientRect().top)<200),'переход к уроку из оглавления');
+ check((await p.evaluate(()=>location.hash))==='#ch-prichastie/theory/pr4','урок в адресе: #ch-prichastie/theory/pr4');
+ // «назад»: вкладка главы — запись истории; «назад» возвращает к теории, а не в оглавление
+ await p.evaluate(()=>document.querySelector('[data-tab="train"]').click());check((await p.evaluate(()=>location.hash))==='#ch-prichastie/train','вкладка в адресе');
+ await p.goBack();await p.waitForTimeout(200);check((await p.evaluate(()=>location.hash))==='#ch-prichastie/theory/pr4'&&!!await p.$('#pr4'),'«назад» после смены вкладки — к уроку');
+ // навигатор главы
+ await p.click('.fab');check(!!await p.$('.sheet.navs [data-nvgo]'),'навигатор главы');await p.goBack();await p.waitForTimeout(100);check(!await p.$('.sheet'),'«назад» закрывает навигатор');
  // термин → шторка → урок
  await p.click('#pr4 .bterm');check(!!await p.$('.sheet'),'шторка термина');
  if(await p.$('.sheet [data-tsee]')){await p.click('.sheet [data-tsee]');check(!!await p.$('[data-shback]'),'переход к связанному термину')}
@@ -47,6 +53,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  check(await p.evaluate(()=>document.querySelectorAll('.mword .m-root,.mword .m-suf,.mword .m-end').length)===3,'разбор по шагам');
  await p.goto(U+'#ch-prichastie');check(await p.evaluate(()=>document.querySelectorAll('.bktext .wl').length)>5,'ссылки на слова в примерах');
  // поиск
+ await p.goto(U+'#toc');const tc=await p.$('.tch.rdy:not(.open) [data-tchap]');if(tc){await tc.click();check(await p.evaluate(()=>document.querySelectorAll('.tch.rdy.open .tles [data-ojump2]').length>0),'оглавление: глава раскрывается')}
  await p.goto(U+'#toc');await p.fill('#q','деревян');check(await p.evaluate(()=>document.querySelectorAll('#sres button').length)>1,'поиск на главной');
  // упражнения: номера, задание по номерам, ссылка, поиск номера
  const cnt=()=>p.evaluate(()=>document.querySelectorAll('.clex').length);

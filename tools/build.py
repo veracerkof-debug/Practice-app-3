@@ -65,6 +65,21 @@ JS = [
     'src/chapters/soglas/classic.js',
     'src/chapters/soglas/tests.js',
     'src/chapters/soglas/index.js',
+    'src/chapters/pristavki/lessons.js',
+    'src/chapters/pristavki/bank.js',
+    'src/chapters/pristavki/classic.js',
+    'src/chapters/pristavki/tests.js',
+    'src/chapters/pristavki/index.js',
+    'src/chapters/shipyashie/lessons.js',
+    'src/chapters/shipyashie/bank.js',
+    'src/chapters/shipyashie/classic.js',
+    'src/chapters/shipyashie/tests.js',
+    'src/chapters/shipyashie/index.js',
+    'src/chapters/znaki/lessons.js',
+    'src/chapters/znaki/bank.js',
+    'src/chapters/znaki/classic.js',
+    'src/chapters/znaki/tests.js',
+    'src/chapters/znaki/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -73,6 +88,9 @@ JS = [
     'src/chapters/proizn/labs.js',
     'src/chapters/koren/labs.js',
     'src/chapters/soglas/labs.js',
+    'src/chapters/pristavki/labs.js',
+    'src/chapters/shipyashie/labs.js',
+    'src/chapters/znaki/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
@@ -89,7 +107,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = set()
+DRAFT = {'pristavki', 'shipyashie', 'znaki'}
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()

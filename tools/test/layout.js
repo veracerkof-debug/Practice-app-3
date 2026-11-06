@@ -19,7 +19,7 @@ const ROOT=path.resolve(__dirname,'../..');const TMP=path.join(ROOT,'dist','_tes
    await p.goto('file://'+TMP+'#'+h);
    if(opt&&!(await p.$(`[data-tab="${tab}"]`)))continue; // главы нет в сборке или вкладки ещё нет
    if(tab){await p.click(`[data-tab="${tab}"]`);if(tab==='train'){const g=await p.$('[data-trgo]');if(g){await g.click()}}}
-   await p.evaluate(()=>document.querySelectorAll('details').forEach(d=>d.open=true));
+   await p.evaluate(()=>{document.querySelectorAll('details').forEach(d=>d.open=true);document.querySelectorAll('.tpanel[hidden]').forEach(x=>x.hidden=false)}); // все главы оглавления раскрыты
    await p.waitForTimeout(30);
    const res=await p.evaluate(()=>{const out=[];const vw=document.documentElement.clientWidth;
     const scrollable=el=>{for(let e=el;e;e=e.parentElement){const o=getComputedStyle(e).overflowX;if(o==='auto'||o==='scroll')return true}return false};

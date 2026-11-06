@@ -63,7 +63,7 @@ function sheet(id,push){
  const g=GLOSS[id];if(!g)return;
  if(push&&SH[SH.length-1]!==id)SH.push(id);else if(!push)SH=[id];
  let s=document.querySelector('.sheet');
- if(!s){const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=closeSheet;s=document.createElement('div');s.className='sheet';s.setAttribute('role','dialog');document.body.append(bg,s)}
+ if(!s){const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=()=>closeSheet(true);s=document.createElement('div');s.className='sheet';s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.tabIndex=-1;document.body.append(bg,s);ovPush();s.focus({preventScroll:true})}
  s.setAttribute('aria-label',g.t);
  const use=(TUSE[id]||[]).filter(l=>l!==g.at);
  s.innerHTML=`<div class="grab"></div>
@@ -75,31 +75,47 @@ function sheet(id,push){
  <div class="big2"><button class="ghost" data-gl="${id}">В глоссарии</button><button class="ghost" data-close>Закрыть</button></div>`;
  s.scrollTop=0;
 }
-function closeSheet(){SH=[];document.querySelectorAll('.sheet,.sheetbg').forEach(n=>n.remove())}
+// Шторка в истории: открытие — запись {ov:1} с тем же адресом; «назад» закрывает шторку (onLoc в screens.js).
+// closeSheet(true) — закрыть по крестику, фону, Esc: снять запись шторки (history.back).
+// closeSheet() — закрыть ради перехода: запись шторки заменяется новым местом (REPL в setHash); если перехода не было — снимается.
+let OVF=null; // кнопка, открывшая шторку: вернуть на неё фокус
+function ovPush(){OVF=document.activeElement&&document.activeElement!==document.body?document.activeElement:null;
+ if(history.state&&history.state.ov){REPL=false;return}
+ stSet({y:window.scrollY});try{history.pushState({ov:1,n:1},'')}catch(e){}}
+function ovKill(){SH=[];document.querySelectorAll('.sheet,.sheetbg').forEach(n=>n.remove());const f=OVF;OVF=null;if(f&&f.isConnected)f.focus({preventScroll:true})}
+function closeSheet(user){const open=!!document.querySelector('.sheet');ovKill();
+ if(!(history.state&&history.state.ov))return;
+ if(user){history.back();return}
+ if(!open)return;
+ REPL=true;setTimeout(()=>{if(REPL){REPL=false;if(history.state&&history.state.ov)history.back()}},0)}
 function flashIn(sel){const t=document.querySelector(sel);if(!t)return false;t.scrollIntoView({block:'center',behavior:RM()?'auto':'smooth'});t.classList.add('flash');setTimeout(()=>t.classList.remove('flash'),1800);return true}
 let NOSM=0;const RM=()=>Date.now()<NOSM||matchMedia('(prefers-reduced-motion: reduce)').matches;
-function openLesson(lid,after){const L=LES[lid];if(!L)return;S.tab='theory';save();
- if(!(route.v==='ch'&&route.id===L.ch)){NOSM=Date.now()+400;go({v:'ch',id:L.ch})}else if(!document.getElementById(lid))render();
- setTimeout(()=>{if(!(after&&after()))jump(lid)},60)}
+// переход к уроку или разделу урока (id — «pr4» или «pr4-s2»): запись в истории, затем прокрутка
+function openLesson(id,after){const lid=String(id).replace(/-s\d+$/,''),L=LES[lid];if(!L)return;
+ const same=route.v==='ch'&&route.id===L.ch,inPlace=same&&(S.tab||'theory')==='theory'&&document.getElementById(lid);
+ S.tab='theory';save();
+ if(inPlace){pushRoute({v:'ch',id:L.ch,l:id});if(!(after&&after()))jump(id);return}
+ NOSM=Date.now()+400;go({v:'ch',id:L.ch,l:id},same);
+ setTimeout(()=>{if(!(after&&after()))jump(id)},60)}
 
 // шторка «Содержание главы»
 function outline(chId){
  const ch=CHAPTERS[chId],meta=chById(chId);closeSheet();
- const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=closeSheet;
- const s=document.createElement('div');s.className='sheet tall';s.setAttribute('role','dialog');s.setAttribute('aria-label','Содержание главы');
+ const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=()=>closeSheet(true);
+ const s=document.createElement('div');s.className='sheet tall';s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.tabIndex=-1;s.setAttribute('aria-label','Содержание главы');ovPush();
  const terms=GLA.filter(g=>ch.lessons.some(l=>(TUSE[g.id]||[]).includes(l.id)));
  if((S.tab||'theory')==='classic'){
   s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1} · ${meta.t}</div><div class="t">Упражнения</div>${clFindHTML()}${clMapHTML(ch)}
   <div class="big2"><button class="ghost" data-otab="theory">Теория</button><button class="ghost" data-otab="train">Тренажёр</button>${ch.tests?'<button class="ghost" data-otab="tests">Тесты</button>':''}</div>
   <button class="ghost" style="min-height:44px;border-radius:14px;border:0" data-close>Закрыть</button>`;
-  document.body.append(bg,s);return}
+  document.body.append(bg,s);s.focus({preventScroll:true});return}
  s.innerHTML=`<div class="grab"></div><div class="kick">Глава ${meta.part.n}.${meta.part.ch.indexOf(meta)+1}</div><div class="t">${meta.t}</div>
  <ol class="otl">${ch.lessons.map((l,i)=>`<li><button data-ojump="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="on">${i+1}</span><span>${l.t}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button>
   ${S.easy?'':`<ol>${secs(l).map(x=>`<li><button data-ojump="${x.id}">${x.t}</button></li>`).join('')}</ol>`}</li>`).join('')}</ol>
  <div class="big2"><button class="ghost" data-otab="train">Тренажёр</button><button class="ghost" data-otab="classic">Упражнения</button>${ch.tests?'<button class="ghost" data-otab="tests">Тесты</button>':''}</div>
  <div class="slab">Термины главы · ${terms.length}</div><div class="chips">${terms.map(g=>`<button class="chipc sm" data-term="${g.id}">${g.t}</button>`).join('')}</div>
  <button class="ghost" style="min-height:44px;border-radius:14px;border:0" data-close>Закрыть</button>`;
- document.body.append(bg,s);
+ document.body.append(bg,s);s.focus({preventScroll:true});
 }
 
 // оглавление
@@ -110,6 +126,21 @@ const ICO={
  cards:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>'};
 const ico=(k,sz=20)=>`<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[k]}</svg>`;
 function ringSVG(p,c){const r=15,L=2*Math.PI*r;return `<svg class="pring" width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="${r}" fill="none" stroke="var(--fill2)" stroke-width="4"/><circle cx="19" cy="19" r="${r}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${L*p} ${L}" transform="rotate(-90 19 19)"/></svg>`}
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+// какие главы раскрыты: по умолчанию — только та, где «Продолжить»; выбор ученика запоминается в S.tocOpen
+// (S.tocV=2: прежний S.tocOpen хранил «раскрыто» для всех глав подряд — один раз сбрасывается)
+if(S.tocV!==2){S.tocOpen={};S.tocV=2}
+const tocIsOpen=(id,cont)=>S.tocOpen&&typeof S.tocOpen[id]==='boolean'?S.tocOpen[id]:id===cont;
+function tocToggle(b){const id=b.dataset.tchap,li=b.closest('.tch'),pn=document.getElementById('tp-'+id),op=b.getAttribute('aria-expanded')!=='true';
+ b.setAttribute('aria-expanded',op);li.classList.toggle('open',op);if(pn)pn.hidden=!op;S.tocOpen=S.tocOpen||{};S.tocOpen[id]=op;save();
+ if(op&&pn){const r=pn.getBoundingClientRect();if(r.bottom>innerHeight)li.scrollIntoView({block:'nearest',behavior:RM()?'auto':'smooth'})}}
+// значки режимов: теория, тренажёр, упражнения, тесты
+const MODEI0={theory:'<path d="M2 5.5C4.5 4 8.5 4 12 6c3.5-2 7.5-2 10-.5V19c-2.5-1.5-6.5-1.5-10 .5-3.5-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/>',
+ train:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+ classic:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+ tests:'<path d="M9 11l2.5 2.5L16 9"/><rect x="3" y="3" width="18" height="18" rx="4"/>'};
+const modeIco=(k,sz=16)=>`<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${MODEI0[k]}</svg>`;
+const MODEI={theory:modeIco('theory'),train:modeIco('train'),classic:modeIco('classic'),tests:modeIco('tests')};
 function bookTOC(){
  const ready=ALLCH.filter(c=>CHAPTERS[c.id]);
  const allL=ready.flatMap(c=>CHAPTERS[c.id].lessons),dn=allL.filter(l=>S.done[l.id]).length;
@@ -119,6 +150,7 @@ function bookTOC(){
  const cont=last||(nextL&&nextL.id);
  if(cont){const L=LES[cont],m=chById(L.ch);
   h+=`<button class="bcont" style="--pc:${m.part.c}" data-ojump2="${cont}"><span class="kick">${last?'Продолжить':'Начать'}</span><span class="t">${LES[cont].t}</span><span class="s">${m.t} · урок ${L.n} из ${CHAPTERS[L.ch].lessons.length}</span><span class="go">›</span></button>`}
+ const contCh=cont?LES[cont].ch:null;
  h+=`<div class="bstat"><div><b>${ready.length}</b> из ${ALLCH.length}<span>глав готово</span></div><div><b>${dn}</b> из ${allL.length}<span>уроков пройдено</span></div><div><b>${GL.length}</b><span>терминов</span></div><div><b>${ALLW.length}</b><span>слов в словарике</span></div></div>`;
  h+=`<div class="kick" style="margin-top:4px">Содержание</div><div class="tparts">`;
  PARTS.forEach(p=>{
@@ -127,10 +159,14 @@ function bookTOC(){
   p.ch.forEach((c,i)=>{
    const ch=CHAPTERS[c.id],num=`${p.n}.${i+1}`;
    if(!ch){h+=`<li class="tch soon"><button data-ch="${c.id}"><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}</span><span class="cs">${c.s}</span></span><span class="wait">скоро</span></button></li>`;return}
-   const d=ch.lessons.filter(l=>S.done[l.id]).length,n=ch.lessons.length;
-   h+=`<li class="tch"><details ${S.tocOpen&&S.tocOpen[c.id]===false?'':'open'} data-tdet="${c.id}"><summary><span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}${chTestsDone(ch)?' <span class="chok">✓ глава завершена</span>':''}</span><span class="cs">${c.s}</span></span><span class="rg">${ringSVG(d/n,p.c)}<i>${d}/${n}</i></span></summary>
-   <ol class="tles">${ch.lessons.map((l,k)=>`<li><button data-ojump2="${l.id}" class="${S.done[l.id]?'dn':''}"><span class="ln">${num}.${k+1}</span><span class="lb"><span class="lt">${l.t}</span>${secs(l).length?`<span class="ls">${secs(l).map(x=>x.t).join(' · ')}</span>`:''}</span>${S.done[l.id]?'<span class="ok">✓</span>':''}</button></li>`).join('')}</ol>
-   <div class="tquick"><button data-ch="${c.id}" data-tabto="theory">Теория</button>${ch.bank&&ch.bank.length?`<button data-ch="${c.id}" data-tabto="train">Тренажёр · ${ch.bank.length}</button>`:''}${ch.classic&&ch.classic.length?`<button data-ch="${c.id}" data-tabto="classic">Упражнения · ${ch.classic.length}</button>`:''}${c.deck?`<button data-deck="${c.deck}">Карточки</button>`:''}</div></details></li>`;
+   const d=ch.lessons.filter(l=>S.done[l.id]).length,n=ch.lessons.length,fin=chTestsDone(ch),open=tocIsOpen(c.id,contCh);
+   h+=`<li class="tch rdy${open?' open':''}"><button class="tchb" data-tchap="${c.id}" aria-expanded="${open}" aria-controls="tp-${c.id}">
+    <span class="cn">${num}</span><span class="cb"><span class="ct">${c.t}</span><span class="cs">${c.s}</span>
+    <span class="cpr">${fin?'<span class="chok">✓ глава завершена</span>':d?`пройдено уроков: ${d} из ${n}`:`${n} ${plural(n,'урок','урока','уроков')}`}</span></span>
+    <span class="rg">${ringSVG(d/n,p.c)}<i>${d}/${n}</i></span><span class="chev" aria-hidden="true"></span></button>
+   <div class="tpanel" id="tp-${c.id}"${open?'':' hidden'}>
+   <ol class="tles" aria-label="Уроки главы «${esc(c.t)}»">${ch.lessons.map((l,k)=>{const sc=secs(l).map(x=>x.t).join(' · ');return `<li><button data-ojump2="${l.id}" class="${S.done[l.id]?'dn':''}"${sc?` title="${esc(sc)}"`:''} aria-label="Урок ${k+1}. ${esc(l.t)}${S.done[l.id]?', пройден':''}"><span class="ln">${k+1}</span><span class="lb"><span class="lt">${l.t}</span>${sc?`<span class="ls">${sc}</span>`:''}</span>${S.done[l.id]?'<span class="ok" aria-hidden="true">✓</span>':'<span class="lgo" aria-hidden="true">›</span>'}</button></li>`}).join('')}</ol>
+   <div class="tquick">${chTabs(ch).map(([k,t])=>`<button data-ch="${c.id}" data-tabto="${k}">${MODEI[k]||''}<span>${t}${k==='train'&&ch.bank&&ch.bank.length?`<span class="qn"> · ${ch.bank.length}</span>`:k==='classic'?`<span class="qn"> · ${ch.classic.length}</span>`:''}</span></button>`).join('')}${c.deck?`<button data-deck="${c.deck}">${ico('cards',16)}<span>Карточки</span></button>`:''}</div></div></li>`;
   });
   h+='</ol></section>';
  });
