@@ -450,5 +450,6 @@ details.bkhelp .body{padding:0 14px 12px;display:flex;flex-direction:column;gap:
 .mfs{display:inline-block;width:14px}
 .clos{display:inline-block;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:999px;background:var(--fill);color:var(--l2);margin-left:8px;white-space:nowrap}
 .clgl{display:block;font-size:13px;color:var(--l2);line-height:1.45;margin-top:8px;padding-top:6px;border-top:1px dashed var(--sep)}
+.cllab{display:block;margin:8px 0 2px;font-size:14px;letter-spacing:.02em;color:var(--T)}
 .clsrc{display:block;font-size:13px;color:var(--l2);font-style:italic;text-align:right;line-height:1.4;margin:2px 0 4px}
 .gtw .slot{margin:0 1px;padding:0 3px;min-width:0}
