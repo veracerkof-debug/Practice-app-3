@@ -105,6 +105,11 @@ JS = [
     'src/chapters/pril/classic.js',
     'src/chapters/pril/tests.js',
     'src/chapters/pril/index.js',
+    'src/chapters/ne/lessons.js',
+    'src/chapters/ne/bank.js',
+    'src/chapters/ne/classic.js',
+    'src/chapters/ne/tests.js',
+    'src/chapters/ne/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -121,6 +126,7 @@ JS = [
     'src/chapters/fraz/labs.js',
     'src/chapters/sush/labs.js',
     'src/chapters/pril/labs.js',
+    'src/chapters/ne/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
