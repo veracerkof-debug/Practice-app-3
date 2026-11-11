@@ -24,7 +24,7 @@ function groupErr(pool){
  rest.forEach(it=>out.push({k:'pick',it}));return out;
 }
 function trStart(items){
- if(items&&items.some(it=>it.mt)){TR.run={tasks:items.map(it=>it.mt?mClone(it.mt):{k:'pick',it}),i:0,ok:0,tot:0,wrong:[],pool:items};return}
+ if(items&&items.some(it=>it.mt)){TR.run={tasks:items.map(it=>it.mt?mClone(it.mt):{k:'pick',it}),i:0,ok:0,tot:0,wrong:[],pool:items,re:true};return}
  if(!items&&trIsMech(TR.mode)){ // механики: каждое задание создаётся заново из размеченного материала
   const c=CC(),av=mAvail(c,TR.les),bank=shuffle(trPool()),N=TR.cnt==='all'?20:TR.cnt,tasks=[];let prev='';
   for(let k=0;k<N;k++){
@@ -42,7 +42,7 @@ function trStart(items){
  else if(TR.mode==='err') tasks=groupErr(pool);
  else if(TR.mode==='mix'){const a=shuffle(pool),n=Math.ceil(a.length/3);tasks=shuffle([...a.slice(0,n).map(it=>({k:'pick',it})),...groupErr(a.slice(n,2*n)),...groupCols(a.slice(2*n))])}
  else tasks=pool.map(it=>({k:'pick',it}));
- TR.run={tasks,i:0,ok:0,tot:0,wrong:[],pool};
+ TR.run={tasks,i:0,ok:0,tot:0,wrong:[],pool,re:!!items}; // re — повтор ошибок: в статистику (S.ans) не идёт
 }
 function trSetupHTML(){
  trSync();const c=CC(),n=trPool().length,av=mAvail(c,TR.les);
@@ -104,6 +104,7 @@ function trRunHTML(){
  <div class="big2">${done?`<button class="main" data-trnext>Дальше</button>`:t.k==='m'?`<button class="main" data-mcheck ${MECH[t.m].ready(t)?'':'disabled'}>Проверить</button>`:t.k==='cols'?`<button class="main" data-trcheck ${allset?'':'disabled'}>Проверить</button>`:''}</div>
  <button class="linkbtn" data-trsetup>Закончить и вернуться к настройкам</button>`;
 }
-function trScore(list){const r=TR.run;list.forEach(([it,ok])=>{r.tot++;if(ok)r.ok++;else r.wrong.push(it)})}
+// каждый ответ — первая попытка на задание; в статистику урока (statAns, stats.js) идёт один раз, повтор ошибок — не идёт
+function trScore(list){const r=TR.run;list.forEach(([it,ok])=>{r.tot++;if(ok)r.ok++;else r.wrong.push(it);if(!r.re)statAns(CC(),it.l,ok)})}
 function trainerHTML(){trSync();return `<div class="study" id="trainer">${TR.run?trRunHTML():trSetupHTML()}</div>`}
 

@@ -143,6 +143,73 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  check(cor.pr>=10&&cor.sushPos===0&&cor.sushOb===0&&cor.zvukiW===0,`корпус: уровни — «Причастие» ${cor.pr} предложений с оборотом, «Существительное» без причастий, «Звуки» без слов`);
  await p.click('[data-tab="train"]');if(await p.$('[data-trsetup]'))await p.click('[data-trsetup]');await p.click('[data-trm="all"]');await p.click('[data-trgo]');
  check(!!(await p.$('#trainer .card')),'серия «все виды вперемешку» запускается');
+
+ // ---------- главная, кабинет, статистика на устройстве ----------
+ {const ctx=await b.newContext({viewport:{width:400,height:900},acceptDownloads:true});const q=await ctx.newPage();q.on('pageerror',e=>errs.push('главная: '+e.message));
+  const LS=()=>q.evaluate(()=>JSON.parse(localStorage.getItem('rus-uchebnik-v1')||'{}'));const hash=()=>q.evaluate(()=>location.hash);
+  await q.goto(U);
+  check(!!await q.$('.hm .hmcont')&&(await hash())==='#home','главная открывается по умолчанию (#home)');
+  check((await q.innerText('.hmcont')).includes('Начать с первой главы'),'новый ученик: «Начать с первой главы»');
+  await q.click('.hmbig[data-hgo="toc"]');check(!!await q.$('.tparts')&&(await hash())==='#toc','«Учебник» ведёт в содержание (#toc)');
+  await q.click('.back[data-hgo="home"]');check(!!await q.$('.hm')&&(await hash())==='#home','«назад» из содержания — на главную');
+  await q.fill('#q','деревян');check(await q.evaluate(()=>document.querySelectorAll('#sres button').length)>1,'поиск на главной странице');
+  // старое сохранение без новых полей
+  await q.evaluate(()=>localStorage.setItem('rus-uchebnik-v1',JSON.stringify({done:{pr1:true,'cl-prichastie-3':true},cards:{},view:'book',last:'pr2',tab:'theory',tests:{'prichastie:1':{best:4,last:4,tries:1,at:20000}}})));
+  await q.goto(U+'#me');await q.reload();const oldMe=!!await q.$('.mech');
+  await q.goto(U+'#home');await q.reload();
+  check(oldMe&&(await q.innerText('.hmcont')).includes('Причастие')&&!!await q.$('[data-hun="prichastie"]'),'старое сохранение без новых полей открывается: «Продолжить», «Не доведено до конца», кабинет');
+  await q.click('[data-hcont]');await q.waitForTimeout(150);check((await hash())==='#ch-prichastie/theory/pr2','«Продолжить» ведёт к уроку, на котором остановился');
+  // ответы тренажёра → S.ans (первая попытка, по уроку)
+  await q.goto(U+'#ch-prichastie/train');await q.click('[data-trm="pick"]');await q.click('[data-trgo]');
+  for(let k=0;k<4;k++){await q.click('[data-trp]:not([disabled])');await q.click('[data-trnext]')}
+  let s=await LS();const an=Object.values(s.ans||{}),sum=an.reduce((x,a)=>x+a.n,0);
+  check(sum===4&&an.every(a=>/^[01]+$/.test(a.r)&&a.r.length===a.n&&a.ok<=a.n)&&Object.keys(s.ans).every(k=>/^pr\d$/.test(k)),`после 4 ответов в тренажёре в S.ans — 4 записи по урокам (${sum})`);
+  check(s.at&&s.at.ch==='prichastie'&&s.at.tab==='train','место остановки запоминается (S.at)');
+  // слабый урок: 8 ответов, меньше 70 % верных → «Стоит повторить» → тренажёр этого урока
+  await q.goto(U+'?selftest#home');
+  await q.evaluate(()=>{const T=window.__T,c=T.CHAPTERS.nn;for(let i=0;i<8;i++)T.statAns(c,2,i%2===0)});
+  await q.goto(U+'#home');await q.reload();
+  check(!!await q.$('[data-hrep="nn2"]'),'«Стоит повторить»: урок с ошибками появляется на главной');
+  await q.click('[data-hrep="nn2"]');check((await hash())==='#ch-nn/train/nn2'&&!!await q.$('#trainer'),'«Повторить» открывает тренажёр этого урока');
+  // заданное недавно
+  await q.goto(U+'#ex-prichastie-12-15');await q.goto(U+'#home');await q.reload();
+  check(!!await q.$('[data-hex="prichastie:12-15"]'),'«Заданное недавно»: открытая ссылка #ex-… запоминается');
+  await q.click('[data-hex="prichastie:12-15"]');check((await hash())==='#ex-prichastie-12-15'&&await q.evaluate(()=>document.querySelectorAll('.clex').length)===4,'заданное открывается: только эти упражнения');
+  // активное время: копится между действиями, перерыв от 5 минут не засчитывается
+  const t0=new Date(2026,10,11,10,0,0).getTime(),DK='2026-11-11';let now=t0;
+  const tick=async sec=>{now+=sec*1000;await q.clock.setFixedTime(now);await q.mouse.click(390,5)};
+  await q.clock.setFixedTime(now);await q.goto(U+'?selftest#home');await q.reload();
+  const tsec=()=>q.evaluate(k=>(window.__T.getS().time||{})[k]||0,DK);
+  await tick(0);await tick(60);await tick(60);const tA=await tsec();
+  await tick(360);const tB=await tsec();await tick(30);const tC=await tsec();
+  check(tA===120,`время копится между действиями: 2 минуты → ${tA} с`);
+  check(tB===120,`после 6 минут без действий время не прибавилось (${tB} с)`);
+  check(tC===150,`после перерыва счёт идёт дальше (${tC} с)`);
+  check(((await LS()).time||{})[DK]>=120,'время записано в localStorage (не чаще раза в 45 с)');
+  await q.goto(U+'#home');await q.reload();check((await q.innerText('.hmweek')).includes('3 мин')&&!!await q.$('.hmday.on.td'),'«Моя неделя»: сегодняшний день отмечен, время показано');
+  // профиль
+  await q.click('.hmava');check((await hash())==='#me'&&!!await q.$('[data-meform]'),'кабинет открывается, без имени — форма профиля');
+  await q.fill('[data-meform] [name=name]','Тимур');await q.fill('[data-meform] [name=sur]','Каримов');await q.fill('[data-meform] [name=cls]','7 Б');await q.press('[data-meform] [name=cls]','Enter');
+  check((await q.innerText('.meprof')).includes('Тимур Каримов')&&(await LS()).prof.cls==='7 Б','профиль: имя, фамилия и класс сохраняются');
+  // копия: текстом, файлом, загрузка обратно, стирание
+  await q.click('[data-bk="text"]');const copy=await q.inputValue('#bkout');let cj={};try{cj=JSON.parse(copy)}catch(e){}
+  check(cj.app==='rus-uchebnik'&&cj.v===1&&cj.by==='Тимур Каримов'&&cj.at>0&&cj.data&&cj.data.ans&&cj.data.tests,'копия как текст: {app,v,by,at,data}');
+  await q.evaluate(()=>{const c=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){window.__dl=this.download;return c.call(this)}});
+  const [dl]=await Promise.all([q.waitForEvent('download'),q.click('[data-bk="save"]')]);const dn=await q.evaluate(()=>window.__dl);
+  check(!!dl&&/^uchebnik-Тимур-Каримов-2026-11-11\.json$/.test(dn),'«Сохранить копию»: скачивается файл '+dn);
+  await q.click('[data-wipe="1"]');await q.click('[data-wipe="2"]');check(!!(await LS()).tests,'стирание: после двух шагов данные ещё на месте');
+  await q.click('[data-wipe="3"]');s=await LS();
+  check(!s.tests&&!s.ans&&!s.prof&&!s.time&&(await hash())==='#home'&&(await q.innerText('.hmcont')).includes('Начать с первой главы'),'«Стереть все данные»: данных нет, главная — как у нового ученика');
+  await q.goto(U+'#me');await q.click('[data-bk="paste"]');await q.fill('#bkin','это не копия');await q.click('[data-bk="check"]');
+  check(!!await q.$('.meerr')&&!await q.$('#bkpv'),'чужой текст вместо копии — понятная ошибка, данные не тронуты');
+  await q.fill('#bkin',copy);await q.click('[data-bk="check"]');
+  check((await q.innerText('#bkpv')).includes('Тимур Каримов'),'перед загрузкой показано, чья копия и что в ней');
+  await q.click('[data-bk="apply"]');s=await LS();
+  check(s.prof&&s.prof.name==='Тимур'&&s.tests&&s.tests['prichastie:1'].last===4&&s.ans&&s.ans.nn2.n===8&&s.done.pr1===true&&(await q.innerText('.hmtop')).includes('Тимур'),'копия загружается обратно: профиль, тесты, ответы, уроки');
+  await q.goto(U+'#me');await q.click('[data-wipe="1"]');await q.click('[data-wipe="2"]');await q.click('[data-wipe="3"]');
+  await q.goto(U+'#me');await q.setInputFiles('#bkfile',{name:'copy.json',mimeType:'application/json',buffer:Buffer.from(copy)});await q.waitForSelector('#bkpv');await q.click('[data-bk="apply"]');
+  check((await LS()).prof.sur==='Каримов','копия загружается из файла');
+  await ctx.close();}
  errs.forEach(e=>fail.push('JS: '+e));
  ok.forEach(m=>console.log('  ✓ '+m));fail.forEach(m=>console.log('  ✗ '+m));
  console.log(fail.length?`Ошибок: ${fail.length}`:`Всё работает (${ok.length} проверок)`);

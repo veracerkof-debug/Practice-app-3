@@ -89,7 +89,7 @@ function classicHTML(){
 }
 
 // переходы
-function clShow(list){CLR=list.length?list:null;S.tab='classic';save();go({v:'ch',id:CC().id});setTimeout(()=>{const t=document.getElementById('clset');if(t)t.scrollIntoView({block:'start'})},30)}
+function clShow(list){CLR=list.length?list:null;recentEx(CC().id,list);S.tab='classic';save();go({v:'ch',id:CC().id});setTimeout(()=>{const t=document.getElementById('clset');if(t)t.scrollIntoView({block:'start'})},30)}
 function clJump(n){ // к одному упражнению в общем списке: снять мешающие фильтры
  const c=CC(),e=c.classic.find(x=>x.n===n);if(!e)return;
  const hidden=(CLF&&e.l!==CLF)||(S.cls&&e.st!==S.cls)||(CLU&&S.done[clKey(e)])||(CLO&&!e.os);
