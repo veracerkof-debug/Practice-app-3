@@ -1,6 +1,8 @@
 # Задание автору новой главы
 
-Репозиторий: /home/user/Practice-app-3. Эталон — глава «Причастие» (`src/chapters/prichastie/`), второй образец — «Н и НН» (`src/chapters/nn/`). Работать **строго** по `docs/PRINCIPLES.md` (прочитать целиком), `docs/CONTENT-GUIDE.md`, `docs/REVIEWERS.md`, стандарт разборов — планы Адамчика (решение владельца 05.11.2026; `docs/plans/razbor-standard.md`).
+**Все правила ниже и в `docs/PRINCIPLES.md` — строго обязательны** (слово владельца 11.11.2026): каждая норма выполняется полностью; невыполненная — не «спорное место», а недоделка, которую надо устранить до сдачи. Нельзя выполнить — сказать координатору прямо. Перед сдачей — чек-лист `PRINCIPLES.md` §9.6.
+
+Репозиторий: /home/user/interactive.russian. Эталон — глава «Причастие» (`src/chapters/prichastie/`), второй образец — «Н и НН» (`src/chapters/nn/`). Работать **строго** по `docs/PRINCIPLES.md` (прочитать целиком), `docs/CONTENT-GUIDE.md`, `docs/REVIEWERS.md`, стандарт разборов — планы Адамчика (решение владельца 05.11.2026; `docs/plans/razbor-standard.md`).
 
 ## Файлы главы `<id>` (папка `src/chapters/<id>/`)
 - `lessons.js` — `const <ID>={id:'<id>',kicker:'…',t:'…',s:'…',lessons:[{id:'<id>1',t:'…',hint,h,lite,deep,easy,fix},…]};` — формат как в `prichastie/lessons.js`. Уроков 4–6 + при необходимости урок «Повторение» только в упражнениях (lnames).
