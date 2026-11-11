@@ -14,7 +14,7 @@ vm.runInContext((/^const CHAPTERS\b/m.test(src)?'':'var CHAPTERS={};')+(/^const 
 const C=box.__C[id];
 const places=[];
 const clean=s=>String(s||'').replace(/<[^>]+>/g,' ').replace(/Пояснени[ея]:[^]*$/,' ').replace(/\([А-ЯЁ]\.[^()]*«[^»]*»\)/g,' ').replace(/\([А-ЯЁ]\. [А-ЯЁ]\.[^()]*\)/g,' ');
-(C.bank||[]).forEach((b,i)=>places.push(['тренажёр '+(i+1),clean(b[0])+' '+(Array.isArray(b[4])?b[4].join(' '):'')]));
+(C.bank||[]).forEach((b,i)=>places.push(['тренажёр '+(i+1),clean(b.w||b[0])+' '+(Array.isArray(b.o||b[4])?(b.o||b[4]).join(' '):'')]));
 (C.classic||[]).forEach(x=>places.push(['№ '+x.n,clean(x.task)+' '+clean(x.obr)+' '+clean(x.body)]));
 const walk=(o,f,d=0)=>{if(d>6||o==null)return;if(typeof o==='string')return f(o);if(Array.isArray(o))return o.forEach(x=>walk(x,f,d+1));if(typeof o==='object')for(const k of Object.keys(o)){if(/why|key|ex$/.test(k))continue;walk(o[k],f,d+1)}};
 (C.tests||[]).forEach((sl,i)=>{const items=sl.items||sl.ex||[];(Array.isArray(items)?items:[]).forEach((it,j)=>{let t='';walk(Array.isArray(it)?it.slice(0,2):it,s=>{t+=' '+s});places.push(['тест '+(i+1)+'.'+(j+1),clean(t)])})});
