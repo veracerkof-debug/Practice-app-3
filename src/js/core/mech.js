@@ -254,7 +254,7 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b||!TR.run)return;const d=b.dataset,t=TR.run.tasks[TR.run.i];
  if(!t||t.k!=='m')return;
  if(d.ma!==undefined){if(t.res)return;MECH[t.m].act(t,d);trRe();return}
- if('mcheck' in d){if(t.res||!MECH[t.m].ready(t))return;const R=MECH[t.m].grade(t);t.res=R;
+ if('mcheck' in d){if(t.res||!MECH[t.m].ready(t))return;const R=MECH[t.m].grade(t);t.res=R;if(!t.retry&&!TR.run.re)statAns(CC(),t.l,R.ok);
   TR.run.tot++;if(R.ok)TR.run.ok++;else{TR.run.wrong.push({w:t.q,a:R.right,why:R.why||'',mt:t.orig});if(!t.retry)TR.run.tasks.push(mClone(t))}
   trRe();return}
 });

@@ -93,7 +93,7 @@ let NOSM=0;const RM=()=>Date.now()<NOSM||matchMedia('(prefers-reduced-motion: re
 // переход к уроку или разделу урока (id — «pr4» или «pr4-s2»): запись в истории, затем прокрутка
 function openLesson(id,after){const lid=String(id).replace(/-s\d+$/,''),L=LES[lid];if(!L)return;
  const same=route.v==='ch'&&route.id===L.ch,inPlace=same&&(S.tab||'theory')==='theory'&&document.getElementById(lid);
- S.tab='theory';save();
+ S.tab='theory';save();statSeen(lid);
  if(inPlace){pushRoute({v:'ch',id:L.ch,l:id});if(!(after&&after()))jump(id);return}
  NOSM=Date.now()+400;go({v:'ch',id:L.ch,l:id},same);
  setTimeout(()=>{if(!(after&&after()))jump(id)},60)}
@@ -235,4 +235,4 @@ function dictView(){
 let lastT=0;
 window.addEventListener('scroll',()=>{if(route.v!=='ch'||(S.tab||'theory')!=='theory')return;const now=Date.now();if(now-lastT<400)return;lastT=now;
  const secsEl=[...document.querySelectorAll('.bkles')];let cur=null;secsEl.forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s.id});
- if(cur&&S.last!==cur){S.last=cur;save()}},{passive:true});
+ if(cur&&S.last!==cur){S.last=cur;save();statSeen(cur)}},{passive:true});

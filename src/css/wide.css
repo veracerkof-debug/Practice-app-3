@@ -43,7 +43,18 @@
     padding:20px 22px 24px;box-shadow:-8px 0 30px rgba(0,0,0,.18)}
   .sheet.navs .grab{display:none}
 
-  /* главная: части курса в две колонки */
+  /* главная (#home): слева действие — продолжить, учебник, заданное; справа — повторить, неделя, освоено */
+  .wrap.hm,.wrap.me{max-width:1120px;gap:22px}
+  .hmgrid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:24px 36px;align-items:start}
+  .megrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px 36px;align-items:start}
+  .hmcol,.mecol{display:flex;flex-direction:column;gap:20px;min-width:0}
+  .hmtop h1{font-size:32px}
+  .hmcont{padding:24px}
+  .hmcont .t{font-size:30px}
+  .hmnum{font-size:60px;right:22px;top:14px}
+  .hmcta{align-self:flex-start;min-width:240px}
+
+  /* содержание: части курса в две колонки */
   .tparts{display:block;columns:2;column-gap:16px}
   .tparts>.tpart{break-inside:avoid;margin-bottom:16px}
 

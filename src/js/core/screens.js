@@ -1,6 +1,7 @@
 // ---------- экраны ----------
-let route={v:'toc'};
+let route={v:'home'};
 // История и «назад» (браузер, Android). Вкладка главы и урок — в адресе: #ch-<id>, #ch-<id>/<вкладка>, #ch-<id>/<вкладка>/<урок>;
+// #home — главная (и адрес без хэша), #toc — содержание учебника, #me — кабинет «Мои результаты»;
 // старые ссылки #ch-<id> (теория) и #ex-<id>-12-15 работают как раньше. Каждый переход добавляет запись истории,
 // в запись перед уходом сохраняется прокрутка (y) — «назад» возвращает на то же место главы.
 // Открытые шторки (термин, содержание, навигатор) — отдельная запись {ov:1} с тем же адресом: «назад» закрывает шторку.
@@ -12,6 +13,7 @@ function hashFor(r){
  if(r.v==='word')return 'w-'+encodeURIComponent(r.id);
  if(r.v==='deck')return 'deck-'+r.id;
  if(r.v==='study')return 'study-'+r.id;
+ if(r.v==='home'||r.v==='me')return r.v;
  if(r.v!=='ch')return viewHash();
  const ch=CHAPTERS[r.id],tab=ch?chTab(ch):'theory';
  if(CLR&&tab==='classic')return 'ex-'+r.id+'-'+clFmt(CLR,true);
@@ -37,7 +39,7 @@ const lesIdx=(ch,l)=>{const L=LES[String(l||'').replace(/-s\d+$/,'')];return L&&
 function fromHash(){const h=location.hash.slice(1);
  CLR=null;
  const ex=h.match(/^ex-([a-z0-9_]+)-([\d,-]+)$/);
- if(ex&&CHAPTERS[ex[1]]){route={v:'ch',id:ex[1]};S.tab='classic';const l=clParse(CHAPTERS[ex[1]],ex[2].replace(/,/g,', '));CLR=l.length?l:null;return}
+ if(ex&&CHAPTERS[ex[1]]){route={v:'ch',id:ex[1]};S.tab='classic';const l=clParse(CHAPTERS[ex[1]],ex[2].replace(/,/g,', '));CLR=l.length?l:null;recentEx(ex[1],l);return}
  const cm=h.match(/^ch-([a-z0-9_]+)(?:\/([a-z]+))?(?:\/([\w-]+))?$/);
  if(cm){
   const id=cm[1],ch=CHAPTERS[id];route={v:'ch',id};if(!ch)return;
@@ -48,6 +50,8 @@ function fromHash(){const h=location.hash.slice(1);
   if(S.tab==='classic'){CLF=n}
   if(S.tab==='tests'){const k=l==='final'?'final':n;TSV=TS&&TS.ch===id&&k&&TS.key===k?'run':'list'}
   return}
+ if(h===''||h==='home'){route={v:'home'};return}
+ if(h==='me'){route={v:'me'};return}
  if(h.startsWith('w-')) route={v:'word',id:decodeURIComponent(h.slice(2))};
  else if(h.startsWith('deck-')&&DECKS[h.slice(5)]) route={v:'deck',id:h.slice(5)};
  else if(h.startsWith('study-')&&DECKS[h.slice(6)]){route={v:'study',id:h.slice(6)};startStudy(route.id)}
@@ -67,7 +71,7 @@ function onLoc(){const h=location.hash.slice(1);
 
 function tocHTML(){
  const V=S.view||'book';
- let h=`<div class="wrap">
+ let h=`<div class="bkhbar"><div class="in"><button class="back" data-hgo="home">‹ Главная</button><span class="tools"><button class="ibtn" data-hgo="me">${HI.user}Мои результаты</button></span></div></div><div class="wrap">
  <section class="bhero"><div class="row"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--tint)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5.5C4.5 4 8.5 4 12 6c3.5-2 7.5-2 10-.5V19c-2.5-1.5-6.5-1.5-10 .5-3.5-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/></svg>
  <div><h1>Русский язык</h1><div class="sub">Правила, схемы и упражнения школьного курса в одном месте. Сверено с академическими правилами 2006 года.</div></div></div>
  <input class="bsearch" id="q" type="search" placeholder="Поиск: тема, урок, термин или слово" autocomplete="off" aria-label="Поиск по учебнику">
@@ -282,7 +286,11 @@ function render(){
  else if(route.v==='deck') app.innerHTML=deckHTML(route.id);
  else if(route.v==='study') app.innerHTML=studyHTML();
  else if(route.v==='word') app.innerHTML=wordHTML(route.id);
+ else if(route.v==='home') app.innerHTML=homeHTML();
+ else if(route.v==='me') app.innerHTML=meHTML();
  else app.innerHTML=tocHTML();
+ if(route.v==='ch')statWhere();
+ meBind();
  const q=$('#q'); if(q){q.addEventListener('input',search);}
  if(route.v==='ch'&&(S.tab||'theory')==='theory'){enhance(app.querySelector('.bktext'),route.id);linkWords(app.querySelector('.bktext'))}
  else if(route.v==='ch')termsIn(app.querySelector('.chmain')||app);
@@ -399,4 +407,4 @@ function rerenderEx(les){const old=document.getElementById('ex-'+les.id);const o
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.sheet'))closeSheet(true)});
 window.addEventListener('popstate',onLoc);
 window.addEventListener('hashchange',onLoc);
-fromHash();render();if(route.v==='ch')setTimeout(restoreScroll,0);
+fromHash();if(!location.hash&&route.v==='home')syncHash();render();if(route.v==='ch')setTimeout(restoreScroll,0);
