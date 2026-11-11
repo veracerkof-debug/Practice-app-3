@@ -1,0 +1,28 @@
+// Повторы слов по «местам» (PRINCIPLES §5.7): node tools/audit/places.js <id главы> [порог=3]
+// Место — задание тренажёра (текст и варианты), упражнение (условие, образец, текст; без ключа), пример теста, пример схемы.
+// Слово считается по основе (первые 5 букв без ударения и ё); одно место — один раз. Подписи цитат, «Пояснения:»,
+// служебные слова и термины главы не считаются. Выводит слова, у которых мест больше порога.
+const fs=require('fs'),path=require('path'),vm=require('vm');
+const ROOT=path.resolve(__dirname,'../..');const id=process.argv[2],LIM=+(process.argv[3]||3);
+const dir=path.join(ROOT,'src/chapters',id);
+const box={MECH:{},relab(){},document:{addEventListener(){},getElementById(){return null},querySelector(){return null},querySelectorAll(){return []}},shuffle:a=>a,pick1:a=>a[0],esc:s=>String(s),window:{},localStorage:{getItem(){return null},setItem(){}},S:{},console};
+vm.createContext(box);
+const PRE=['src/js/core/store.js'].map(f=>fs.readFileSync(path.join(ROOT,f),'utf8'));
+const own=['lessons','bank','classic','labs','tests','index'].map(f=>path.join(dir,f+'.js')).filter(fs.existsSync).map(f=>fs.readFileSync(f,'utf8'));
+const src=[...PRE,...own].join('\n;\n');
+vm.runInContext((/^const CHAPTERS\b/m.test(src)?'':'var CHAPTERS={};')+(/^const LABS\b/m.test(src)?'':'var LABS={};')+src+'\n;globalThis.__C=CHAPTERS;',box);
+const C=box.__C[id];
+const places=[];
+const clean=s=>String(s||'').replace(/<[^>]+>/g,' ').replace(/Пояснени[ея]:[^]*$/,' ').replace(/\([А-ЯЁ]\.[^()]*«[^»]*»\)/g,' ').replace(/\([А-ЯЁ]\. [А-ЯЁ]\.[^()]*\)/g,' ');
+(C.bank||[]).forEach((b,i)=>places.push(['тренажёр '+(i+1),clean(b[0])+' '+(Array.isArray(b[4])?b[4].join(' '):'')]));
+(C.classic||[]).forEach(x=>places.push(['№ '+x.n,clean(x.task)+' '+clean(x.obr)+' '+clean(x.body)]));
+const walk=(o,f,d=0)=>{if(d>6||o==null)return;if(typeof o==='string')return f(o);if(Array.isArray(o))return o.forEach(x=>walk(x,f,d+1));if(typeof o==='object')for(const k of Object.keys(o)){if(/why|key|ex$/.test(k))continue;walk(o[k],f,d+1)}};
+(C.tests||[]).forEach((sl,i)=>{const items=sl.items||sl.ex||[];(Array.isArray(items)?items:[]).forEach((it,j)=>{let t='';walk(Array.isArray(it)?it.slice(0,2):it,s=>{t+=' '+s});places.push(['тест '+(i+1)+'.'+(j+1),clean(t)])})});
+const STOP=new Set(('этот эта это эти того тому тем том была было были будет буду есть один одна одно одни двух трёх всех весь вся всё все всего себя себе свой своя своё свои меня мне него нему ними него неё ней они оно она мой моя моё мои твой наш наша наше наши ваш когда тогда потом теперь только тоже также очень даже уже ещё если чтобы потому через после перед между около возле сквозь из-за из-под который которая которое которые какой какая какое какие каков чей чья чьё чьи кто что где куда откуда зачем почему как так там тут здесь такой такая такое такие сколько нибудь либо или ведь вдруг опять снова всегда никогда нельзя можно надо нужно будто словно точно чем нет ничего никто'+
+ ' слово слова слов словах словами предложение предложения предложений вставить вставляя пропущенные буквы букву выписать подчеркнуть определить объяснить указать найти записать составить образовать исправить ошибки ошибку доказать распределить выделить задание текст отрывок образец пример примеры ряд ряды ряду рядах вариант ответ правило правилу форма форму формы формах падеж падеже падежа падежи падежей падежах склонение склонения склонений род рода роду роде число числа числе единственное множественное именительный родительный дательный винительный творительный предложный существительное существительные существительного существительных прилагательное прилагательные прилагательного прилагательных разряд разряда разряды качественное относительное притяжательное краткое краткая краткие краткой полное полная степень степени сравнительная превосходная простая составная суффикс суффикса суффиксы окончание окончания окончаний мужского женского среднего общего мужской женский средний какого какой каких кого чего чему чем чём').split(/\s+/));
+const st=w=>w.toLowerCase().replace(/ё/g,'е').replace(/́/g,'').slice(0,5);
+const map=new Map();
+for(const [where,txt] of places){const seen=new Set();for(const m of txt.toLowerCase().replace(/́/g,'').matchAll(/[а-яё][а-яё_\-]*[а-яё_]/g)){let w=m[0];if(w.length<4||STOP.has(w)||/_/.test(w)&&w.replace(/_/g,'').length<4)continue;if(/[а-яё]_|_[а-яё]/.test(w))w=w.replace(/_.*/,'');const s=st(w);if(s.length<4||seen.has(s))continue;seen.add(s);if(!map.has(s))map.set(s,{n:0,w:new Map(),at:[]});const e=map.get(s);e.n++;e.w.set(w,(e.w.get(w)||0)+1);e.at.push(where)}}
+const rows=[...map.entries()].filter(([,e])=>e.n>LIM).sort((a,b)=>b[1].n-a[1].n);
+console.log(`Глава ${id}: мест ${places.length}; основ больше ${LIM} мест: ${rows.length}`);
+for(const [s,e] of rows)console.log(String(e.n).padStart(3),s.padEnd(6),[...e.w.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([w,n])=>w+'×'+n).join(', '),'|',e.at.slice(0,12).join('; '));
