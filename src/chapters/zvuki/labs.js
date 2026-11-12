@@ -178,9 +178,9 @@ function zvPosHTML(){
  <div><div class="colh">${x[1]==='—'?'проверка':'сильная позиция'}</div>${x[1]==='—'?`<div class="bkhint" style="text-align:center;padding-top:10px">${x[7]}</div>`:`<div style="font-size:22px;text-align:center">${x[1]}</div><div style="text-align:center;font-size:18px">${x[3]}</div><div class="bkhint" style="text-align:center">после согласного — гласный: звук слышен ясно</div>`}</div></div></div>`;
 }
 // ---------- 7. Фонетический разбор по шагам ----------
-const ZV_RZ=[['ёлка','ёл-ка'],['моряк','мо-ряк'],['день','день'],['юла','ю-ла'],['вьюга','вью-га'],['мяч','мяч'],['щука','щу-ка'],['жир','жир'],['юг','юг'],['пятак','пя-так'],['пьеса','пье-са'],['кровь','кровь']];
+const ZV_RZ=[['ёлка','ёл-ка'],['моряк','мо-ряк'],['день','день'],['юла','ю-ла'],['вьюга','вью-га'],['мяч','мяч'],['щука','щу-ка'],['жир','жир'],['юг','юг'],['пятак','пя-так'],['пьеса','пье-са'],['бровь','бровь']];
 let zrSel=0,zrStep=1,zrPick={},zrChk=false,zrS1=null,zrS2=null;
-function zvRzRight(s){if(zvKind(s)==='v')return {u:s.includes(ZV_ACC)?'уд.':'безуд.'};const c=zvCons(s).split(', ');return {z:c[1].split(' ')[0],zp:c[1].split(' ')[1],t:c[2].split(' ')[0],tp:c[2].split(' ')[1]}}
+function zvRzRight(s){if(zvKind(s)==='v')return {u:s.includes(ZV_ACC)?'уд.':'безуд.'};const c=zvCons(s).replace('сонорн., ','').split(', ');return {z:c[1].split(' ')[0],zp:c[1].split(' ')[1],t:c[2].split(' ')[0],tp:c[2].split(' ')[1]}}
 function zvRazborHTML(){
  const [w,sl]=ZV_RZ[zrSel],p=zvP(w),[nb,ns]=zvCnt(w),all=p.flatMap(c=>c.s),vs=all.filter(s=>zvKind(s)==='v'),ui=vs.findIndex(s=>s.includes(ZV_ACC))+1;
  const sw=n=>n===1?'слог':n<5?'слога':'слогов';
