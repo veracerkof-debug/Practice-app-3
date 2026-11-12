@@ -120,10 +120,16 @@ const bm=strip(JSON.stringify([B,X,T])).match(BAD);if(bm)warn(`проверит�
 const BANNED=['«Ася»','«Барыня»'];
 for(const w of BANNED)if(JSON.stringify([B,X,T]).includes(w))err(`цитата из ${w} — произведение убрано владельцем (PRINCIPLES §6.4), взять другое`);
 
+// 12. последовательное изучение (PRINCIPLES §3а): опоры главы, блок «Что нужно знать», понятия из более поздних глав, ссылки на главы
+let INFO=[];
+try{const K=require('./lib/course.js').load(),g=require('./lib/graph.js').graphCheck(K,id,C);g.errs.forEach(e=>err('последовательность: '+e));g.warns.forEach(e=>warn('последовательность: '+e));INFO=g.info}
+catch(e){err('проверка последовательности не выполнена: '+e.message)}
+
 report();process.exit(ERR.length?1:0);
 function report(){
  console.log(`Глава ${id}: уроков ${NL||'?'}, схем ${Object.keys((box&&box.__L)||{}).length}, тренажёр ${B.length}, упражнений ${X.length}, слотов тестов ${T.length}`);
  if(ERR.length){console.log(`\nОШИБКИ (${ERR.length}) — сдавать нельзя:`);ERR.slice(0,80).forEach(e=>console.log('  ✗ '+e));if(ERR.length>80)console.log(`  … и ещё ${ERR.length-80}`)}
  if(WARN.length){console.log(`\nВНИМАНИЕ (${WARN.length}) — проверить и объяснить в отчёте:`);WARN.slice(0,60).forEach(e=>console.log('  ! '+e))}
+ if(typeof INFO!=='undefined'&&INFO.length){console.log('\nМесто в маршруте (PRINCIPLES §3а):');INFO.forEach(e=>console.log('  · '+e))}
  if(!ERR.length)console.log('\nОшибок нет.');
 }

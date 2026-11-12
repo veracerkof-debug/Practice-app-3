@@ -330,6 +330,7 @@ document.addEventListener('click',e=>{
  if(d.fcol){const box=b.closest('.fdet');box.querySelector('.ftbl').dataset.c=d.fcol;box.querySelectorAll('[data-fcol]').forEach(x=>x.setAttribute('aria-pressed',x===b));return}
  if(d.wstep){WST[d.wstep]=+d.to;go({v:'word',id:d.wstep},true);return}
  if(d.term){sheet(d.term);return}
+ if(d.tch){closeSheet();go({v:'ch',id:d.tch});return}
  if(d.tgo){const id=d.tgo,l=d.l;closeSheet();openLesson(l,()=>flashIn(`#${l} .bterm[data-term="${id}"]`));return}
  if(d.gl){const id=d.gl;closeSheet();S.view='gloss';GQ='';GCAT='';save();go({v:'toc'});setTimeout(()=>flashIn('#g-'+id),60);return}
  if(d.gjump){if(!flashIn('#g-'+d.gjump)){GQ='';GCAT='';const el=$('#gq');if(el)el.value='';$('#glist').innerHTML=glossList();flashIn('#g-'+d.gjump)}return}

@@ -7,6 +7,27 @@
 // ПОРЯДОК ИЗУЧЕНИЯ совпадает с оглавлением (с 12.11.2026): линейный маршрут.
 // Составлен по школьной программе 5–9 классов и решениям владельца (docs/plans/struktura.md).
 const COURSE_ORDER=['zvuki','slog','udar','proizn','leks','omon','fraz','sostav','slovoobr','koren','soglas','pristavki','sush','pril','chisl','mest','glag','prichastie','deeprich','narech','sluzh','mezhdom','shipyashie','znaki','nn','ne','slitno','propisn','slovosoch','prostoe','glavn','vtor','odnosost','odnor','obos','obos2','vvod','slozhnoe','ssp','spp','spp2','bsp','raznye','rech','znakisvod','tekst','tipy','stili','vyraz','normy','leknorm'];  // = оглавление (PARTS): линейный маршрут, решение владельца 12.11.2026
+// ОПОРЫ ГЛАВ (PRINCIPLES §3а; «Карта курса», docs/plans/struktura.md, раздел 9). У каждой главы:
+// need — главы, которые должны быть пройдены раньше (по маршруту они стоят выше);
+// prop — темы из более поздних глав, без которых глава непонятна: о них в главе короткая справка («Что нужно знать») и ссылка.
+// Из этого списка: подсказка автору главы и проверка графа понятий (node tools/check-chapter.js <id>, node tools/graph.js).
+const OPORY={
+ zvuki:{need:[]},slog:{need:['zvuki']},udar:{need:['zvuki','slog']},proizn:{need:['zvuki','udar']},
+ leks:{need:['zvuki'],prop:['sostav']},omon:{need:['leks'],prop:['sostav']},fraz:{need:['leks','omon'],prop:['stili']},
+ sostav:{need:['zvuki','leks']},slovoobr:{need:['sostav']},
+ koren:{need:['sostav','udar']},soglas:{need:['sostav','zvuki']},pristavki:{need:['sostav','soglas']},
+ sush:{need:['sostav']},pril:{need:['sush'],prop:['narech']},chisl:{need:['sush','pril']},mest:{need:['sush','pril','chisl']},
+ glag:{need:['sush','sostav']},prichastie:{need:['pril','glag'],prop:['vtor']},deeprich:{need:['glag','prichastie'],prop:['narech','vtor']},
+ narech:{need:['pril','glag']},sluzh:{need:['sush','glag','narech'],prop:['prostoe']},mezhdom:{need:['sluzh']},
+ shipyashie:{need:['sostav','sush','pril','glag']},znaki:{need:['pristavki','sush','glag']},nn:{need:['pril','prichastie','narech']},
+ ne:{need:['glag','prichastie','deeprich','mest','chisl','narech','sluzh']},slitno:{need:['narech','sluzh','mest','pril']},propisn:{need:['sush']},
+ slovosoch:{need:['sush','pril','glag','narech']},prostoe:{need:['slovosoch']},glavn:{need:['prostoe','glag','sush']},vtor:{need:['glavn','slovosoch']},odnosost:{need:['glavn']},
+ odnor:{need:['prostoe']},obos:{need:['vtor','prichastie','odnor']},obos2:{need:['obos','deeprich']},vvod:{need:['vtor']},
+ slozhnoe:{need:['glavn','odnor','sluzh']},ssp:{need:['slozhnoe']},spp:{need:['slozhnoe','mest']},spp2:{need:['spp']},bsp:{need:['ssp','spp']},raznye:{need:['ssp','spp2','bsp']},
+ rech:{need:['slozhnoe','vvod']},znakisvod:{need:['raznye','rech','obos2','vvod']},
+ tekst:{need:['prostoe']},tipy:{need:['tekst']},stili:{need:['leks','vvod','tekst','tipy']},vyraz:{need:['leks','fraz','stili']},
+ normy:{need:['glag','chisl','mest','slovosoch','glavn']},leknorm:{need:['omon','fraz','stili']}
+};
 // Пропедевтика (PRINCIPLES §3а): глава даёт на месте справку о теме, которую по маршруту изучают позже, —
 // материал этой темы ей доступен (задания не требуют больше справки).
 const PROP_TOPIC={prichastie:['prostoe'],deeprich:['prostoe']};
