@@ -120,6 +120,11 @@ JS = [
     'src/chapters/normy/classic.js',
     'src/chapters/normy/tests.js',
     'src/chapters/normy/index.js',
+    'src/chapters/leknorm/lessons.js',   # глава «Лексические нормы» (в DRAFT, пока не проверена)
+    'src/chapters/leknorm/bank.js',
+    'src/chapters/leknorm/classic.js',
+    'src/chapters/leknorm/tests.js',
+    'src/chapters/leknorm/index.js',
     'src/chapters/slozhnoe/lessons.js', # глава «Сложное предложение»
     'src/chapters/slozhnoe/bank.js',
     'src/chapters/slozhnoe/classic.js',
@@ -150,6 +155,7 @@ JS = [
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/chapters/stili/labs.js',       # схемы «Стилей речи»
     'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
+    'src/chapters/leknorm/labs.js',     # схемы «Лексических норм»
     'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
     'src/chapters/rech/labs.js',        # схемы «Прямой речи и цитат»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
@@ -169,7 +175,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = set()
+DRAFT = {'leknorm'}
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
