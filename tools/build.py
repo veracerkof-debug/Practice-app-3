@@ -110,6 +110,26 @@ JS = [
     'src/chapters/ne/classic.js',
     'src/chapters/ne/tests.js',
     'src/chapters/ne/index.js',
+    'src/chapters/stili/lessons.js',   # глава «Стили речи»
+    'src/chapters/stili/bank.js',
+    'src/chapters/stili/classic.js',
+    'src/chapters/stili/tests.js',
+    'src/chapters/stili/index.js',
+    'src/chapters/normy/lessons.js',   # глава «Грамматические нормы»
+    'src/chapters/normy/bank.js',
+    'src/chapters/normy/classic.js',
+    'src/chapters/normy/tests.js',
+    'src/chapters/normy/index.js',
+    'src/chapters/slozhnoe/lessons.js', # глава «Сложное предложение»
+    'src/chapters/slozhnoe/bank.js',
+    'src/chapters/slozhnoe/classic.js',
+    'src/chapters/slozhnoe/tests.js',
+    'src/chapters/slozhnoe/index.js',
+    'src/chapters/rech/lessons.js',     # глава «Прямая речь и цитаты»
+    'src/chapters/rech/bank.js',
+    'src/chapters/rech/classic.js',
+    'src/chapters/rech/tests.js',
+    'src/chapters/rech/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -128,6 +148,10 @@ JS = [
     'src/chapters/pril/labs.js',
     'src/chapters/ne/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
+    'src/chapters/stili/labs.js',       # схемы «Стилей речи»
+    'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
+    'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
+    'src/chapters/rech/labs.js',        # схемы «Прямой речи и цитат»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
