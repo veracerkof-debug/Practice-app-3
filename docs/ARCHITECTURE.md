@@ -41,7 +41,7 @@ src/
     nn/          lessons.js · bank.js · classic.js · index.js · labs.js
     prichastie/  lessons.js · bank.js · classic.js · labs.js
   data/
-    glossary.js              GLOSS — 113 терминов
+    glossary.js              GLOSS — 271 термин
     spelling-words.js        WORDS — словарик правописания
     dictionary/
       forms.js               FORMS — формы слов (из OpenCorpora, генерируется)
