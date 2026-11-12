@@ -100,6 +100,11 @@ JS = [
     'src/chapters/ne/classic.js',
     'src/chapters/ne/tests.js',
     'src/chapters/ne/index.js',
+    'src/chapters/stili/lessons.js',   # глава «Стили речи»
+    'src/chapters/stili/bank.js',
+    'src/chapters/stili/classic.js',
+    'src/chapters/stili/tests.js',
+    'src/chapters/stili/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -116,6 +121,7 @@ JS = [
     'src/chapters/fraz/labs.js',
     'src/chapters/ne/labs.js',
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
+    'src/chapters/stili/labs.js',       # схемы «Стилей речи»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
