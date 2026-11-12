@@ -13,7 +13,7 @@ const COURSE_ORDER=['zvuki','slog','udar','proizn','leks','omon','fraz','sostav'
 // Из этого списка: подсказка автору главы и проверка графа понятий (node tools/check-chapter.js <id>, node tools/graph.js).
 const OPORY={
  zvuki:{need:[],prop:['slog','udar','sostav']},slog:{need:['zvuki']},udar:{need:['zvuki','slog']},proizn:{need:['zvuki','slog','udar'],prop:['leks','sostav','stili','normy']},
- leks:{need:['zvuki'],prop:['sostav']},omon:{need:['leks'],prop:['sostav']},fraz:{need:['leks','omon'],prop:['stili']},
+ leks:{need:['zvuki'],prop:['sostav','omon','fraz','sush','slovosoch']},omon:{need:['leks'],prop:['sostav','sush','slovosoch','fraz']},fraz:{need:['leks','omon'],prop:['stili']},
  sostav:{need:['zvuki','leks']},slovoobr:{need:['sostav']},
  koren:{need:['sostav','udar']},soglas:{need:['sostav','zvuki']},pristavki:{need:['sostav','soglas']},
  sush:{need:['sostav']},pril:{need:['sush'],prop:['narech']},chisl:{need:['sush','pril']},mest:{need:['sush','pril','chisl']},
