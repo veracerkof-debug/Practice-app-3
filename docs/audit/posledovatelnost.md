@@ -40,6 +40,8 @@
 - Убраны дубли: `step_sr` (остался `st_sravn`), `nesklon` (остался `neskl`); ссылки в «Грамматических нормах» переведены.
 - Исправлены сломанные статьи: у morf_razb, padezh, pril, rod, chislo, sush в поле `cat` стоял id урока.
 
+**Обновление 12.11.2026 (Б.1):** «Звуки и буквы» и «Произношение» — 0; всего 184. Статьи `bezud`, `glasn`, `soglasn`, `shipyash`, `udar`, `styk`, `okonch`, `pref` переписаны (см. ниже).
+
 ## Спорные места (решать при правке глав, часть Б)
 1. **Окончание** объяснено только в «О и Ё после шипящих» (sh22), **основа** — в «Причастии» (pr3), **нулевое окончание** — нигде: до «Морфемики» нужны справки в «Существительном» и «Прилагательном».
 2. **Вид глагола** (совершенный, несовершенный) объяснён вопросами только в «Деепричастии» (dr2): «Причастие» опирается на необъяснённое — справка о глаголе в «Причастии» (Б.6).
@@ -52,7 +54,7 @@
 9. У терминов `sv_sravn` («Сравнение (троп)») пустая регулярка `f`: ссылка только явная `[[sv_sravn|…]]`.
 
 ## Статьи глоссария, написанные «от более поздней главы»
-Определение или пример опираются на главу, которая по маршруту стоит позже дома термина (например, «род» с примерами-причастиями). Переписать при правке глав: `bezud`, `glasn`, `soglasn`, `shipyash`, `udar`, `znach`, `ustoich`, `iskl`, `orfogramma`, `orfogr`, `pravop`, `okonch`, `osnova`, `postf`, `pref`, `suff`, `styk`, `forma`, `cheredov`, `morfema`, `morfemika`, `morf_sostav`, `odnokor`, `proizv`, `ishod`, `slovoobr`, `slozhn`, `perekhod`, `gram_priznak`, `morf_razb`, `morfologia`, `rod`, `chislo`, `padezh`, `sklon`, `krat`, `poln`, `razryad`, `priznak`, `otn_pril`, `lichmest`, `bud`, `nast`, `prosh`, `vremya`, `nesov`, `sov`, `perekh`, `neperekh`, `vozvr`, `sprya`, `gl_iskl`, `osn_inf`, `osn_nast`, `zapyat`.
+Определение или пример опираются на главу, которая по маршруту стоит позже дома термина (например, «род» с примерами-причастиями). Переписать при правке глав (✅ 12.11.2026 переписаны: `bezud`, `glasn`, `soglasn`, `shipyash`, `udar`, `styk`, `okonch`, `pref`; также `koren`, `lityaz`, `norma`, `sv_razg`): `znach`, `ustoich`, `iskl`, `orfogramma`, `orfogr`, `pravop`, `okonch`, `osnova`, `postf`, `pref`, `suff`, `styk`, `forma`, `cheredov`, `morfema`, `morfemika`, `morf_sostav`, `odnokor`, `proizv`, `ishod`, `slovoobr`, `slozhn`, `perekhod`, `gram_priznak`, `morf_razb`, `morfologia`, `rod`, `chislo`, `padezh`, `sklon`, `krat`, `poln`, `razryad`, `priznak`, `otn_pril`, `lichmest`, `bud`, `nast`, `prosh`, `vremya`, `nesov`, `sov`, `perekh`, `neperekh`, `vozvr`, `sprya`, `gl_iskl`, `osn_inf`, `osn_nast`, `zapyat`.
 
 ## Почему `at` стоит там, где стоит (изменённые и пустые)
 - `transkr` → `zv1` (дом `zvuki`): раздел «Транскрипция» с определением — уже в zv1
