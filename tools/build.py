@@ -110,6 +110,11 @@ JS = [
     'src/chapters/normy/classic.js',
     'src/chapters/normy/tests.js',
     'src/chapters/normy/index.js',
+    'src/chapters/slozhnoe/lessons.js', # глава «Сложное предложение»
+    'src/chapters/slozhnoe/bank.js',
+    'src/chapters/slozhnoe/classic.js',
+    'src/chapters/slozhnoe/tests.js',
+    'src/chapters/slozhnoe/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -128,6 +133,7 @@ JS = [
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/chapters/stili/labs.js',       # схемы «Стилей речи»
     'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
+    'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
