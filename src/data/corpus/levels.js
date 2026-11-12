@@ -7,18 +7,21 @@
 // ПОРЯДОК ИЗУЧЕНИЯ (не путать с оглавлением: «Н и НН» стоит в «Орфографии», но изучается после причастий).
 // Составлен по школьной программе 5–9 классов; владелец может переставить темы под свою программу.
 const COURSE_ORDER=[
- 'zvuki','slog','udar','proizn',            // фонетика и орфоэпия
- 'leks','omon','fraz',                       // лексика
+ 'zvuki','slog','udar','proizn',            // фонетика и орфоэпия (5 кл.)
+ 'leks','omon','fraz',                       // лексика (5–6 кл.)
+ 'sostav','slovoobr',                        // морфемика и словообразование — до орфографии морфем
  'koren','soglas','pristavki','shipyashie','znaki',
  'sush','pril','glag',                       // морфология, 5–6 кл.
- 'prostoe',                                  // члены предложения (вводный курс синтаксиса)
- 'odnor',
+ 'slovosoch','prostoe','odnor',              // вводный курс синтаксиса (5 кл.)
+ 'tekst','tipy',                             // текст и типы речи (5–6 кл.)
  'chisl','mest',
- 'prichastie','deeprich','narech',         // 7 кл.
+ 'prichastie','deeprich','narech',           // 7 кл.
  'nn',                                       // Н и НН — после причастий и наречий (глава охватывает и наречия)
- 'sluzh','ne',                               // НЕ и НИ — после частицы как части речи
- 'obos','vvod','slozhnoe','rech',            // 8–9 кл.
- 'stili','normy'
+ 'sluzh','mezhdom','ne',                     // НЕ и НИ — после частицы как части речи
+ 'slitno','propisn',                         // слитно-дефисно-раздельно — после наречий и служебных слов
+ 'glavn','vtor','odnosost','obos','obos2','vvod',   // простое предложение, 8 кл.
+ 'slozhnoe','ssp','spp','spp2','bsp','raznye','rech','znakisvod',   // сложное предложение, 9 кл.
+ 'stili','vyraz','normy','leknorm'
 ];
 const tIdx=id=>{const i=COURSE_ORDER.indexOf(id);return i<0?999:i};
 const tKnown=(ch,topic)=>COURSE_ORDER.includes(ch)&&COURSE_ORDER.includes(topic)&&tIdx(topic)<=tIdx(ch); // неизвестная тема — ничего не открывает
