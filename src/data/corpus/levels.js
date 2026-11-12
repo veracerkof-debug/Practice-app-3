@@ -12,7 +12,7 @@ const COURSE_ORDER=['zvuki','slog','udar','proizn','leks','omon','fraz','sostav'
 // prop — темы из более поздних глав, без которых глава непонятна: о них в главе короткая справка («Что нужно знать») и ссылка.
 // Из этого списка: подсказка автору главы и проверка графа понятий (node tools/check-chapter.js <id>, node tools/graph.js).
 const OPORY={
- zvuki:{need:[],prop:['slog','udar']},slog:{need:['zvuki']},udar:{need:['zvuki','slog']},proizn:{need:['zvuki','udar']},
+ zvuki:{need:[],prop:['slog','udar']},slog:{need:['zvuki']},udar:{need:['zvuki','slog']},proizn:{need:['zvuki','udar'],prop:['leks','sostav','stili','normy']},
  leks:{need:['zvuki'],prop:['sostav']},omon:{need:['leks'],prop:['sostav']},fraz:{need:['leks','omon'],prop:['stili']},
  sostav:{need:['zvuki','leks']},slovoobr:{need:['sostav']},
  koren:{need:['sostav','udar']},soglas:{need:['sostav','zvuki']},pristavki:{need:['sostav','soglas']},
