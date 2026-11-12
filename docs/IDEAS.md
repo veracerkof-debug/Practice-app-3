@@ -84,3 +84,5 @@
 - Skysmart — https://skillbox.ru/media/edtech/kto-est-kto-v-edtech-skysmart/, https://habr.com/ru/post/503316
 - Грамота.ру, Тотальный диктант — https://lifehacker.ru/izuchenie-russkogo-yazyka/, https://aif.ru/society/education/kak_podgotovitsya_k_totalnomu_diktantu
 - Brilliant — https://brilliant.org/
+
+- **Режим «для продвинутых»** (идея владельца, 12.11.2026) — **решено: нужен в будущем**; больше теории, более сложные задания, упражнения и тренажёр. Подробности и что ждёт решения — `ROADMAP.md`, «Решения владельца на будущее», п. 3. Мысль Claude к обсуждению: собрать из уже готового (`deep`, ★4–5, «Задания для абитуриентов», мини-исследования) и дописывать по главам — **ждёт решения владельца**.
