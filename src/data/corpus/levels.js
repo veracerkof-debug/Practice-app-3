@@ -4,27 +4,14 @@
 // «Сложное предложение» и т. п.), у каждой пометки разметки есть тема, где это изучают.
 // Материал можно дать в теме X, только если все нужные ему темы стоят в порядке изучения не позже X.
 //
-// ПОРЯДОК ИЗУЧЕНИЯ (не путать с оглавлением: «Н и НН» стоит в «Орфографии», но изучается после причастий).
+// ПОРЯДОК ИЗУЧЕНИЯ совпадает с оглавлением (с 12.11.2026): линейный маршрут.
 // Составлен по школьной программе 5–9 классов и решениям владельца (docs/plans/struktura.md).
-const COURSE_ORDER=[
- 'zvuki','slog','udar','proizn',            // фонетика и орфоэпия (5 кл.)
- 'leks','omon','fraz',                       // лексика (5–6 кл.)
- 'sostav','slovoobr',                        // морфемика и словообразование — до орфографии морфем
- 'koren','soglas','pristavki','shipyashie','znaki',
- 'slovosoch','prostoe','odnor',              // вводный (пропедевтический) курс синтаксиса — до морфологии, как в 5 кл.
- 'tekst','tipy',                             // текст и типы речи (5–6 кл.)
- 'sush','pril','glag',                       // морфология: прилагательное → глагол
- 'prichastie','deeprich',                    // сразу после глагола (решение владельца 12.11.2026); о наречии — базовая справка в самой главе
- 'chisl','mest','narech',
- 'nn',                                       // Н и НН — после причастий и наречий (глава охватывает и наречия)
- 'sluzh','mezhdom','ne',                     // НЕ и НИ — после частицы как части речи
- 'slitno','propisn',                         // слитно-дефисно-раздельно — после наречий и служебных слов
- 'glavn','vtor','odnosost','obos','obos2','vvod',   // простое предложение, 8 кл.
- 'slozhnoe','ssp','spp','spp2','bsp','raznye','rech','znakisvod',   // сложное предложение, 9 кл.
- 'stili','vyraz','normy','leknorm'
-];
+const COURSE_ORDER=['zvuki','slog','udar','proizn','leks','omon','fraz','sostav','slovoobr','koren','soglas','pristavki','sush','pril','chisl','mest','glag','prichastie','deeprich','narech','sluzh','mezhdom','shipyashie','znaki','nn','ne','slitno','propisn','slovosoch','prostoe','glavn','vtor','odnosost','odnor','obos','obos2','vvod','slozhnoe','ssp','spp','spp2','bsp','raznye','rech','znakisvod','tekst','tipy','stili','vyraz','normy','leknorm'];  // = оглавление (PARTS): линейный маршрут, решение владельца 12.11.2026
+// Пропедевтика (PRINCIPLES §3а): глава даёт на месте справку о теме, которую по маршруту изучают позже, —
+// материал этой темы ей доступен (задания не требуют больше справки).
+const PROP_TOPIC={prichastie:['prostoe'],deeprich:['prostoe']};
 const tIdx=id=>{const i=COURSE_ORDER.indexOf(id);return i<0?999:i};
-const tKnown=(ch,topic)=>COURSE_ORDER.includes(ch)&&COURSE_ORDER.includes(topic)&&tIdx(topic)<=tIdx(ch); // неизвестная тема — ничего не открывает
+const tKnown=(ch,topic)=>COURSE_ORDER.includes(ch)&&COURSE_ORDER.includes(topic)&&(tIdx(topic)<=tIdx(ch)||(PROP_TOPIC[ch]||[]).includes(topic)); // неизвестная тема — ничего не открывает
 // часть речи → тема
 const POS_TOPIC={сущ:'sush',прил:'pril',числ:'chisl',мест:'mest',гл:'glag',прич:'prichastie',дееп:'deeprich',нар:'narech',предл:'sluzh',союз:'sluzh',част:'sluzh'};
 const POS_NAME={сущ:'существительное',прил:'прилагательное',числ:'числительное',мест:'местоимение',гл:'глагол',прич:'причастие',дееп:'деепричастие',нар:'наречие',предл:'предлог',союз:'союз',част:'частица'};
