@@ -115,6 +115,11 @@ JS = [
     'src/chapters/slozhnoe/classic.js',
     'src/chapters/slozhnoe/tests.js',
     'src/chapters/slozhnoe/index.js',
+    'src/chapters/rech/lessons.js',     # глава «Прямая речь и цитаты»
+    'src/chapters/rech/bank.js',
+    'src/chapters/rech/classic.js',
+    'src/chapters/rech/tests.js',
+    'src/chapters/rech/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -134,6 +139,7 @@ JS = [
     'src/chapters/stili/labs.js',       # схемы «Стилей речи»
     'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
     'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
+    'src/chapters/rech/labs.js',        # схемы «Прямой речи и цитат»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
