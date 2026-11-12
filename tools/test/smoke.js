@@ -137,6 +137,8 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
    sushOb:T.corpusSents('sush',{}).filter(u=>u.some(x=>x.ob)).length,texts:T.CORPUS_T.length,textsNN:T.corpusTexts('nn',{orthOnly:true}).length,zvukiW:T.corpusWords('zvuki').length,unmarked,badComma}});
  const ord=await p.evaluate(()=>window.__T.orderCheck());
  check(ord==='',`порядок изучения: все главы и темы на месте${ord?' — нет: '+ord:''}`);
+ const opo=await p.evaluate(()=>window.__T.oporyCheck());
+ check(opo==='',`последовательное изучение: опоры глав и глоссарий (at, ch) согласованы с маршрутом${opo?' — '+opo.slice(0,300):''}`);
  check(cor.badOrth===0,'корпус: все орфограммы на месте и с известными правилами');
  check(cor.unmarked===0&&cor.badComma===0,`корпус: разметка полная (${cor.all} предложений)`);
  check(cor.texts===cor.textsNN,`корпус: связные тексты (${cor.texts}) доступны в теме «Н и НН» целиком`);

@@ -260,4 +260,8 @@ document.addEventListener('click',e=>{
 });
 
 // самопроверка механик в тестах: доступ к движку только при адресе с ?selftest
-if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,corpusTexts,CORPUS_T,trRe,mGen,mAvail,ORTHO_R,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', ')};
+if(/[?&]selftest\b/.test(location.search))window.__T={TR,MECH,CHAPTERS,corpusTexts,CORPUS_T,trRe,mGen,mAvail,ORTHO_R,corpusSents,corpusWords,CORPUS_S,orderCheck:()=>[...ALLCH.map(c=>c.id),...Object.values(POS_TOPIC),...Object.values(FLAG_TOPIC)].filter(id=>!COURSE_ORDER.includes(id)).join(', '),
+ // опоры глав (OPORY): у каждой главы; need — раньше по маршруту, prop — позже; глоссарий: ch — глава маршрута, at — существующий урок
+ oporyCheck:()=>[...COURSE_ORDER.filter(c=>!OPORY[c]).map(c=>c+': нет опор'),
+  ...Object.entries(OPORY).flatMap(([c,o])=>[...o.need.filter(n=>tIdx(n)>=tIdx(c)).map(n=>c+': опора '+n+' не раньше'),...(o.prop||[]).filter(n=>tIdx(n)<=tIdx(c)||tIdx(n)>900).map(n=>c+': справка '+n+' не позже')]),
+  ...Object.entries(GLOSS).flatMap(([id,g])=>[...(g.ch&&COURSE_ORDER.includes(g.ch)?[]:[id+': ch']),...(g.at&&!LES[g.at]?[id+': at']:[])])].join(', ')};

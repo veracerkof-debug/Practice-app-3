@@ -65,11 +65,12 @@ function sheet(id,push){
  let s=document.querySelector('.sheet');
  if(!s){const bg=document.createElement('div');bg.className='sheetbg';bg.onclick=()=>closeSheet(true);s=document.createElement('div');s.className='sheet';s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.tabIndex=-1;document.body.append(bg,s);ovPush();s.focus({preventScroll:true})}
  s.setAttribute('aria-label',g.t);
- const use=(TUSE[id]||[]).filter(l=>l!==g.at);
+ const use=(TUSE[id]||[]).filter(l=>l!==g.at),hm=g.ch?chById(g.ch):null;   // hm — глава, где понятие изучается полностью (может быть ещё не написана)
  s.innerHTML=`<div class="grab"></div>
  <div class="shead">${SH.length>1?`<button class="linkbtn" data-shback>‹ ${GLOSS[SH[SH.length-2]].t}</button>`:'<span></span>'}<span class="gcat">${g.cat}</span></div>
  <div class="t">${g.t}</div><div class="d">${g.d}</div>${g.ex?`<div class="gex">${esc(g.ex)}</div>`:''}
  ${g.at&&LES[g.at]?`<button class="bkldone" data-tgo="${id}" data-l="${g.at}">Где объясняется: ${lesName(g.at)}</button>`:''}
+ ${hm&&!(LES[g.at]&&LES[g.at].ch===g.ch)?(CHAPTERS[g.ch]?`<button class="linkbtn shome" data-tch="${g.ch}">Изучается полностью: глава ${chNum(hm)} «${hm.t}» ›</button>`:`<div class="shome soon">Изучается полностью: глава ${chNum(hm)} «${hm.t}» — готовится</div>`):''}
  ${use.length?`<div class="slab">Встречается ещё</div><div class="chips">${use.map(l=>`<button class="chipc sm" data-tgo="${id}" data-l="${l}">${lesName(l)}</button>`).join('')}</div>`:''}
  ${g.see&&g.see.length?`<div class="slab">Связанные термины</div><div class="chips">${g.see.filter(x=>GLOSS[x]).map(x=>`<button class="chipc sm see" data-tsee="${x}">${GLOSS[x].t}</button>`).join('')}</div>`:''}
  <div class="big2"><button class="ghost" data-gl="${id}">В глоссарии</button><button class="ghost" data-close>Закрыть</button></div>`;
