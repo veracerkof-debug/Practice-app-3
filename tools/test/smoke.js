@@ -64,7 +64,7 @@ const ok=[],fail=[];const check=(c,msg)=>(c?ok:fail).push(msg);
  await p.click('[data-clall]');await p.click('[data-cls="5"]');await p.click('.clnav [data-clgo="3"]');await p.waitForTimeout(100);
  check(await cnt()>=100,'переход к номеру снимает фильтры');
  await p.goto(U+'#ex-nn-4-6,10');await p.reload();check(await cnt()===4,'ссылка на упражнения 4–6, 10');
- await p.goto(U+'#toc');await p.fill('#q','4.6.12');check(await p.evaluate(()=>!!document.querySelector('[data-exgo="prichastie:12"]')),'поиск упражнения по номеру 4.6.12');
+ await p.goto(U+'#toc');await p.fill('#q','5.6.12');check(await p.evaluate(()=>!!document.querySelector('[data-exgo="prichastie:12"]')),'поиск упражнения по номеру 5.6.12');
  await p.click('[data-exgo="prichastie:12"]');check(await cnt()===1,'переход из поиска к упражнению');
  await p.goto(U+'#ch-prichastie');await p.click('[data-tab="theory"]');
  // тесты «Причастия» и термины в упражнениях
