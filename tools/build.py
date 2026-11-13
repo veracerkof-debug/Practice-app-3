@@ -120,6 +120,11 @@ JS = [
     'src/chapters/normy/classic.js',
     'src/chapters/normy/tests.js',
     'src/chapters/normy/index.js',
+    'src/chapters/leknorm/lessons.js',   # глава «Лексические нормы» (в DRAFT, пока не проверена)
+    'src/chapters/leknorm/bank.js',
+    'src/chapters/leknorm/classic.js',
+    'src/chapters/leknorm/tests.js',
+    'src/chapters/leknorm/index.js',
     'src/chapters/slozhnoe/lessons.js', # глава «Сложное предложение»
     'src/chapters/slozhnoe/bank.js',
     'src/chapters/slozhnoe/classic.js',
@@ -165,6 +170,7 @@ JS = [
     'src/chapters/deeprich/labs.js',    # схемы «Деепричастия»
     'src/chapters/stili/labs.js',       # схемы «Стилей речи»
     'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
+    'src/chapters/leknorm/labs.js',     # схемы «Лексических норм»
     'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
     'src/chapters/rech/labs.js',        # схемы «Прямой речи и цитат»
     'src/chapters/tekst/labs.js',       # схемы «Текста»
