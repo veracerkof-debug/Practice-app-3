@@ -130,6 +130,21 @@ JS = [
     'src/chapters/rech/classic.js',
     'src/chapters/rech/tests.js',
     'src/chapters/rech/index.js',
+    'src/chapters/tekst/lessons.js',   # глава «Текст»
+    'src/chapters/tekst/bank.js',
+    'src/chapters/tekst/classic.js',
+    'src/chapters/tekst/tests.js',
+    'src/chapters/tekst/index.js',
+    'src/chapters/tipy/lessons.js',   # глава «Типы речи»
+    'src/chapters/tipy/bank.js',
+    'src/chapters/tipy/classic.js',
+    'src/chapters/tipy/tests.js',
+    'src/chapters/tipy/index.js',
+    'src/chapters/vyraz/lessons.js',   # глава «Выразительные средства»
+    'src/chapters/vyraz/bank.js',
+    'src/chapters/vyraz/classic.js',
+    'src/chapters/vyraz/tests.js',
+    'src/chapters/vyraz/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -152,6 +167,9 @@ JS = [
     'src/chapters/normy/labs.js',       # схемы «Грамматических норм»
     'src/chapters/slozhnoe/labs.js',    # схемы «Сложного предложения»
     'src/chapters/rech/labs.js',        # схемы «Прямой речи и цитат»
+    'src/chapters/tekst/labs.js',       # схемы «Текста»
+    'src/chapters/tipy/labs.js',        # схемы «Типов речи»
+    'src/chapters/vyraz/labs.js',       # схемы «Выразительных средств»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
