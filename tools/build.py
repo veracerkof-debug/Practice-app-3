@@ -150,7 +150,7 @@ JS = [
     'src/chapters/vyraz/classic.js',
     'src/chapters/vyraz/tests.js',
     'src/chapters/vyraz/index.js',
-    'src/chapters/sostav/lessons.js',   # глава «Морфемика» (в DRAFT, пока не проверена)
+    'src/chapters/sostav/lessons.js',   # глава «Морфемика» (проверена 13.11.2026)
     'src/chapters/sostav/bank.js',
     'src/chapters/sostav/classic.js',
     'src/chapters/sostav/tests.js',
@@ -199,7 +199,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = {'sostav'}
+DRAFT = set()
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()

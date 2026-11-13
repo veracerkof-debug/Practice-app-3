@@ -364,4 +364,5 @@ if(typeof CHAPTERS==='undefined'||CHAPTERS.sostav){
  });
  const AT_SOSTAV={morfema:'sc1',morfemika:'sc1',morf_sostav:'sc6',nul:'sc2',osnova:'sc2',postf:'sc4',cheredov:'sc3',slozhn:'sc5',ishod:'sc6',proizv:'sc6',sush:'sc1',pril:'sc1',glag:'sc1',infin:'sc1',slovoobr:'sc1',priznak:'sc1'};
  for(const k in AT_SOSTAV)GLOSS[k].at=AT_SOSTAV[k];
+ GLOSS.osnova.d='Часть слова без окончания и формообразующих суффиксов (-ть, -ти, -л-); она несёт лексическое значение слова. Постфикс -ся входит в основу. Если основа оканчивается на н, а суффикс тоже начинается с н, получается нн.';
 }
