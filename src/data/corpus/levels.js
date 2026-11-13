@@ -17,7 +17,7 @@ const OPORY={
  sostav:{need:['zvuki','leks']},slovoobr:{need:['sostav']},
  koren:{need:['sostav','udar']},soglas:{need:['sostav','zvuki']},pristavki:{need:['zvuki','sostav','slovoobr','koren','soglas'],prop:['pril','narech','stili','nn']},
  sush:{need:['sostav','slovoobr'],prop:['pril','glag','sluzh','slovosoch','prostoe']},pril:{need:['sush'],prop:['narech']},chisl:{need:['sush','pril']},mest:{need:['sush','pril','chisl']},
- glag:{need:['sush','sostav']},prichastie:{need:['pril','glag'],prop:['vtor']},deeprich:{need:['glag','prichastie','narech'],prop:['vtor']},
+ glag:{need:['sush','sostav']},prichastie:{need:['pril','glag'],prop:['vtor']},deeprich:{need:['glag','prichastie','narech'],prop:['vtor','prostoe','odnor']},
  narech:{need:['pril','glag']},sluzh:{need:['sush','glag','narech'],prop:['prostoe']},mezhdom:{need:['sluzh']},
  shipyashie:{need:['sostav','sush','pril','glag']},znaki:{need:['pristavki','sush','glag']},nn:{need:['pril','prichastie','narech']},
  ne:{need:['glag','prichastie','deeprich','mest','chisl','narech','sluzh']},slitno:{need:['narech','sluzh','mest','pril']},propisn:{need:['sush']},
