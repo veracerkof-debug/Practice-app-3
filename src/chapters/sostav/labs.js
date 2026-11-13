@@ -19,7 +19,7 @@ const scLegend=`<div class="bkhint" style="margin-top:6px">Значки: при�
 // ---------- урок 1: «Какая это часть слова?» ----------
 const SC_PARTS=[
  ['под- снеж -ник [ø]',0,'Стоит перед корнем: под-снежник. Если убрать, останется снежник — другое слово.'],
- ['под- снеж -ник [ø]',1,'Общая часть слов снег, снежный, снеженый: корень.'],
+ ['под- снеж -ник [ø]',1,'Общая часть слов снег, снежный, снежок: корень.'],
  ['под- снеж -ник [ø]',2,'Стоит после корня: -ник- образует название: подснежник, лесник.'],
  ['лес -н [ой]',2,'Между корнем лес и окончанием: -н- (лесной ← лес).'],
  ['лес -н [ой]',3,'Меняется: лесной, лесного, лесному. Это окончание.'],
@@ -93,11 +93,11 @@ const SC_END=[
 let scE={i:0,s:null,a:null};
 function scendHTML(){
  const [w,forms,opts,,why]=SC_END[scE.i],inv=!forms;
- const shown=opts.map((o,j)=>[o,j]).sort((x,y)=>(x[0]+scE.i).length*7%5-(y[0]+scE.i).length*7%5||x[1]-y[1]);
+ const sh0=opts.map((o,j)=>[o,j]),r=scE.i%sh0.length,shown=sh0.slice(r).concat(sh0.slice(0,r));
  let h=`<div class="blab" data-lab="scend"><div class="cap"><b>Найти окончание</b><span class="bkhint">изменить слово и посмотреть, что меняется</span></div>
  ${scChips(SC_END.map(x=>x[0]),scE.i,'data-scei','Слова')}
  <div style="text-align:center;font-size:28px;padding:8px 0"><b>${w}</b></div>
- <div class="st2${scE.s!=null?' ok':''}"><span class="n2">1</span><div style="flex:1">Слово изменяется?<div style="display:flex;gap:8px;margin-top:6px">${scBtn('да','data-scES="1"',scE.s===1?'on':(scE.s!=null?'off':''))}${scBtn('нет','data-scES="0"',scE.s===0?'on':(scE.s!=null?'off':''))}</div></div></div>`;
+ <div class="st2${scE.s!=null?' ok':''}"><span class="n2">1</span><div style="flex:1">Слово изменяется?<div style="display:flex;gap:8px;margin-top:6px">${scBtn('да','data-sces="1"',scE.s===1?'on':(scE.s!=null&&(scE.s===1)===!inv?'off':''))}${scBtn('нет','data-sces="0"',scE.s===0?'on':(scE.s!=null&&(scE.s===1)===!inv?'off':''))}</div></div></div>`;
  if(scE.s!=null){
   const okS=(scE.s===1)===!inv;
   h+=okS?'':`<div class="bkhint" style="color:var(--red)">Не так. ${inv?'Слово не изменяется: нельзя сказать иначе.':'Слово изменяется: '+forms.join(', ')+'.'}</div>`;
@@ -113,10 +113,10 @@ const SC_KOR=[
  ['вода',['водный','водитель','подводный','наводнение','водить','водица'],[0,2,3,5],'вод','Вода — водный — подводный — наводнение — водица: значение «вода». Водитель и водить — другой корень (вести).'],
  ['гора',['горка','горький','горный','горе','пригорок','гористый'],[0,2,4,5],'гор','Гора — горка — горный — пригорок — гористый. Горький и горе — другой корень.'],
  ['нос',['носик','носить','носовой','носильщик','переносица','носатый'],[0,2,4,5],'нос','Нос — носик — носовой — переносица — носатый. Носить, носильщик — другой корень (нести).'],
- ['лес',['лесной','лесник','лесть','перелесок','лесенка','подлесок'],[0,1,3,5],'лес','Лес — лесной — лесник — перелесок — подлесок. Лесть (похвала) и лесенка (от лестница) — другие корни.'],
- ['белый',['белизна','беленький','белка','побелить','белеть','бельё'],[0,1,3,4],'бел','Белый — белизна — беленький — побелить — белеть. Белка и бельё — другие корни.'],
+ ['лес',['лесной','лесник','лесть','перелесок','лесистый','подлесок'],[0,1,3,4,5],'лес','Лес — лесной — лесник — перелесок — лесистый — подлесок. Лесть (похвала) — другой корень.'],
+ ['добрый',['доброта','добыча','добряк','добавить','добродушие','добрейший'],[0,2,4,5],'добр','Добрый — доброта — добряк — добродушие — добрейший. Добыча (добыть) и добавить (добавить) — другие корни.'],
  ['рука',['ручка','рукав','ручей','ручной','рукопись','руководить'],[0,1,3,4,5],'рук/руч','Рука — ручка — рукав — ручной — рукопись — руководить: корень рук/руч. Ручей — другой корень (течёт).'],
- ['снег',['снежный','подснежник','снегопад','снеговик','снегирь','снежок'],[0,1,2,3,5],'снег/снеж','Снег — снежный — подснежник — снегопад — снеговик — снежок. Снегирь — птица, название не от снега.']
+ ['шум',['шумный','шуметь','шумок','шумиха','шутка','шуршать'],[0,1,2,3],'шум','Шум — шумный — шуметь — шумок — шумиха. Шутка и шуршать — другие корни.']
 ];
 let scK={i:0,sel:[],chk:false};
 function sckorHTML(){
@@ -145,7 +145,7 @@ const SC_ALT=[
  ['сон','сна','беглый гласный','Сон — сна: гласный о «убегает».'],
  ['день','дня','беглый гласный','День — дня: гласный е «убегает».'],
  ['лёд','льда','беглый гласный','Лёд — льда: гласный ё «убегает».'],
- ['несу','ношу','е // о','Несу — ношу: чередуются е и о.'],
+ ['беру','сбор','е // о','Беру — сбор: чередуются е и о.'],
  ['ходить','хожу','д // ж','Ходить — хожу: чередуются д и ж.']
 ];
 const SC_ALTS=['к // ч','г // ж','х // ш','т // ч','с // ш','з // ж','б // бл','в // вл','п // пл','д // ж','е // о','беглый гласный'];
@@ -170,21 +170,19 @@ const SC_BUILD=[
  ['Свойство того, кто смел','смел -ость [ø]',['ость','смел']],
  ['Относящийся к морю','мор -ск [ой]',['ой','мор','ск']],
  ['Ласково о бабушке','баб -ушк [а]',['ушк','баб','а']],
- ['Ушёл на другую сторону, перебежал','пере- беж -а- -л* [ø]',['л','а','беж','пере']],
- ['Пол без окон — не светлый, без света','без- свет -н [ый]',['ый','свет','без','н']],
+ ['Ушёл на другую сторону, перебежал','пере- беж -а -л* [ø]',['л','а','беж','пере']],
+ ['Такой, в котором нет звука','без- звуч -н [ый]',['ый','звуч','без','н']],
  ['Маленький стол','стол -ик [ø]',['ик','стол']]
 ];
 let scB={i:0,got:[]};
 function scbuildHTML(){
- const [m,w,pcs]=SC_BUILD[scB.i],T=scTok(w),want=T.filter(x=>x.t!=='ø'&&x.k!=='о'||x.k==='о'&&x.t!=='ø').map(x=>x.t),full=scB.got.length===want.length,okw=full&&scB.got.join('')===want.join('');
- const left=pcs.map((p,j)=>[p,j]).filter(([,j])=>!scB.got.includes('#'+j));
- const placed=scB.got.map(g=>g.replace(/^#/,''));
+ const [m,w,pcs]=SC_BUILD[scB.i],T=scTok(w),want=T.filter(x=>x.t!=='ø').map(x=>x.t),got=scB.got.map(g=>pcs[+g.slice(1)]),full=got.length===want.length,okw=full&&got.join('')===want.join('');
  return `<div class="blab" data-lab="scbuild"><div class="cap"><b>Собрать слово из частей</b><span class="bkhint">нажимать части по порядку</span></div>
  ${scChips(SC_BUILD.map((x,i)=>(i+1)+''),scB.i,'data-scbi','Задания')}
  <div style="text-align:center;padding:8px 0"><i>${m}</i></div>
- <div style="text-align:center;font-size:28px;min-height:44px;padding:6px 0;border-bottom:1px solid var(--sep)">${scB.got.map(g=>pcs[+g.slice(1)]).join('')||'<span class="bkhint">…</span>'}</div>
+ <div style="text-align:center;font-size:28px;min-height:44px;padding:6px 0;border-bottom:1px solid var(--sep)">${got.join('')||'<span class="bkhint">…</span>'}</div>
  <div class="opts" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px">${pcs.map((p,j)=>scBtn(p,`data-scbp="${j}"`,scB.got.includes('#'+j)?'off':'')).join('')}</div>
- ${full?scOk(okw,okw?`Слово <b>${scWord(T)}</b>. Разбор: ${scNote(T)}`:`Получилось «${scB.got.map(g=>pcs[+g.slice(1)]).join('')}». Нужно: ${scNote(T)} = <b>${scWord(T)}</b>.`):''}
+ ${full?scOk(okw,okw?`Слово <b>${scWord(T)}</b>. Разбор: ${scNote(T)}`:`Получилось «${got.join('')}». Нужно: ${scNote(T)} = <b>${scWord(T)}</b>.`):''}
  <div><button class="linkbtn" data-scbr>Сначала</button> <button class="linkbtn" data-scbn>Следующее</button></div></div>`;
 }
 
@@ -197,13 +195,13 @@ const SC_SOED=[
  ['сам','лёт','о','Сам кончается на твёрдый м: сам-о-лёт.'],
  ['пеш','ход','е','Пеш- кончается на шипящий ш: пеш-е-ход.'],
  ['вод','пад','о','Вод кончается на твёрдый д: вод-о-пад.'],
- ['сталь','вар','е','Стал- (сталь) — мягкий: стал-е-вар.'],
+ ['стал','вар','е','Стал- (сталь) — мягкая л: стал-е-вар.'],
  ['солнц','пёк','е','Солнц- кончается на ц: солнц-е-пёк.'],
  ['лес','руб','о','Лес кончается на твёрдый с: лес-о-руб.'],
  ['звер','лов','о','Звер- кончается на твёрдый р: звер-о-лов.'],
  ['пыл','сос','е','Пыль — мягкая л: пыл-е-сос.'],
  ['дров','сек','о','Дров кончается на твёрдый в: дров-о-сек.'],
- ['везд','ход','е','Везд- — гласная е: вездеход (слово-исключение к общему правилу).']
+ ['рыб','лов','о','Рыб кончается на твёрдый б: рыб-о-лов.']
 ];
 let scS={i:0,a:null};
 function scsoedHTML(){
@@ -233,35 +231,33 @@ function scslozhHTML(){
 }
 
 // ---------- урок 6: «Разбор по составу — шаг за шагом» ----------
-const SC_RAZ=['при- город -н [ый]','под- снеж -ник [ø]','без- облач -н [ый]','пере- беж -а- -л* [а]','рас- сказ -чик [ø]','зелен -оват [ый]','за- щит -ник [ø]','пар ~о~ ход [ø]','у- мыв -а [ет] +ся','мор -ск [ой]'].map(s=>s.replace(/ -н /g,' -н ').replace(' -а- ',' -а '));
-const SC_RAZ_T=SC_RAZ.map(s=>scTok(s.replace('пере- беж -а -л* [а]','пере- беж -а -л* [а]')));
-let scR={i:0,st:0,pick:[],bad:null};
+const SC_RAZ_T=['при- город -н [ый]','под- снеж -ник [ø]','без- облач -н [ый]','рас- сказ -чик [ø]','бел -оват [ый]','за- щит -ник [ø]','мор -ск [ой]','на- езд -ник [ø]','под- вод -н [ый]'].map(scTok);
+let scR={i:0,st:0,bad:null};
 function scrazSteps(T){
- const w=scWord(T),end=T.filter(x=>x.k==='о')[0],endT=end&&end.t!=='ø'?end.t:null,pre=T.filter(x=>x.k==='п').map(x=>x.t+'-'),
-  suf=T.filter(x=>x.k==='с'||x.k==='ф').map(x=>'-'+x.t+(x.k==='ф'?'*':'-')),roots=T.filter(x=>x.k==='к').map(x=>x.t),ps=T.filter(x=>x.k==='х').map(x=>'+'+x.t);
- const baseT=T.filter(x=>x.k!=='о'&&x.k!=='ф'&&x.k!=='х');
- const base=scWord(baseT);
- const last=w.slice(-1),last2=w.slice(-2);
- const endOpts=endT?[endT,'нулевое окончание',endT.length>1?endT.slice(1):last2]:['нулевое окончание',last,'окончания нет'];
- const J=a=>a.length?a.join(' '):null;
+ const w=scWord(T),end=T.find(x=>x.k==='о'),endT=end&&end.t!=='ø'?end.t:null,
+  pre=T.filter(x=>x.k==='п').map(x=>x.t+'-'),suf=T.filter(x=>x.k==='с').map(x=>'-'+x.t+'-'),root=T.find(x=>x.k==='к').t,
+  base=scWord(T.filter(x=>x.k!=='о')),sx=T.filter(x=>x.k==='с').map(x=>x.t).join('');
  return [
-  {q:'Изменить слово. Какое у него окончание?',o:endOpts,a:0,ok:endT?`Окончание — ${endT} (слово меняется: ${endT==='ый'?'-ого, -ому':'форма за формой'}).`:'Окончание нулевое: слово изменяется, а на конце ничего нет.'},
-  {q:'Какая основа?',o:[base,w,base.slice(0,-1)||base+'-'],a:0,ok:`Основа — слово без окончания${T.some(x=>x.k==='ф')?' и формообразующего суффикса':''}: ${base}-.`},
-  {q:'Есть ли приставка?',o:[J(pre)||'приставки нет',pre.length?'приставки нет':w.slice(0,2)+'-',pre.length?w.slice(0,1)+'-':w.slice(0,1)+'-'],a:0,ok:pre.length?`Приставка — ${J(pre)} (снимается: слово остаётся, значение уточняется).`:'Приставки нет: в начале слова сразу корень.'},
-  {q:'Какие суффиксы?',o:[J(suf)||'суффикса нет',suf.length?'суффикса нет':'-'+w.slice(-2)+'-',suf.length?'-'+roots[0].slice(-1)+'-':'-'+w.slice(-1)+'-'],a:0,ok:suf.length?`Суффикс(ы): ${J(suf)}. Отыскиваются «снятием»: слово, от которого образовано, короче.`:'Суффиксов нет: между корнем и окончанием ничего нет.'},
-  {q:'Какой корень?',o:[roots.join(' + '),roots[0]+(suf.length?suf[0].replace(/[-*]/g,''):'я'),pre.length?pre[0].replace('-','')+roots[0]:roots[0].slice(0,-1)],a:0,ok:`Корень — ${roots.join(' и ')}: общая часть однокоренных слов.`}
+  {q:'Изменить слово. Какое у него окончание?',o:endT?[endT,'нулевое окончание',endT.length>1?endT.slice(1):w.slice(-2)]:['нулевое окончание',w.slice(-1),'окончания нет'],
+   ok:endT?`Окончание — ${endT}: слово изменяется (${w}, ${base+(endT==='ый'?'ого':endT==='ой'?'ого':'а')}…).`:'Окончание нулевое: слово изменяется (есть другие формы), а на конце ничего нет.'},
+  {q:'Какая основа?',o:[base,base.slice(0,-1),base.slice(1)],ok:`Основа — слово без окончания: ${base}-.`},
+  {q:'Есть ли приставка?',o:pre.length?[pre.join(' '),'приставки нет',w.slice(0,1)+'-']:['приставки нет',w.slice(0,2)+'-',w.slice(0,3)+'-'],
+   ok:pre.length?`Приставка — ${pre.join(' ')}: слово без неё остаётся словом, значение другое.`:'Приставки нет: в начале слова сразу корень.'},
+  {q:'Какой суффикс?',o:sx?['-'+sx+'-','суффикса нет','-'+root.slice(-1)+sx+'-']:['суффикса нет','-'+w.slice(-2)+'-','-'+w.slice(-1)+'-'],
+   ok:sx?`Суффикс -${sx}-: он стоит между корнем и окончанием; слово образовано от более простого слова.`:'Суффикса нет: между корнем и окончанием ничего нет.'},
+  {q:'Какой корень?',o:[root,root+sx,(pre[0]||'').replace('-','')+root+'я'].map((x,j)=>j===2&&!pre.length?root.slice(0,-1):x),ok:`Корень — ${root}: общая часть однокоренных слов.`}
  ];
 }
+function scrazbor_rot(a,k){const r=k%a.length;return a.map((x,j)=>[x,j]).slice(r).concat(a.map((x,j)=>[x,j]).slice(0,r))}
 function scrazHTML(){
  const T=SC_RAZ_T[scR.i],S=scrazSteps(T),st=scR.st;
- const shuf=(o,k)=>o.map((x,j)=>[x,j]).sort((a,b)=>(a[0].length*(k+3)+a[1]*5)%7-(b[0].length*(k+3)+b[1]*5)%7||a[1]-b[1]);
- let h=`<div class="blab" data-lab="scraz"><div class="cap"><b>Разбор слова по составу</b><span class="bkhint">пять шагов по плану</span></div>
+ let h=`<div class="blab" data-lab="scrazbor"><div class="cap"><b>Разбор слова по составу</b><span class="bkhint">пять шагов по плану</span></div>
  ${scChips(SC_RAZ_T.map(t=>scWord(t)),scR.i,'data-scri','Слова')}
  <div style="text-align:center;font-size:28px;padding:8px 0"><b>${scWord(T)}</b></div>`;
  S.forEach((s,k)=>{
   if(k>st)return;
   const done=k<st;
-  h+=`<div class="st2${done?' ok':''}"><span class="n2">${k+1}</span><div style="flex:1">${s.q}<div class="opts" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${shuf(s.o,k).map(([o,j])=>scBtn(o,`data-scrp="${j}"`,done?(j===0?'on':'off'):(scR.bad===j?'off':''))).join('')}</div>${done?`<div class="bkhint" style="margin-top:6px">${s.ok}</div>`:(scR.bad!=null?'<div class="bkhint" style="margin-top:6px;color:var(--red)">Не так. Изменить слово, сопоставить с другими словами — и ещё раз.</div>':'')}</div></div>`;
+  h+=`<div class="st2${done?' ok':''}"><span class="n2">${k+1}</span><div style="flex:1">${s.q}<div class="opts" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${scrazbor_rot(s.o,k+scR.i).map(([o,j])=>scBtn(o,`data-scrp="${j}"`,done?(j===0?'on':'off'):(scR.bad===j?'off':''))).join('')}</div>${done?`<div class="bkhint" style="margin-top:6px">${s.ok}</div>`:(scR.bad!=null?'<div class="bkhint" style="margin-top:6px;color:var(--red)">Не так. Сравнить слово с другими словами и попробовать ещё раз.</div>':'')}</div></div>`;
  });
  if(st>=S.length)h+=scOk(true,`Разбор готов: <b>${scNote(T)}</b><div style="font-size:26px;padding:6px 0">${scSeg(T)}</div>`);
  return h+`<div><button class="linkbtn" data-scrr>Начать сначала</button></div>${scLegend}</div>`;
@@ -270,26 +266,23 @@ function scrazHTML(){
 // ---------- урок 6: схема-алгоритм ----------
 const SC_TREE={
  start:{q:'Что стоит в конце слова? (Изменить слово.)',o:[['Слово не изменяется: вчера, пальто, очень','r_none'],['Слово изменяется, окончание видно: лесной, реки','r_end'],['Слово изменяется, но на конце ничего: стол, читал','r_zero'],['На конце -ть, -ти, -л: читать, нести, читал','r_form']]},
- r_none:{n:'osn',t:'Окончания нет. Вся форма — основа: вчера, пальто. Перейти к шагу «приставка и суффикс».'},
- r_end:{n:'osn',t:'Окончание — то, что меняется: лесн-ой, лесн-ого. Основа — слово без него: лесн-.'},
- r_zero:{n:'osn',t:'Нулевое окончание [ø]: стол-[ø], стол-а. Основа — всё слово: стол-.'},
- r_form:{n:'osn',t:'Формообразующий суффикс -ть, -л- (читать, читал) отделить от основы: чита-ть, чита-л. Окончание — нулевое или есть (читала: -а).'},
+ r_none:{t:'Окончания нет. Вся форма — основа: вчера, пальто.',n:'osn'},
+ r_end:{t:'Окончание — то, что меняется: лесн-ой, лесн-ого. Основа — слово без него: лесн-.',n:'osn'},
+ r_zero:{t:'Нулевое окончание [ø]: стол-[ø], стол-а. Основа — всё слово: стол-.',n:'osn'},
+ r_form:{t:'-ть, -ти, -л- (читать, нести, читал) — формообразующие суффиксы: отделить от основы: чита-ть, чита-л. Окончание — нулевое или есть (читала: -а).',n:'osn'},
  osn:{q:'Теперь основа. Можно ли «снять» часть и получить слово?',o:[['Да: снимается начало (выбежать → бежать)','r_pref'],['Да: снимается конец (лесной → лес)','r_suf'],['Да: снимаются части с обеих сторон (пригородный → пригород → город)','r_both'],['Нет: частей нет (сад, вчера, пальто)','r_root']]},
- r_pref:{t:'Приставка — то, что «отпало» спереди: вы-бежать, при-морье. Корень — что осталось после снятия остальных частей; проверить однокоренными.'},
- r_suf:{t:'Суффикс — то, что стоит между корнем и окончанием: лес-н-ой, смел-ость. Корень — лес, смел: подобрать однокоренные.'},
+ r_pref:{t:'Приставка — то, что «отпало» спереди: вы-бежать, при-морье. Корень — то, что осталось после снятия остальных частей; проверить однокоренными словами.'},
+ r_suf:{t:'Суффикс — часть между корнем и окончанием: лес-н-ой, смел-ость. Корень — лес, смел: подобрать однокоренные слова.'},
  r_both:{t:'Снимать по порядку, начиная с последней части: пригородн-ый → пригород (суффикс -н-) → город (приставка при-). Корень — город.'},
- r_root:{t:'Основа нечленимая: она состоит из одного корня. Записать: сад-[ø] или вчера. Проверить: нет ли слова, от которого образовано.'}
+ r_root:{t:'Основа нечленимая: она состоит из одного корня. Записать: сад [ø] или вчера. Проверить, нет ли слова, от которого оно образовано.'}
 };
 let scG=['start'];
 function scalgHTML(){
  let h='<div class="blab" data-lab="scalg"><div class="cap"><b>Схема: как разобрать слово по составу</b><span class="bkhint">выбирать ответ на каждом шаге</span></div><div class="tree">';
  scG.forEach((id,k)=>{const n=SC_TREE[id];
-  if(!n.q){h+=`<div class="result"><div class="big" style="font-size:18px;min-width:72px">итог</div><div>${n.t}</div></div>`;return}
-  if(n.t){h+=`<div class="bkhint" style="margin:4px 0">${n.t}</div>`}
- });
- scG.forEach((id,k)=>{const n=SC_TREE[id];
-  if(n.q){const next=scG[k+1];h+=`<div class="step"><div class="q">${k+1}. ${n.q}</div><div class="opts">`+n.o.map(o=>`<button class="opt${next===o[1]?' on':''}" data-scgo="${o[1]}" data-scgk="${k}" ${next&&next!==o[1]?'disabled':''}>${o[0]}</button>`).join('')+'</div></div>'}
-  else if(n.n&&scG[k+1]==null){scG.push(n.n)}
+  if(!n.q){h+=`<div class="result"><div class="big" style="font-size:16px;min-width:72px">${n.n?'вывод':'итог'}</div><div>${n.t}</div></div>`;return}
+  const next=scG[k+1];
+  h+=`<div class="step"><div class="q">${n.q}</div><div class="opts">`+n.o.map(o=>`<button class="opt${next===o[1]?' on':''}" data-scgo="${o[1]}" data-scgk="${k}" ${next&&next!==o[1]?'disabled':''}>${o[0]}</button>`).join('')+'</div></div>';
  });
  return h+'</div><div class="bkhint" style="margin-top:6px">Последний шаг — сложить части: получилось исходное слово? У каждой части есть значение?</div><div><button class="linkbtn" data-scgr>Начать сначала</button></div></div>';
 }
@@ -302,7 +295,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
  if(d.scqa!==undefined){if(scQ.a==null){scQ.a=d.scqa;relab('scpair')}return}
  if(d.scqn!==undefined){scQ={i:(scQ.i+1)%SC_PAIR.length,a:null};relab('scpair');return}
  if(d.scei!==undefined){scE={i:+d.scei,s:null,a:null};relab('scend');return}
- if(d.sces!==undefined){if(scE.s==null){scE.s=+d.sces;relab('scend')}return}
+ if(d.sces!==undefined){const f=SC_END[scE.i][1];if(scE.s==null||(scE.s===1)!==!!f){scE.s=+d.sces;relab('scend')}return}
  if(d.scea!==undefined){if(scE.a==null){scE.a=+d.scea;relab('scend')}return}
  if(d.scen!==undefined){scE={i:(scE.i+1)%SC_END.length,s:null,a:null};relab('scend');return}
  if(d.scki!==undefined){scK={i:+d.scki,sel:[],chk:false};relab('sckor');return}
@@ -322,10 +315,10 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
  if(d.scli!==undefined){scL={i:+d.scli,a:null};relab('scslozh');return}
  if(d.scla!==undefined){if(scL.a==null){scL.a=+d.scla;relab('scslozh')}return}
  if(d.scln!==undefined){scL={i:(scL.i+1)%SC_SLOZH.length,a:null};relab('scslozh');return}
- if(d.scri!==undefined){scR={i:+d.scri,st:0,bad:null};relab('scraz');return}
- if(d.scrp!==undefined){const S=scrazSteps(SC_RAZ_T[scR.i]);if(scR.st<S.length){if(+d.scrp===0){scR.st++;scR.bad=null}else scR.bad=+d.scrp;relab('scraz')}return}
- if(d.scrr!==undefined){scR={i:scR.i,st:0,bad:null};relab('scraz');return}
- if(d.scgo!==undefined){scG=scG.slice(0,+d.scgk+1);scG.push(d.scgo);relab('scalg');return}
+ if(d.scri!==undefined){scR={i:+d.scri,st:0,bad:null};relab('scrazbor');return}
+ if(d.scrp!==undefined){const S=scrazSteps(SC_RAZ_T[scR.i]);if(scR.st<S.length){if(+d.scrp===0){scR.st++;scR.bad=null}else scR.bad=+d.scrp;relab('scrazbor')}return}
+ if(d.scrr!==undefined){scR={i:scR.i,st:0,bad:null};relab('scrazbor');return}
+ if(d.scgo!==undefined){scG=scG.slice(0,+d.scgk+1);scG.push(d.scgo);while(SC_TREE[scG[scG.length-1]].n)scG.push(SC_TREE[scG[scG.length-1]].n);relab('scalg');return}
  if(d.scgr!==undefined){scG=['start'];relab('scalg');return}
 });
-Object.assign(LABS,{scparts:scpartsHTML,scpair:scpairHTML,scend:scendHTML,sckor:sckorHTML,scalt:scaltHTML,scbuild:scbuildHTML,scsoed:scsoedHTML,scslozh:scslozhHTML,scraz:scrazHTML,scalg:scalgHTML});
+Object.assign(LABS,{scparts:scpartsHTML,scpair:scpairHTML,scend:scendHTML,sckor:sckorHTML,scalt:scaltHTML,scbuild:scbuildHTML,scsoed:scsoedHTML,scslozh:scslozhHTML,scrazbor:scrazHTML,scalg:scalgHTML});
