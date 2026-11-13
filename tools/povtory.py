@@ -6,7 +6,7 @@
 одно упражнение (образец и материал, без задания и ключа), один слот теста (все его примеры).
 Подписи цитат «(И. О. Фамилия, «Название»)» из счёта убраны. Печатает леммы, которые стоят
 в «порог» и более местах, и сами места: Т12 — задание тренажёра № 12 (с единицы), №34 — упражнение,
-т3.5 — тест урока 3, слот 5. С ключом --slovo печатает места одной леммы.
+т3.5 — тест урока 3, слот 5. С ключом --slovo печатает места одной леммы (с --kont — и обрывок текста вокруг).
 Служебные слова и слова оформления (STOP) не считаются.
 """
 import sys, re, json, subprocess, pathlib
@@ -49,6 +49,12 @@ for tag, txt in places:
         if l not in STOP: where.setdefault(l, []).append(tag)
 if slovo:
     print(slovo, len(where.get(slovo, [])), ' '.join(where.get(slovo, [])))
+    if '--kont' in args:
+        for tag, txt in places:
+            t2 = SIG.sub(' ', txt.replace('<br>', ' ')).replace('́', '')
+            for mm in re.finditer(r'[А-Яа-яЁё]{3,}', t2):
+                if L(mm.group(0).lower()) == slovo:
+                    print(f'  {tag}: …{t2[max(0, mm.start()-45):mm.end()+35]}…'); break
 else:
     rows = sorted(((len(v), k, v) for k, v in where.items() if len(v) >= porog), reverse=True)
     for n, k, v in rows: print(f'{k} — {n}: ' + ' '.join(v))
