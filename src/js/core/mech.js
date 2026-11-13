@@ -23,6 +23,8 @@ const allWords=c=>corpusWords(c.id,x=>x.pos==='прич'||x.pos==='прил').ma
 // уроки механики: глава может задать свой набор механик и уроков (c.wk.mech), иначе — по умолчанию
 const mLes=(c,m)=>(c.wk&&c.wk.mech?c.wk.mech[m]:MECH[m].l)||[];
 const lesOK=(c,m,les)=>mLes(c,m).some(l=>les.includes(l));
+// номера уроков, к которым привязаны механики (по умолчанию — как в «Причастии» до 13.11.2026); глава может переопределить в c.wk.wl: ob — причастный оборот, kr — краткие причастия, suf — образование причастий, gl — гласные в суффиксах, ne — «не»
+const WL=(c,k,d)=>(c.wk&&c.wk.wl&&c.wk.wl[k])||d;
 
 const MECH={
  // ── А. Выделить слова в наборе (уроки 1, 2)
@@ -43,8 +45,8 @@ const MECH={
  hls:{t:'Выделить в предложении',l:[1,7],d:'Нажать на слова в предложении: причастия, оборот целиком или определяемое слово.',
   gen(c,les){const S_=corpusSents(c.id),vars=[];
    if(les.includes(1))vars.push(['Выделить все причастия.','pr',1]);
-   if(les.includes(7))vars.push(['Выделить причастный оборот целиком.','ob',7],['Нажать на определяемое слово — к нему относится причастный оборот.','ov',7]);
-   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)&&(key!=='pr'||les.includes(5)||!u.some(x=>x.kr)))); // краткие причастия — только вместе с уроком 5
+   const OB=WL(c,'ob',7);if(les.includes(OB))vars.push(['Выделить причастный оборот целиком.','ob',OB],['Нажать на определяемое слово — к нему относится причастный оборот.','ov',OB]);
+   const [q,key,l]=pick1(vars),u=pick1(S_.filter(u=>u.some(x=>key==='pr'?x.pr:x.ob)&&(key!=='pr'||les.includes(WL(c,'kr',5))||!u.some(x=>x.kr)))); // краткие причастия — только вместе с уроком 5
    return mFinal({k:'m',m:'hls',l,q,key,u:u.map(x=>({t:x.t,pu:x.pu,y:!!(key==='pr'?x.pr:key==='ob'?x.ob:x.ov),pr:x.pr})),sel:[]})},
   body:t=>`<div class="mst">${t.u.map((x,i)=>x.pu?`<span class="mpu">${x.t}</span>`:`<button class="mw sw ${mSelCls(t,i,x.y)}" data-ma="tog" data-i="${i}" ${t.res?'disabled':''}>${esc(x.t)}</button>`).join('')}</div>`,
   ready:t=>t.sel.length>0,
@@ -58,7 +60,7 @@ const MECH={
    const w=wkWords(u),need=[];let j=-1;u.forEach(x=>{if(x.t===',')need.push(j);else j++});
    const ov=w.findIndex(x=>x.ov),ob=w.findIndex(x=>x.ob),pron=ov>=0&&PRON.includes(w[ov].t.toLowerCase());
    const why=pron?'Оборот относится к личному местоимению — выделяется запятыми всегда.':ob>ov?'Оборот стоит после определяемого слова — выделяется запятыми.':'Оборот стоит перед определяемым словом — запятые не нужны.';
-   return mFinal({k:'m',m:'cm',l:7,q:'Расставить запятые. Если запятые не нужны — сразу нажать «Проверить».',w:w.map(x=>({t:x.t,pu:x.pu})),need,sel:[],why})},
+   return mFinal({k:'m',m:'cm',l:WL(c,'ob',7),q:'Расставить запятые. Если запятые не нужны — сразу нажать «Проверить».',w:w.map(x=>({t:x.t,pu:x.pu})),need,sel:[],why})},
   body(t){let h='<div class="mst mcm">';t.w.forEach((x,i)=>{if(x.pu){h+=`<span class="mpu">${x.t}</span>`;return}
    if(i>0&&!t.w[i-1].pu){const g=i-1,on=t.sel.includes(g),y=t.need.includes(g);const cl=t.res?(on&&y?'ok':on?'bad':y?'miss':''):on?'on':'';
     h+=`<button class="gapb ${cl}" data-ma="gap" data-i="${g}" ${t.res?'disabled':''} aria-label="Запятая">${on||(t.res&&y)?',':'·'}</button>`}
@@ -70,12 +72,12 @@ const MECH={
  // ── Г. Подчеркнуть члены предложения (уроки 1, 5, 7)
  sx:{t:'Подчеркнуть члены предложения',l:[1,5,7],d:'Выбрать вид подчёркивания и нажимать на слова — как в тетради.',
   gen(c,les){const all=corpusSents(c.id,{mem:true});let pool=all,full=false,l;
-   const v=[];if(les.includes(5))v.push(5);if(les.includes(1))v.push(1);if(les.includes(7))v.push(7);l=pick1(v);
-   if(l===5)pool=all.filter(u=>u.some(x=>x.kr));                                   // краткое причастие — сказуемое
-   else if(l===7){pool=all.filter(u=>u.some(x=>x.ob));full=Math.random()<.5}            // оборот — одно определение
+   const KR=WL(c,'kr',5),OB=WL(c,'ob',7),v=[];if(les.includes(KR))v.push(KR);if(les.includes(1))v.push(1);if(les.includes(OB))v.push(OB);l=pick1(v);
+   if(l===KR)pool=all.filter(u=>u.some(x=>x.kr));                                   // краткое причастие — сказуемое
+   else if(l===OB){pool=all.filter(u=>u.some(x=>x.ob));full=Math.random()<.5}            // оборот — одно определение
    else{pool=all.filter(u=>u.some(x=>x.pr)&&!u.some(x=>x.ob||x.kr));full=true}       // полное причастие — определение
    const u=pick1(pool);
-   return mFinal({k:'m',m:'sx',l,full,q:full?'Подчеркнуть все члены предложения. Причастный оборот — одно определение: подчеркнуть его целиком.':'Подчеркнуть грамматическую основу: подлежащее и сказуемое.',
+   return mFinal({k:'m',m:'sx',l,kr:KR,full,q:full?'Подчеркнуть все члены предложения. Причастный оборот — одно определение: подчеркнуть его целиком.':'Подчеркнуть грамматическую основу: подлежащее и сказуемое.',
     u:u.map(x=>({t:x.t,pu:x.pu,mem:x.mem})),mk:{},tool:'П'})},
   body(t){const tools=t.full?['П','С','О','Д','Б']:['П','С'];
    return `<div class="mpal">${tools.map(k=>`<button class="mtool ${t.tool===k?'on':''}" data-ma="tool" data-v="${k}" ${t.res?'disabled':''}><span class="${MEMC[k]}">${MEMB[k]}</span></button>`).join('')}<button class="mtool ${t.tool==='x'?'on':''}" data-ma="tool" data-v="x" ${t.res?'disabled':''}>стереть</button></div>
@@ -85,13 +87,13 @@ const MECH={
   act(t,d){if(d.ma==='tool')t.tool=d.v;if(d.ma==='mark'){const i=+d.i;t.mk[i]=t.tool==='x'||t.mk[i]===t.tool?'':t.tool}},
   grade(t){const ok=t.u.every((x,i)=>x.pu||(t.mk[i]||'')===(t.full?x.mem:(x.mem==='П'||x.mem==='С'?x.mem:'')));
    const right=t.u.filter(x=>!x.pu&&(t.full?x.mem:(x.mem==='П'||x.mem==='С'))).map(x=>`${x.t} — ${MEMB[x.mem]}`).join('; ');
-   return {ok,right,why:t.l===5?'Краткое причастие в предложении — сказуемое.':t.full?'Подлежащее — одна черта, сказуемое — две, определение — волнистая, дополнение — пунктир, обстоятельство — точка-тире.':'Подлежащее отвечает на вопрос «кто? что?», сказуемое — «что делает? каков?».'}}},
+   return {ok,right,why:t.l===t.kr?'Краткое причастие в предложении — сказуемое.':t.full?'Подлежащее — одна черта, сказуемое — две, определение — волнистая, дополнение — пунктир, обстоятельство — точка-тире.':'Подлежащее отвечает на вопрос «кто? что?», сказуемое — «что делает? каков?».'}}},
  // ── Д. Собрать причастие (урок 3)
  bw:{t:'Собрать причастие',l:[3],d:'Собрать причастие из основы, суффикса и окончания.',
   gen(c){const B=c.wk.build,v=pick1(Object.keys(B)),V=B[v],fi=pick1(V.f.map((f,i)=>f?i:-1).filter(i=>i>=0)),f=V.f[fi];
    const stems=[...new Set([V.pres[1],...V.inf[1].split(' / '),...V.f.filter(Boolean).map(x=>x[1])])];
    const ban=['нн','енн','ённ'].includes(f[2])?['нн','енн','ённ']:[f[2]]; // «виде+нн» = «вид+енн» — второй верный путь не даём
-   return mFinal({k:'m',m:'bw',l:3,q:`Собрать ${['действительное причастие настоящего времени','страдательное причастие настоящего времени','действительное причастие прошедшего времени','страдательное причастие прошедшего времени'][fi]} от глагола «${v}».`,
+   return mFinal({k:'m',m:'bw',l:WL(c,'suf',3),q:`Собрать ${['действительное причастие настоящего времени','страдательное причастие настоящего времени','действительное причастие прошедшего времени','страдательное причастие прошедшего времени'][fi]} от глагола «${v}».`,
     hint:`${V.pres[0]} · ${V.inf[0]}`,a:[f[1],f[2],f[3]],note:f[4]||'',rows:[shuffle(stems),shuffle([f[2],...sample(SUFS.filter(x=>!ban.includes(x)),3)]),shuffle(['ий','ый'])],sel:[null,null,null],fi})},
   body(t){const nm=['Основа','Суффикс','Окончание'];
    return `<div class="mbw"><div class="mbwp">${t.sel.map((x,i)=>`<span class="mseg ${x==null?'e':''} ${t.res?(x===t.a[i]?'ok':'bad'):''}">${x==null?'…':esc(x)}</span>`).join('<i>+</i>')}<b>= ${esc(t.sel.map(x=>x||'').join(''))||'…'}</b></div>
@@ -106,7 +108,7 @@ const MECH={
  mp:{t:'Морфемный разбор (2)',l:[3,4],d:'Нажимать между буквами, чтобы разделить слово на части, затем назвать каждую часть.',
   gen(c,les){const E=DICT.filter(e=>e.morph&&!MP_SKIP.includes(e.w)&&(c.wk.mpWords?c.wk.mpWords.includes(e.w):e.pos==='причастие')),e=pick1(E);
    const lw=((e.orth||[]).map(o=>o.at||'').find(a=>a.startsWith(c.id))||'').replace(/\D/g,'');
-   return mFinal({k:'m',m:'mp',l:c.wk.mpWords?(+lw||1):3,q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
+   return mFinal({k:'m',m:'mp',l:c.wk.mpWords?(+lw||1):WL(c,'suf',3),q:`Разобрать слово «${e.w}» по составу.`,w:e.w,a:e.morph.filter(m=>m[1]!==''),b:[],ty:{},tool:'root'})},
   body(t){const L=[...t.w],segs=mSegs(t),tools=['pref','root','suf','end','post'];
    let h=`<div class="mpal">${tools.map(k=>`<button class="mtool ${t.tool===k?'on':''}" data-ma="tool" data-v="${k}" ${t.res?'disabled':''}><i class="lg m-${k}" style="--mc:${MT[k][1]}"></i>${MT[k][0]}</button>`).join('')}</div>`;
    h+=`<div class="mlet">${L.map((ch,i)=>`<span class="ml">${esc(ch)}</span>${i<L.length-1?`<button class="mcut ${t.b.includes(i)?'on':''}" data-ma="cut" data-i="${i}" ${t.res?'disabled':''} aria-label="Граница после ${esc(ch)}">${t.b.includes(i)?'|':''}</button>`:''}`).join('')}</div>`;
@@ -133,7 +135,7 @@ const MECH={
  // ── З. Пары: глагол — причастие (урок 3)
  pr:{t:'Соединить пары',l:[3],d:'Нажать на глагол, затем на причастие от него.',
   gen(c){const M=c.wk.matrix,vs=sample(Object.keys(M),4),pairs=vs.map(v=>[v,pick1(M[v][2].filter((x,i)=>x&&x!=='—'&&!(i===3&&M[v][0]==='несов.')))]); // редкие «читанный», «строенный» — не в пары
-   return mFinal({k:'m',m:'pr',l:3,q:'Соединить каждый глагол с причастием, которое от него образовано.',L:pairs.map(p=>p[0]),R:shuffle(pairs.map(p=>p[1])),a:Object.fromEntries(pairs),pm:{},cur:null})},
+   return mFinal({k:'m',m:'pr',l:WL(c,'suf',3),q:'Соединить каждый глагол с причастием, которое от него образовано.',L:pairs.map(p=>p[0]),R:shuffle(pairs.map(p=>p[1])),a:Object.fromEntries(pairs),pm:{},cur:null})},
   body(t){const idx=v=>Object.keys(t.pm).indexOf(v);
    return `<div class="mpairs"><div>${t.L.map(v=>{const n=idx(v),st=t.res&&t.pm[v]?(t.pm[v]===t.a[v]?'ok':'bad'):'';
     return `<button class="mw ${t.cur===v?'on':''} ${n>=0?'pn':''} ${st}" data-ma="L" data-v="${esc(v)}" ${t.res?'disabled':''}>${n>=0?`<i>${n+1}</i>`:''}${esc(v)}</button>`}).join('')}</div>
@@ -162,7 +164,7 @@ const MECH={
     const it=pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items),[w,a,o,valid,l]=it,rs=shuffle([valid[0],...orthTraps(ORTHO_R[valid[0]].topic,valid,l)]);
     return mFinal({k:'m',m:'gw',l,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r:valid[0],valid,rs:rs.map(k=>[k,ORTHO_R[k].t]),sel:null,rsel:null})}
    const [w,a,o,r]=pick1(G.items),rs=shuffle([r,...sample(G.reasons.map((_,i)=>i).filter(i=>i!==r),3)]);
-   return mFinal({k:'m',m:'gw',l:4,q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r,valid:[r],rs:rs.map(i=>[i,G.reasons[i]]),sel:null,rsel:null})},
+   return mFinal({k:'m',m:'gw',l:WL(c,'gl',4),q:'Вставить пропущенную букву. Почему так?',w,a,o:shuffle(o),r,valid:[r],rs:rs.map(i=>[i,G.reasons[i]]),sel:null,rsel:null})},
   body:t=>`<div class="word">${tFill(t.w,t.sel)}</div><div class="ans" style="justify-content:center">${t.o.map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${esc(v)}" ${t.res?'disabled':''} style="min-width:64px;min-height:48px;font-size:19px">${esc(v)}</button>`).join('')}</div>
    ${t.sel?mWhyHTML(t):''}`,
   ready:t=>t.sel!=null&&t.rsel!=null,
@@ -172,7 +174,7 @@ const MECH={
  fo:{t:'Найти орфограмму',l:[4],d:'Нажать на место в слове, где нужно применить правило урока.',
   gen(c,les){const G=c.wk.gapWhy;const it=G.keys?(pick1(G.items.filter(x=>les.includes(x[4])))||pick1(G.items)):pick1(G.items);
    const w=it[0],a=it[1],p=w.indexOf('_'),full=w.replace('_',a),rule=G.keys?ORTHO_R[it[3][0]].t:G.reasons[it[3]];
-   return mFinal({k:'m',m:'fo',l:G.keys?it[4]:4,q:c.wk.foQ||'Нажать на букву, которую нужно проверять по правилу урока.',full,sp:[p,p+a.length-1],rule,sel:null})},
+   return mFinal({k:'m',m:'fo',l:G.keys?it[4]:WL(c,'gl',4),q:c.wk.foQ||'Нажать на букву, которую нужно проверять по правилу урока.',full,sp:[p,p+a.length-1],rule,sel:null})},
   body:t=>`<div class="mlet mfo">${[...t.full].map((ch,i)=>ch===' '?'<span class="mfs"></span>':`<button class="mw mfl ${t.res?(i>=t.sp[0]&&i<=t.sp[1]?'ok':i===t.sel?'bad':''):t.sel===i?'on':''}" data-ma="pick" data-i="${i}" ${t.res?'disabled':''}>${esc(ch)}</button>`).join('')}</div>`,
   ready:t=>t.sel!=null,
   act(t,d){if(d.ma==='pick')t.sel=+d.i},
@@ -212,7 +214,7 @@ const MECH={
  // ── Л. «Не» и почему (урок 6)
  nw:{t:'«Не» и «почему?»',l:[6],d:'Решить, слитно или раздельно, и выбрать правило.',
   gen(c){const N=c.wk.neWhy,[w,a,r]=pick1(N.items),bad=r===5?[1]:[],rs=shuffle([r,...sample(N.reasons.map((_,i)=>i).filter(i=>i!==r&&!bad.includes(i)),3)]); // «вовсе» иногда считают зависимым словом
-   return mFinal({k:'m',m:'nw',l:6,q:'Как пишется «не»? Почему?',w,a,r,rs:rs.map(i=>[i,N.reasons[i]]),sel:null,rsel:null})},
+   return mFinal({k:'m',m:'nw',l:WL(c,'ne',6),q:'Как пишется «не»? Почему?',w,a,r,rs:rs.map(i=>[i,N.reasons[i]]),sel:null,rsel:null})},
   body:t=>`<div class="word" style="font-size:22px">${esc(t.w)}</div><div class="ans" style="justify-content:center">${['слитно','раздельно'].map(v=>`<button class="${t.res?(v===t.a?'ok':v===t.sel?'bad':''):t.sel===v?'on':''}" data-ma="ltr" data-v="${v}" ${t.res?'disabled':''} style="min-width:110px;min-height:48px">${v}</button>`).join('')}</div>
    ${t.sel?`<div class="tl">Почему?</div><div class="tsopts">${t.rs.map(([i,x])=>`<button class="opt ${t.res?(i===t.r?'eok':i===t.rsel?'ebad':''):t.rsel===i?'on':''}" data-ma="why" data-i="${i}" ${t.res?'disabled':''}>${esc(x)}</button>`).join('')}</div>`:''}`,
   ready:t=>t.sel!=null&&t.rsel!=null,
