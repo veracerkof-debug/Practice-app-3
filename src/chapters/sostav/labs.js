@@ -5,7 +5,7 @@ const SC_COL={п:'--S',к:'--T',с:'--V',ф:'--V',о:'--M',х:'--S',г:'--tint-t
 const SC_NAME={п:'приставка',к:'корень',с:'суффикс',ф:'формообразующий суффикс',о:'окончание',х:'постфикс',г:'соединительная гласная'};
 const scTok=s=>s.split(' ').filter(Boolean).map(t=>t[0]==='['?{k:'о',t:t.slice(1,-1)}:t[0]==='~'?{k:'г',t:t.slice(1,-1)}:t[0]==='+'?{k:'х',t:t.slice(1)}:(t[0]==='-'&&t.endsWith('*'))?{k:'ф',t:t.slice(1,-1)}:t[0]==='-'?{k:'с',t:t.slice(1)}:t.endsWith('-')?{k:'п',t:t.slice(0,-1)}:{k:'к',t:t});
 const scWord=T=>T.map(x=>x.t==='ø'?'':x.t).join('');
-const scNote=T=>T.map(x=>x.k==='п'?x.t+'-':x.k==='с'?'-'+x.t+'-':x.k==='ф'?'-'+x.t+'*':x.k==='о'?'['+x.t+']':x.k==='г'?'<'+x.t+'>':x.k==='х'?'+'+x.t:x.t).join(' ');
+const scNote=T=>T.map(x=>x.k==='п'?x.t+'-':x.k==='с'?'-'+x.t+'-':x.k==='ф'?'-'+x.t+'*':x.k==='о'?'('+x.t+')':x.k==='г'?'<'+x.t+'>':x.k==='х'?'+'+x.t:x.t).join(' ');
 const scSeg=(T,only)=>T.map((x,i)=>{
  if(x.t==='ø')return (only==null||only===i)?`<span class="scseg" style="border:2px solid var(${SC_COL.о});border-radius:5px;padding:0 5px;margin-left:3px;font-size:.8em;color:var(--l2)">ø</span>`:'';
  const on=only==null||only===i,c=SC_COL[x.k];
