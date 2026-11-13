@@ -5,7 +5,7 @@ const psChips=(arr,cur,attr,lab,extra='')=>`<div class="chips" role="group" aria
 const psOk=(ok,t)=>`<div class="result"${ok?'':' style="background:color-mix(in srgb,var(--red) 10%,var(--cell))"'}><div class="big" style="color:var(${ok?'--T':'--red'})">${ok?'✓':'✗'}</div><div>${t}</div></div>`;
 const psBtn=(label,attrs,state)=>`<button class="opt${state==='on'?' on':''}" ${attrs} ${state==='off'?'disabled':''}>${label}</button>`;
 
-// ---------- урок 1: «Найди приставку» — отметить последнюю букву приставки ----------
+// ---------- урок 1: «Найти приставку» — отметить последнюю букву приставки ----------
 const PS_FIND=[
  ['подписать',3,'Под-писать: писать, записать. Приставка под-.'],
  ['здание',0,'Приставки нет: «дание» — не слово. Зд — часть корня.'],
@@ -27,7 +27,7 @@ function psfindHTML(){
   if(done&&n&&j<n)st='border:2px solid var(--T);color:var(--T);background:color-mix(in srgb,var(--T) 12%,var(--cell))';
   else if(done&&psF.sel===j+1)st='border:2px solid var(--red);color:var(--red)';
   return `<button data-psfl="${j+1}" ${done?'disabled':''} style="${st};min-width:30px;min-height:46px;font-size:22px;border-radius:9px;margin:0 1px;color:inherit" aria-label="буква ${ch}">${ch}</button>`}).join('');
- return `<div class="blab" data-lab="psfind"><div class="cap"><b>Найди приставку</b><span class="bkhint">нажать на последнюю букву приставки</span></div>
+ return `<div class="blab" data-lab="psfind"><div class="cap"><b>Найти приставку</b><span class="bkhint">нажать на последнюю букву приставки</span></div>
  ${psChips(PS_FIND.map(x=>x[0]),psF.i,'data-psfi','Слова')}
  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:2px;padding:10px 0">${lets}</div>
  <div style="text-align:center">${psBtn('Приставки нет','data-psfl="0"',psF.sel===0?'on':(done?'off':''))}</div>
@@ -156,7 +156,7 @@ function psmeanHTML(){
  <div class="st2 ok"><span class="n2">${p}</span><div style="flex:1"><b>${m}</b><div style="margin-top:4px">${ex}</div></div></div></div>`;
 }
 
-// ---------- урок 3: «Подставь значение» — значение, потом буква ----------
+// ---------- урок 3: «Подставить значение» — значение, потом буква ----------
 const PS_RM=['очень','близко к пере-','рядом, около','приближение, присоединение','немного, не до конца','до конца, до результата','в своих интересах'];
 const PS_REPL=[
  ['пр_открыть',4,'и','Открыть немного — неполное действие: приоткрыть.'],
@@ -175,10 +175,10 @@ const PS_REPL=[
 let psR={i:0,m:null,l:null};
 function psreplHTML(){
  const [w,m,ans,why]=PS_REPL[psR.i],okM=psR.m===m;
- let h=`<div class="blab" data-lab="psrepl"><div class="cap"><b>Подставь значение</b><span class="bkhint">выбрать значение, потом букву</span></div>
+ let h=`<div class="blab" data-lab="psrepl"><div class="cap"><b>Подставить значение</b><span class="bkhint">выбрать значение, потом букву</span></div>
  ${psChips(PS_REPL.map(x=>x[0].replace('_','…')),psR.i,'data-psri','Слова')}
  <div style="text-align:center;font-size:26px;padding:6px 0">${psGap(w,psR.l!=null?ans:null)}</div>
- <div class="st2${okM?' ok':''}"><span class="n2">1</span><div style="flex:1">Что значит приставка?<div class="opts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${PS_RM.map((x,j)=>psBtn(x,`data-psrm="${j}"`,psR.m===j?'on':(okM?'off':''))).join('')}</div>${psR.m!=null&&!okM?'<div class="bkhint" style="margin-top:6px;color:var(--red)">Не подходит. Подставь толкование вместо приставки и проверь смысл.</div>':''}</div></div>`;
+ <div class="st2${okM?' ok':''}"><span class="n2">1</span><div style="flex:1">Что значит приставка?<div class="opts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${PS_RM.map((x,j)=>psBtn(x,`data-psrm="${j}"`,psR.m===j?'on':(okM?'off':''))).join('')}</div>${psR.m!=null&&!okM?'<div class="bkhint" style="margin-top:6px;color:var(--red)">Не подходит. Подставить толкование вместо приставки и проверить смысл.</div>':''}</div></div>`;
  if(okM)h+=`<div class="st2${psR.l!=null?' ok':''}"><span class="n2">2</span><div style="flex:1">Какая приставка?<div style="display:flex;gap:8px;margin-top:6px">${[['е','пре-'],['и','при-']].map(([v,t])=>psBtn(t,`data-psrl="${v}"`,psR.l===v?'on':(psR.l!=null?'off':''))).join('')}</div></div></div>`;
  if(psR.l!=null)h+=psOk(psR.l===ans,`<div style="font-size:20px">${w.replace('_',ans)}</div><div class="bkhint">${why}</div>`);
  return h+`<div><button class="linkbtn" data-psrn>Следующее слово</button></div></div>`;
@@ -208,7 +208,7 @@ function psyiHTML(){
  <div class="bkhint" style="margin:4px 0">приставка</div>${psChips(list.map(x=>x[0]+'-'),psY.p,'data-psyp','Приставки')}
  ${cur?`<div style="text-align:center;font-size:26px;padding:8px 0">${word}</div>
  <div style="display:flex;gap:8px;justify-content:center">${['ы','и'].map(v=>psBtn(v,`data-psyl="${v}"`,psY.l===v?'on':(psY.l!=null?'off':''))).join('')}</div>
- ${psY.l!=null?psOk(psY.l===cur[2],`${psY.l===cur[2]?'Верно':'Неверно'}: ${cur[1]}. ${PS_YWHY[cur[3]]}`):''}`:'<div class="bkhint" style="text-align:center;padding:8px">Выбери приставку.</div>'}</div>`;
+ ${psY.l!=null?psOk(psY.l===cur[2],`${psY.l===cur[2]?'Верно':'Неверно'}: ${cur[1]}. ${PS_YWHY[cur[3]]}`):''}`:'<div class="bkhint" style="text-align:center;padding:8px">Выбрать приставку.</div>'}</div>`;
 }
 
 // ---------- урок 5: схема-алгоритм всей главы ----------
