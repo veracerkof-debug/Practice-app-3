@@ -14,7 +14,7 @@ const scSeg=(T,only)=>T.map((x,i)=>{
 const scOk=(ok,t)=>`<div class="result"${ok?'':' style="background:color-mix(in srgb,var(--red) 10%,var(--cell))"'}><div class="big" style="color:var(${ok?'--T':'--red'})">${ok?'✓':'✗'}</div><div>${t}</div></div>`;
 const scBtn=(label,attrs,state)=>`<button class="opt${state==='on'?' on':''}" ${attrs} ${state==='off'?'disabled':''}>${label}</button>`;
 const scChips=(arr,cur,attr,lab)=>`<div class="chips" role="group" aria-label="${lab}">${arr.map((x,i)=>`<button class="chipc" ${attr}="${i}" aria-pressed="${i===cur}">${x}</button>`).join('')}</div>`;
-const scLegend=`<div class="bkhint" style="margin-top:6px">Значки: приставка — пунктир сверху вниз, корень — сплошная линия, суффикс — штрих, окончание — рамка, соединительная гласная — двойная линия.</div>`;
+const scLegend=`<div class="bkhint" style="margin-top:6px">Значки: приставка и постфикс — точечная линия, корень — сплошная линия, суффикс — штрих, окончание — рамка, соединительная гласная — двойная линия.</div>`;
 
 // ---------- урок 1: «Какая это часть слова?» ----------
 const SC_PARTS=[

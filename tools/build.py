@@ -150,6 +150,11 @@ JS = [
     'src/chapters/vyraz/classic.js',
     'src/chapters/vyraz/tests.js',
     'src/chapters/vyraz/index.js',
+    'src/chapters/sostav/lessons.js',   # глава «Морфемика» (в DRAFT, пока не проверена)
+    'src/chapters/sostav/bank.js',
+    'src/chapters/sostav/classic.js',
+    'src/chapters/sostav/tests.js',
+    'src/chapters/sostav/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -176,6 +181,7 @@ JS = [
     'src/chapters/tekst/labs.js',       # схемы «Текста»
     'src/chapters/tipy/labs.js',        # схемы «Типов речи»
     'src/chapters/vyraz/labs.js',       # схемы «Выразительных средств»
+    'src/chapters/sostav/labs.js',      # схемы «Морфемики»
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
@@ -193,7 +199,7 @@ JS = [
 ]
 # главы, которые ещё проходят проверки (PRINCIPLES §8, §9.3): в сборку не входят, пока не пройдут проверку и исправление;
 # так законченная тема уходит на сайт сразу, а незаконченная — не раньше времени
-DRAFT = set()
+DRAFT = {'sostav'}
 JS = [p for p in JS if not (p.startswith('src/chapters/') and p.split('/')[2] in DRAFT)]
 def read(p):
     with open(os.path.join(ROOT, p), encoding='utf-8') as f: return f.read()
