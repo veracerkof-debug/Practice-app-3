@@ -155,6 +155,16 @@ JS = [
     'src/chapters/sostav/classic.js',
     'src/chapters/sostav/tests.js',
     'src/chapters/sostav/index.js',
+    'src/chapters/slovoobr/lessons.js',
+    'src/chapters/slovoobr/bank.js',
+    'src/chapters/slovoobr/classic.js',
+    'src/chapters/slovoobr/tests.js',
+    'src/chapters/slovoobr/index.js',
+    'src/chapters/glag/lessons.js',
+    'src/chapters/glag/bank.js',
+    'src/chapters/glag/classic.js',
+    'src/chapters/glag/tests.js',
+    'src/chapters/glag/index.js',
     'src/chapters/chisl/lessons.js',
     'src/chapters/chisl/bank.js',
     'src/chapters/chisl/classic.js',
@@ -197,6 +207,8 @@ JS = [
     'src/chapters/tipy/labs.js',        # схемы «Типов речи»
     'src/chapters/vyraz/labs.js',       # схемы «Выразительных средств»
     'src/chapters/sostav/labs.js',      # схемы «Морфемики»
+    'src/chapters/slovoobr/labs.js',
+    'src/chapters/glag/labs.js',
     'src/chapters/chisl/labs.js',
     'src/chapters/mest/labs.js',
     'src/chapters/narech/labs.js',
