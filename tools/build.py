@@ -170,6 +170,11 @@ JS = [
     'src/chapters/znakisvod/classic.js',
     'src/chapters/znakisvod/tests.js',
     'src/chapters/znakisvod/index.js',
+    'src/chapters/slovosoch/lessons.js',
+    'src/chapters/slovosoch/bank.js',
+    'src/chapters/slovosoch/classic.js',
+    'src/chapters/slovosoch/tests.js',
+    'src/chapters/slovosoch/index.js',
     'src/chapters/glag/lessons.js',
     'src/chapters/glag/bank.js',
     'src/chapters/glag/classic.js',
@@ -224,6 +229,7 @@ JS = [
     'src/chapters/narech/labs.js',
     'src/chapters/raznye/labs.js',
     'src/chapters/znakisvod/labs.js',
+    'src/chapters/slovosoch/labs.js',
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
