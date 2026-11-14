@@ -190,6 +190,11 @@ JS = [
     'src/chapters/slitno/classic.js',
     'src/chapters/slitno/tests.js',
     'src/chapters/slitno/index.js',
+    'src/chapters/propisn/lessons.js',
+    'src/chapters/propisn/bank.js',
+    'src/chapters/propisn/classic.js',
+    'src/chapters/propisn/tests.js',
+    'src/chapters/propisn/index.js',
     'src/chapters/glag/lessons.js',
     'src/chapters/glag/bank.js',
     'src/chapters/glag/classic.js',
@@ -248,6 +253,7 @@ JS = [
     'src/chapters/mezhdom/labs.js',
     'src/chapters/sluzh/labs.js',
     'src/chapters/slitno/labs.js',
+    'src/chapters/propisn/labs.js',
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
