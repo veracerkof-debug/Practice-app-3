@@ -155,6 +155,31 @@ JS = [
     'src/chapters/sostav/classic.js',
     'src/chapters/sostav/tests.js',
     'src/chapters/sostav/index.js',
+    'src/chapters/slovoobr/lessons.js',
+    'src/chapters/slovoobr/bank.js',
+    'src/chapters/slovoobr/classic.js',
+    'src/chapters/slovoobr/tests.js',
+    'src/chapters/slovoobr/index.js',
+    'src/chapters/glag/lessons.js',
+    'src/chapters/glag/bank.js',
+    'src/chapters/glag/classic.js',
+    'src/chapters/glag/tests.js',
+    'src/chapters/glag/index.js',
+    'src/chapters/chisl/lessons.js',
+    'src/chapters/chisl/bank.js',
+    'src/chapters/chisl/classic.js',
+    'src/chapters/chisl/tests.js',
+    'src/chapters/chisl/index.js',
+    'src/chapters/mest/lessons.js',
+    'src/chapters/mest/bank.js',
+    'src/chapters/mest/classic.js',
+    'src/chapters/mest/tests.js',
+    'src/chapters/mest/index.js',
+    'src/chapters/narech/lessons.js',
+    'src/chapters/narech/bank.js',
+    'src/chapters/narech/classic.js',
+    'src/chapters/narech/tests.js',
+    'src/chapters/narech/index.js',
     'src/chapters/nn/labs.js',          # интерактивные схемы «Н и НН» + реестр LABS
     'src/chapters/prichastie/labs.js',  # схемы «Причастия»
     'src/chapters/zvuki/labs.js',       # схемы «Звуков и букв»
@@ -182,6 +207,11 @@ JS = [
     'src/chapters/tipy/labs.js',        # схемы «Типов речи»
     'src/chapters/vyraz/labs.js',       # схемы «Выразительных средств»
     'src/chapters/sostav/labs.js',      # схемы «Морфемики»
+    'src/chapters/slovoobr/labs.js',
+    'src/chapters/glag/labs.js',
+    'src/chapters/chisl/labs.js',
+    'src/chapters/mest/labs.js',
+    'src/chapters/narech/labs.js',
     'src/js/core/tests.js',             # тесты: сборка вариантов, прохождение, оценка
     'src/js/core/mech.js',              # механики тренажёра: выделить, подчеркнуть, собрать, разобрать…
     'src/js/core/inline-ex.js',
